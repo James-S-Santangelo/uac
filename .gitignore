@@ -4,6 +4,5 @@
 .Ruserdata
 packrat/lib*/
 .DS_Store
-packrat/src/
 data-clean/
 data-raw/
