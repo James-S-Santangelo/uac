@@ -19,8 +19,8 @@ datKATPlants <- read.csv("data-raw/AllPlants_KAT-Cities.csv", na.strings = "NA")
   rename(City = CITY, Population = Pop_Num, Plant = Plant_Num, Locus.Ac = FINAL_AC, Locus.Li = FINAL_Li) %>% # Rename columns so they're consistent with my data
   mutate(Dmg.1 = "NA", Dmg.2 = "NA", Dmg.Avg = "NA") %>%
   mutate(Transect = ifelse(City == "B" | City == "M" | City == "Y", "NA", as.character(Transect))) %>%
-  mutate(Locus.Ac = ifelse(City != "Toronto" & Transect != "A", "NA", Locus.Ac), 
-         Locus.Li = ifelse(City != "Toronto" & Transect != "A", "NA", Locus.Li))
+  mutate(Locus.Ac = ifelse(City != "T", "NA", Locus.Ac), 
+         Locus.Li = ifelse(City != "T", "NA", Locus.Li))
 
 # Add Latitude and Longitude for KAT's Pop data to KAT's AllPlant dataset.
 # Done because JSS's AllPlant data contains Lat and Long coordinates
@@ -36,8 +36,18 @@ datKATPlants <- datKATPlants %>%
                        ifelse(City == "M", "Montreal", 
                               ifelse(City == "B", "Boston", "NewYork")))) 
 
+
 # Merge AllPlant datasets for JSS and KAT. 
-datAllPlants <- rbind(datJSS, datKATPlants) 
+datAllPlants <- rbind(datJSS, datKATPlants) %>%
+  filter(City != "NewYork")
+
+# Replace Locus.Ac and Locus.Li values for New York with data for the individual genes
+# that was collected following publication of Thompson (2016). 
+datNY_genes <- read.csv("data-raw/AllPlants_NY_IndGenes_Jibran.csv") %>%
+  select(-Comments.Ac.Li, -Comments.HCN, -Pop.density, -Check.HCN, -Distance) %>% # Select required columns
+  mutate(Transect = "NA")
+datAllPlants <- rbind(datAllPlants, datNY_genes) %>%
+  mutate(City = recode(City, "New York" = "NewYork"))
 
 # Load dataset with latitudes and longitudes for each population and for each city centre
 datLatLong <- read.csv("data-raw/Lat-Longs_AllCities_AllPops.csv")
