@@ -11,6 +11,7 @@ datPops <- datAllPlants %>%
   summarize(n_HCN = sum(!is.na(HCN_Result)), sumC = sum(HCN_Result, na.rm = T), FreqC = (sumC/n_HCN),
             n_Ac = sum(!is.na(Locus.Ac)), sumAc = sum(Locus.Ac, na.rm = T), FreqAc = (sumAc/n_Ac), 
             n_Li = sum(!is.na(Locus.Li)), sumLi = sum(Locus.Li, na.rm = T), FreqLi = (sumLi/n_Li)) %>%
+  mutate(Distance_squared = Distance^2) %>%
   na_if("NaN")
 
 # Write Population dataset to disk
