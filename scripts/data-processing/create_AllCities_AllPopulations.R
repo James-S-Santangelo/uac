@@ -12,7 +12,7 @@ datPops <- datAllPlants %>%
          max_dist = max(Distance)) %>%
   ungroup() %>%
   group_by(City, Transect, Population) %>%
-  mutate(std_distance = Distance / max_dist) %>%
+  mutate(std_distance = (Distance - min_dist)/ (max_dist - min_dist)) %>%
   ungroup() %>%
   group_by(City, Transect, Population, Distance, std_distance) %>%
   summarize(n_HCN = sum(!is.na(HCN_Result)), sumC = sum(HCN_Result, na.rm = T), FreqC = (sumC/n_HCN),
