@@ -9,16 +9,25 @@ datPops <- read.csv("data-clean/AllCities_AllPopulations.csv")
 ### FUNCTIONS
 
 best_fit_model <- function(city, population_data, gene){
+  #' Assesses whether a linear or quadratic model is best fit for HCN, Ac, and Li
+  #' 
+  #' For each gene (HCN, Ac, Li), performs a first order and second order regression
+  #' of gene frequency against distance from urban core (with distance squared for
+  #' second order regression). Quadratic is assumed to be better fit if it improves
+  #' model AIC by more than 2 points. Returns string with "linear" or "quadratic",
+  #' which is added to a dataframe elsewhere in the script. This function additionally
+  #' writes the best fit model output to disk as a table. 
+  
   
   # Define models based on whether frequency of HCN, Ac, or Li is being analyzed.
   if (gene == "HCN"){
-    quadratic_model = lm(FreqC~Distance + Distance_squared, data = population_data) # Specify quadratic mode
+    quadratic_model = lm(FreqC ~ Distance + Distance_squared, data = population_data) # Specify quadratic model
     linear_model = update(quadratic_model, ~. -Distance_squared) # Specify linear model
   }else if (gene == "Ac"){
-    quadratic_model = lm(FreqAc~Distance + Distance_squared, data = population_data) # Specify quadratic mode
+    quadratic_model = lm(FreqAc ~ Distance + Distance_squared, data = population_data) # Specify quadratic model
     linear_model = update(quadratic_model, ~. -Distance_squared) # Specify linear model
   }else if (gene == "Li"){
-    quadratic_model = lm(FreqLi~Distance + Distance_squared, data = population_data) # Specify quadratic mode
+    quadratic_model = lm(FreqLi ~ Distance + Distance_squared, data = population_data) # Specify quadratic model
     linear_model = update(quadratic_model, ~. -Distance_squared) # Specify linear model
   }
   
@@ -35,8 +44,8 @@ best_fit_model <- function(city, population_data, gene){
   
   # Write best fit model output to disk
   output <- broom::tidy(best_fit_model)
-  output_file <- sprintf("analysis/cline-model-output/%s-output/%s_cline-model_%s.csv", gene, city, gene)
-  write.csv(output, output_file)
+  # output_file <- sprintf("analysis/cline-model-output/%s-output/%s_cline-model_%s.csv", gene, city, gene)
+  # write.csv(output, output_file)
   
   # Return best fit model order
   return(best_fit)
@@ -46,7 +55,7 @@ best_fit_model <- function(city, population_data, gene){
 
 # Here, I will assess whether the best fit model is linear or quadratic. Quadratic models are
 # assumed to be a greater fit to the HCN, Ac or Li frequency data if they increase model
-# AIC by more than 2 points. The best fit mode order (i.e. quadratic or linear) for each city and 
+# AIC by more than 2 points. The best fit model order (i.e. quadratic or linear) for each city and 
 # gene (i.e. HCN, Ac, or Li) will be written to a dataframe. In addition, the best fit model 
 # output for each city and gene will be written as a .csv file with all coefficients and P-values. 
 
@@ -55,10 +64,10 @@ Cities <- unique(datPops$City)
 
 # Initialize dataset that will hold best fit model type
 best_fit_model_dataset <- data.frame(City = character(),
-                                    HCN = character(),
-                                    Ac = character(),
-                                    Li = character(),
-                                    stringsAsFactors = FALSE)
+                                     HCN = character(),
+                                     Ac = character(),
+                                     Li = character(),
+                                     stringsAsFactors = FALSE)
 
 # Iterate over cities
 for (i in 1:length(Cities)){
@@ -93,5 +102,6 @@ for (i in 1:length(Cities)){
   # Add model order vector to dataframe
   best_fit_model_dataset[i, ] = data_to_bind
 }
+
 
 write.csv(best_fit_model_dataset, "analysis/best_fit_model_order.csv")
