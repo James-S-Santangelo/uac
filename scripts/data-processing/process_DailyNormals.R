@@ -12,16 +12,24 @@ glimpse(weather_data)
 
 # Filter data
 weather_data_filtered <- weather_data %>%
-  filter(Year >= 1980 & Year <= 2015,  # Only include January and February from 1980 to 2015
+  
+  # Only include January and February from 1980 to 2015
+  filter(Year >= 1980 & Year <= 2015, 
          Month == 1 | Month == 2) %>%
   group_by(City, Year) %>%
-  filter(n_distinct(Month) == 2) %>% # Remove observations if both months aren't represented
+  
+  # Remove observations if both months aren't represented
+  filter(n_distinct(Month) == 2) %>%
   ungroup() %>%
   group_by(City, Year, Month) %>%
-  filter(n() > 10) %>%  # Remove observations if there isn't at least 10 observations in a month
+  
+  # Remove observations if there isn't at least 10 observations in a month
+  filter(n() > 10) %>%
   ungroup() %>%
-  filter(!rowSums(. == -9999)) %>% # Remove rows if any values are -9999 (i.e. missing data)
-  na.omit() # Omit NAs (if any)
+  
+  # Remove rows if any values are -9999 or NA
+  filter(!rowSums(. == -9999)) %>% 
+  na.omit() 
 
 # Write filtered data to disk
 write_csv(weather_data_filtered, "data-clean/DailyNormals_AllCities_Filtered.csv")
