@@ -13,6 +13,9 @@ glimpse(weather_data)
 # Filter data
 weather_data_filtered <- weather_data %>%
   
+  # Remove rows if any values are -9999
+  filter(!rowSums(. == -9999, na.rm = TRUE) != 0) %>%
+  
   # Only include January and February from 1980 to 2015
   filter(Year >= 1980 & Year <= 2015, 
          Month == 1 | Month == 2) %>%
@@ -26,10 +29,6 @@ weather_data_filtered <- weather_data %>%
   # Remove observations if there isn't at least 10 observations in a month
   filter(n() > 10) %>%
   ungroup() %>%
-  
-  # Remove rows if any values are -9999 or NA
-  filter(!rowSums(. == -9999)) %>% 
-  na.omit() %>%
   
   # Convert to lowercase with captalized first letter
   mutate(City = tolower(City), 
