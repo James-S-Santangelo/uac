@@ -29,7 +29,11 @@ weather_data_filtered <- weather_data %>%
   
   # Remove rows if any values are -9999 or NA
   filter(!rowSums(. == -9999)) %>% 
-  na.omit() 
+  na.omit() %>%
+  
+  # Convert to lowercase with captalized first letter
+  mutate(City = tolower(City), 
+         City = sub("(.)", "\\U\\1", City, perl=TRUE))
 
 # Write filtered data to disk
 write_csv(weather_data_filtered, "data-clean/DailyNormals_AllCities_Filtered.csv")
