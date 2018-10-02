@@ -6,5 +6,5 @@ packrat/lib*/
 .DS_Store
 data-clean/
 data-raw/
-packrat/src/
 analysis/
+packrat/src/
