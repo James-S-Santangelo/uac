@@ -79,7 +79,7 @@ for (i in 1:length(Cities)){
   # underlying HCN
   Gene_cities = c("Atlanta", "Baltimore", "Charlotte", 
                   "Cleveland", "Jacksonville", "NewYork", 
-                  "Norfolk", "Toronto", "Washington")
+                  "Norfolk", "Toronto", "Washington D.C.")
   
   # Write best fit model output for HCN frequency to disk. Extract model order (quadratic or linear).
   best_fit_HCN <- best_fit_model(city, dat, "HCN")
