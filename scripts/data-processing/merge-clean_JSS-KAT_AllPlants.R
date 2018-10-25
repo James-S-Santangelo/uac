@@ -41,18 +41,16 @@ datKATPlants <- datKATPlants %>%
 datAllPlants <- rbind(datJSS, datKATPlants) 
 
 # Replace Locus.Ac and Locus.Li values for New York with data for the individual genes
-# that was collected following publication of Thompson (2016). 
+# that was collected by Jibran Syed after the publication of Thompson (2016). 
 datNY_genes <- read.csv("data-raw/AllPlants_NY_IndGenes_Jibran.csv") %>%
   select(City, Population, Plant, Transect, HCN_Result, Locus.Li, Locus.Ac) %>% # Select required columns
   mutate(Transect = "NA") %>%
   mutate(City = recode(City, "New York" = "NewYork"))
-
 datNY_genes <- datAllPlants %>%
   filter(City == "NewYork") %>%
   select(-Locus.Li, -Locus.Ac) %>%
   merge(., datNY_genes,
         by = c("City", "Population", "Plant", "HCN_Result", "Transect"))
-
 datAllPlants <- datAllPlants %>%
   filter(City != "NewYork") %>%
   rbind(., datNY_genes) 
