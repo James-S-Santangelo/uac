@@ -21,9 +21,25 @@ datPops <- datAllPlants %>%
   
   # Calculate phenotype/allele frequencies
   group_by(City, Transect, Population, Distance, std_distance) %>%
-  summarize(n_HCN = sum(!is.na(HCN_Result)), sumC = sum(HCN_Result, na.rm = T), FreqC = (sumC/n_HCN),
-            n_Ac = sum(!is.na(Locus.Ac)), sumAc = sum(Locus.Ac, na.rm = T), FreqAc = (sumAc/n_Ac), 
-            n_Li = sum(!is.na(Locus.Li)), sumLi = sum(Locus.Li, na.rm = T), FreqLi = (sumLi/n_Li)) %>%
+  summarize(n_HCN = sum(!is.na(HCN_Result)), 
+            sumHCN = sum(HCN_Result, na.rm = T), 
+            freqHCN = (sumHCN/n_HCN),
+            
+            n_Ac = sum(!is.na(Locus.Ac)), 
+            sum_Ac = sum(Locus.Ac, na.rm = T), 
+            freqAc_marker = (sum_Ac/n_Ac), 
+            sum_acac = n_Ac - sum_Ac,
+            freq_acac = (sum_acac / n_Ac),
+            acHWE = sqrt(freq_acac),
+            AcHWE = 1 - acHWE,
+            
+            n_Li = sum(!is.na(Locus.Li)), 
+            sum_Li = sum(Locus.Li, na.rm = T), 
+            freqLi_marker = (sum_Li / n_Li),
+            sum_lili = n_Li - sum_Li,
+            freq_lili = (sum_lili / n_Li),
+            liHWE = sqrt(freq_lili),
+            LiHWE = 1 - liHWE) %>%
   
   # Add squared distance terms for quadratic regressions
   mutate(Distance_squared = Distance^2, 
@@ -32,3 +48,18 @@ datPops <- datAllPlants %>%
 
 # Write Population dataset to disk
 write.csv(datPops, "data-clean/AllCities_AllPopulations.csv", row.names = FALSE)
+
+
+
+# Create dataset with only plants screened at individual loci
+test_alleleFreqHWE <- datAllPlants %>%
+  filter(Locus.Li != "NA" & Locus.Ac != "NA")
+
+# Proportion of incorectly called plants. 
+test_alleleFreqHWE %>%
+  mutate(category = ifelse(HCN_Result == 0 & Locus.Li == 1 & Locus.Ac == 1, "Neg_wrong",
+                           ifelse(HCN_Result == 1 & (Locus.Li == 0 | Locus.Ac == 0), "Pos_wrong", "good"))) %>%
+  group_by(category) %>%
+  summarize(Count = n()) %>%
+  mutate(prop_bad = Count / sum(Count))
+
