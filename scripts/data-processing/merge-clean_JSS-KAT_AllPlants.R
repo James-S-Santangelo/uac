@@ -15,8 +15,8 @@ datKATPops <- read.csv("data-raw/AllPops_KAT-Cities.csv", na.strings = "NA") %>%
 
 # Load in KAT's Plant data, which will be merged with JSS's data
 datKATPlants <- read.csv("data-raw/AllPlants_KAT-Cities.csv", na.strings = "NA") %>%
-  select(CITY, Pop_Num, Plant_Num, Transect, HCN_Result, FINAL_AC, FINAL_Li) %>% # Select required columns
-  rename(City = CITY, Population = Pop_Num, Plant = Plant_Num, Locus.Ac = FINAL_AC, Locus.Li = FINAL_Li) %>% # Rename columns so they're consistent with my data
+  select(CITY, Pop_Num, Plant_Num, Transect, HCN_Result, LINAMARIN_RESULT, LINAMARASE_RESULT) %>% # Select required columns
+  rename(City = CITY, Population = Pop_Num, Plant = Plant_Num, Locus.Ac = LINAMARIN_RESULT, Locus.Li = LINAMARASE_RESULT) %>% # Rename columns so they're consistent with my data
   mutate(Dmg.1 = "NA", Dmg.2 = "NA", Dmg.Avg = "NA") %>%
   mutate(Transect = ifelse(City == "B" | City == "M" | City == "Y", "NA", as.character(Transect))) %>%
   mutate(Locus.Ac = ifelse(City != "T", "NA", Locus.Ac), 
@@ -55,8 +55,13 @@ datAllPlants <- datAllPlants %>%
   filter(City != "NewYork") %>%
   rbind(., datNY_genes) 
 
-# Load dataset with latitudes and longitudes for each population and for each city centre
+# Load dataset with latitudes and longitudes for each population. Merge with
+# dataframe containing lat/longs for city centres.
 datLatLong <- read.csv("data-raw/Lat-Longs_AllCities_AllPops.csv")
+datCityCentres <- read.csv("data-raw/Lat-longs_City-centres.csv") %>%
+  select(City, Latitude, Longitude) %>%
+  rename(Lat.City = Latitude, Long.City = Longitude)
+datLatLong <- merge(datLatLong, datCityCentres, by = "City", all.x = TRUE)
 
 # Source R script with Haversine formula for distance calculation
 source(file = "scripts/haversine.R")
