@@ -13,6 +13,7 @@ climate_data <- read_csv("data-clean/ClimateData_AllPopulations.csv") %>%
   group_by(City) %>%
   summarise(annualAI = mean(AI_actual, na.rm = TRUE),
             monthlyPET = mean(meanMonthlyPET, na.rm = TRUE),
+            annualPET = mean(annualPET, na.rm = TRUE),
             monthlyPrecip = mean(meanMonthlyPrecip, na.rm = TRUE),
             mwtBio = mean(MWT, na.rm = TRUE),
             mstBio = mean(MST, na.rm = TRUE),
