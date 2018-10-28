@@ -32,7 +32,9 @@ weather_data_filtered <- weather_data %>%
   
   # Convert to lowercase with captalized first letter
   mutate(City = tolower(City), 
-         City = sub("(.)", "\\U\\1", City, perl=TRUE))
+         City = sub("(.)", "\\U\\1", City, perl=TRUE),
+         City = recode(City, "New york" = "NewYork"),
+         City = recode(City, "Washington" = "Washington D.C."))
 
 # Summarize number of observations for each city
 weather_summ <- weather_data_filtered %>% 
