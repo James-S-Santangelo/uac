@@ -11,6 +11,7 @@ library(tidyverse)
 library(broom)
 library(FactoMineR)
 library(factoextra)
+library(MuMIn)
 # library(RColorBrewer)
 
 # Load data with population-level data for all cities
@@ -286,7 +287,7 @@ panel.cor <- function(x, y, digits = 2, cex.cor, ...)
   p <- cor.test(x, y)$p.value
   txt2 <- format(c(p, 0.123456789), digits = digits)[1]
   txt2 <- paste("p= ", txt2, sep = "")
-  if(p<0.01) txt2 <- paste("p= ", "<0.01", sep = "")
+  if(p<0.001) txt2 <- paste("p= ", "<0.001", sep = "")
   text(0.5, 0.4, txt2)
 }
 
@@ -339,39 +340,59 @@ car::Anova(clinesAllCities_Ac, type = 3)
 # Load in city summary dataset
 citySummaryData <- read_csv("data-clean/citySummaryData.csv")
 
-## CORRELATIONS AMOMG PREDICTORS
+# Generate reduced dataset that excludes Tampa, which is fixed for HCN
+citySummaryDataForAnalysis <- citySummaryData %>%
+  filter(City != "Tampa")
 
-# Pull out columns with environmental predictors
-envPredictors <- citySummaryData %>%
-  select(Latitude, Longitude, annualAI,
-         annualPET, monthlyPET, monthlyPrecip,
-         mwtBio, mwtWea, mstBio, smd, snow_depth,
-         snowfall, daysNegNoSnow)
+## CORRELATIONS AMOMG PREDICTORS
 
 # Pairwise correlation matrix
 pairs(envPredictors, upper.panel = panel.cor, lower.panel = lsline)
 
+#Run Models for each environmental variable predicting the strength of clines
+summary(lm(cyanSlopeForAnalysis ~ Latitude, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(cyanSlopeForAnalysis ~ Longitude, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(cyanSlopeForAnalysis ~ annualAI, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(cyanSlopeForAnalysis ~ monthlyPET, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(cyanSlopeForAnalysis ~ annualPET, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(cyanSlopeForAnalysis ~ monthlyPrecip, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(cyanSlopeForAnalysis ~ mwtBio, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(cyanSlopeForAnalysis ~ mstBio, data = citySummaryDataForAnalysis)) # MARGINAL. KEEP.
+summary(lm(cyanSlopeForAnalysis ~ smd, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(cyanSlopeForAnalysis ~ snow_depth, data = citySummaryDataForAnalysis)) # MARGINAL. KEEP.
+summary(lm(cyanSlopeForAnalysis ~ snowfall, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(cyanSlopeForAnalysis ~ mwtWea, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(cyanSlopeForAnalysis ~ daysNegNoSnow, data = citySummaryDataForAnalysis)) # REMOVE
 
-#Run Models
-summary(lm(cyanSlopeLin ~ Latitude, data = citySummaryData)) # KEEP
-summary(lm(cyanSlopeLin ~ Longitude, data = citySummaryData)) #REMOVE
-summary(lm(cyanSlopeLin ~ annualAI, data = citySummaryData)) #MARGINAL. KEEP
-summary(lm(cyanSlopeLin ~ monthlyPET, data = citySummaryData)) #MARGINAL. KEEP
-summary(lm(cyanSlopeLin ~ monthlyPrecip, data = citySummaryData)) #MARGINAL. KEEP
-summary(lm(cyanSlopeLin ~ mwtBio, data = citySummaryData)) #KEEP
-summary(lm(cyanSlopeLin ~ mstBio, data = citySummaryData)) #REMOVE
-summary(lm(cyanSlopeLin ~ smd, data = citySummaryData)) #MARGINAL. KEEP
-summary(lm(cyanSlopeLin ~ snow_depth, data = citySummaryData)) #KEEP
-summary(lm(cyanSlopeLin ~ snowfall, data = citySummaryData)) #REMOVE
-summary(lm(cyanSlopeLin ~ mwtWea, data = citySummaryData)) #KEEP
-summary(lm(cyanSlopeLin ~ daysNegNoSnow, data = citySummaryData)) #REMOVE
+# Pull out columns with remaining environmental predictors.
+# Predictors kept if P <= 0.1 from above models
+envPredictorsSlope <- citySummaryDataForAnalysis %>%
+  column_to_rownames('City') %>%
+  select(Latitude, mwtBio, mstBio, 
+         snow_depth, snowfall)
 
-envPCA <- PCA(envPredictors, scale.unit = T, graph = F)
-envPCA
+# Visualize correlations among remaining predictors.
+pairs(envPredictorsSlope, upper.panel = panel.cor, lower.panel = lsline)
 
-envPCA$eig # Eigenvalues, percent variation and cummulative percent variation
-envPCA$var$coord # Variable loadings
-envPCA$ind$coord # PCA scores for cities. Can be extracted and used in regression
+# Perform PCA of remaining environmental variables due to high correlations
+envPCAslope <- PCA(envPredictorsSlope, scale.unit = T, graph = F)
+envPCAslope$eig # Eigenvalues, percent variation and cummulative percent variation
+envPCAslope$var$coord # Variable loadings
+
+# Pull loadings out for each city and merge PC1 (92.8% variation explained) with 
+# analysis dataset
+citySummaryDataForAnalysis <- envPCAslope$ind$coord  %>% # PCA scores for cities. Can be extracted and used in regression
+  as.data.frame() %>%
+  select(Dim.1) %>%
+  rename(PC1 = Dim.1) %>%
+  rownames_to_column("City") %>%
+  merge(., citySummaryDataForAnalysis, by = "City")
+
+# Run model with PC1 predicting the strength of clines.
+summary(lm(cyanSlopeForAnalysis ~ PC1, data = citySummaryDataForAnalysis)) 
+
+
+
 
 fviz_pca_biplot(envPCA,
                 repel = T,
@@ -381,9 +402,8 @@ fviz_pca_biplot(envPCA,
   ylab("PC2") + xlab("PC1") +
   ng1
 
-citySummaryData %>%
-  filter(City != "Tampa") %>%
-  ggplot(., aes(x = Latitude, y = cyanSlopeLin)) +
+citySummaryDataForAnalysis %>%
+  ggplot(., aes(x = PC1, y = cyanSlopeForAnalysis)) +
   geom_point() +
   geom_smooth(method = "lm") +
   ng1
