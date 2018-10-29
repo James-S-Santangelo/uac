@@ -8,6 +8,8 @@ slopes <- read_csv("analysis/clineModelOutput.csv") %>%
   select(-pvalCyanSlopeLin, -pvalSlopeQuad, -pvalAcSlopeLin,
          -pvalAcSlopeQuad, -pvalLoSlopeLin, -pvalLiSlopeQuad)
 
+
+
 # Load climate data and take mean by city 
 climate_data <- read_csv("data-clean/ClimateData_AllPopulations.csv") %>%
   group_by(City) %>%
@@ -24,11 +26,25 @@ lat_long <- read_csv("data-raw/Lat-longs_City-centres.csv") %>%
   select(-Comments)
 
 # Load in all population data and get mean HCN and alleles Freqs by city
-gene_freqs <- read_csv("data-clean/AllCities_AllPopulations.csv") %>%
+datPops <- read_csv("data-clean/AllCities_AllPopulations.csv") 
+gene_freqs <- datPops %>%
   group_by(City) %>%
   summarise(freqHCN = mean(freqHCN, na.rm = TRUE),
             AcHWE = mean(AcHWE, na.rm = TRUE), 
             LiHWE = mean(LiHWE, na.rm = TRUE))
+
+# Add slopes from linear model of HCN against standardized distance
+# Same as 'cyanSlopeLin' in slopes data for most cities. 
+# Different if best fit model was quadratic. Required to test
+# for predictors of clines strength
+slopes <- datPops %>%
+  group_by(City) %>%
+  do(mod = lm(freqHCN ~ std_distance, data = .)) %>%
+  broom::tidy(., mod) %>%
+  filter(term == "std_distance") %>%
+  select(estimate, p.value) %>%
+  rename(cyanSlopeForAnalysis = estimate, cyanPvalSlopeAnalysis = p.value) %>%
+  merge(., slopes, by = "City")
 
 # Load in daily normals (i.e. weather data)
 daily_normals <- read_csv("data-clean/DailyNormals_AllCities_Filtered.csv") %>%
