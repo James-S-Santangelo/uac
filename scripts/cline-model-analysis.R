@@ -8,11 +8,15 @@ rm(list=ls())
 
 # Load required packages
 library(tidyverse)
+library(broom)
+library(FactoMineR)
+library(factoextra)
+# library(RColorBrewer)
 
 # Load data with population-level data for all cities
 datPops <- read.csv("data-clean/AllCities_AllPopulations.csv")
 
-### FUNCTIONS ###
+#### FUNCTIONS ####
 
 getBestFitClineModel <- function(response, data) {
   #' Assesses whether a linear or quadratic model is best fit
@@ -266,9 +270,225 @@ writeClineResults <- function(dataframe_list) {
             append = FALSE)
 }
 
+##Function for changing upper panel in 'pairs' correlation matrix to show correlation
+#coefficients and p-values
+panel.cor <- function(x, y, digits = 2, cex.cor, ...)
+{
+  usr <- par("usr"); on.exit(par(usr))
+  par(usr = c(0, 1, 0, 1))
+  # correlation coefficient
+  r <- cor(x, y, use = "complete.obs", method = "pearson")
+  txt <- format(c(r, 0.123456789), digits = digits)[1]
+  txt <- paste("r= ", txt, sep = "")
+  text(0.5, 0.6, txt)
+  
+  # p-value calculation
+  p <- cor.test(x, y)$p.value
+  txt2 <- format(c(p, 0.123456789), digits = digits)[1]
+  txt2 <- paste("p= ", txt2, sep = "")
+  if(p<0.01) txt2 <- paste("p= ", "<0.01", sep = "")
+  text(0.5, 0.4, txt2)
+}
+
+#Function to add least squares regression line to lower panel of 'pairs' scatterplot matrix
+lsline = function(x,y) {
+  points(x,y,pch=".")
+  abline(lsfit(x,y),col="blue")
+}
+
+#### OUPUT FROM INDIVIDUAL CLINES ####
+
 # Split cities into different dataframes stored as list
 city_dataframes <- split(datPops, datPops$City)
 
 # Write cline results to disk and global environment
 writeClineResults(city_dataframes)
+
+
+#### ANALYSIS OF CLINES ACROSS ALL CITIES ####
+
+## HCN ##
+
+clinesAllCities <- lm(freqHCN ~ std_distance*City, data = datPops)
+summary(clinesAllCities)
+car::Anova(clinesAllCities, type = 3)
+
+# colors <- c('#e6194b', '#3cb44b', '#ffe119', '#4363d8', 
+#             '#f58231', '#911eb4', '#46f0f0', '#f032e6', 
+#             '#bcf60c', '#fabebe', '#008080', '#e6beff', 
+#             '#9a6324', '#000075', '#800000', '#aaffc3')
+
+## AC ##
+
+datIndAlleles_Ac <- datPops %>%
+  filter(!is.na(AcHWE))
+clinesAllCities_Ac <- lm(AcHWE ~ std_distance*City, data = datIndAlleles_Ac)
+summary(clinesAllCities_Ac)
+car::Anova(clinesAllCities_Ac, type = 3)
+
+## LI ##
+
+datIndAlleles_Li <- datPops %>%
+  filter(!is.na(LiHWE))
+clinesAllCities_Ac <- lm(LiHWE ~ std_distance*City, data = datIndAlleles_Li)
+summary(datIndAlleles_Li)
+car::Anova(clinesAllCities_Ac, type = 3)
+
+#### ANALYSIS OF FACTORS PREDICTING CLINE STRENGTH ####
+
+# Load in city summary dataset
+citySummaryData <- read_csv("data-clean/citySummaryData.csv")
+
+## CORRELATIONS AMOMG PREDICTORS
+
+# Pull out columns with environmental predictors
+envPredictors <- citySummaryData %>%
+  select(Latitude, Longitude, annualAI,
+         annualPET, monthlyPET, monthlyPrecip,
+         mwtBio, mwtWea, mstBio, smd, snow_depth,
+         snowfall, daysNegNoSnow)
+
+# Pairwise correlation matrix
+pairs(envPredictors, upper.panel = panel.cor, lower.panel = lsline)
+
+
+#Run Models
+summary(lm(cyanSlopeLin ~ Latitude, data = citySummaryData)) # KEEP
+summary(lm(cyanSlopeLin ~ Longitude, data = citySummaryData)) #REMOVE
+summary(lm(cyanSlopeLin ~ annualAI, data = citySummaryData)) #MARGINAL. KEEP
+summary(lm(cyanSlopeLin ~ monthlyPET, data = citySummaryData)) #MARGINAL. KEEP
+summary(lm(cyanSlopeLin ~ monthlyPrecip, data = citySummaryData)) #MARGINAL. KEEP
+summary(lm(cyanSlopeLin ~ mwtBio, data = citySummaryData)) #KEEP
+summary(lm(cyanSlopeLin ~ mstBio, data = citySummaryData)) #REMOVE
+summary(lm(cyanSlopeLin ~ smd, data = citySummaryData)) #MARGINAL. KEEP
+summary(lm(cyanSlopeLin ~ snow_depth, data = citySummaryData)) #KEEP
+summary(lm(cyanSlopeLin ~ snowfall, data = citySummaryData)) #REMOVE
+summary(lm(cyanSlopeLin ~ mwtWea, data = citySummaryData)) #KEEP
+summary(lm(cyanSlopeLin ~ daysNegNoSnow, data = citySummaryData)) #REMOVE
+
+envPCA <- PCA(envPredictors, scale.unit = T, graph = F)
+envPCA
+
+envPCA$eig # Eigenvalues, percent variation and cummulative percent variation
+envPCA$var$coord # Variable loadings
+envPCA$ind$coord # PCA scores for cities. Can be extracted and used in regression
+
+fviz_pca_biplot(envPCA,
+                repel = T,
+                title = "",
+                col.var = "black") +
+  # scale_color_manual(values = c("black", "red")) +
+  ylab("PC2") + xlab("PC1") +
+  ng1
+
+citySummaryData %>%
+  filter(City != "Tampa") %>%
+  ggplot(., aes(x = Latitude, y = cyanSlopeLin)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ng1
+
+datPops %>%
+  filter(City == "Charlotte") %>%
+  ggplot(., aes(x = std_distance, y = freqHCN)) +
+  geom_point() +
+  geom_smooth(method = "lm", formula = y ~ x + I(x^2) ) +
+  ng1
+
+#### FIGURES ####
+
+#Theme used to plot figures throughout script. Modify depending on usage (e.g. poster, talk, etc.)
+ng1 = theme(
+  aspect.ratio = 0.7,
+  panel.background = element_blank(),
+  panel.grid.major = element_blank(),
+  panel.grid.minor = element_blank(),
+  panel.border = element_blank(),
+  axis.line.x = element_line(color = "black", size = 1),
+  axis.line.y = element_line(color = "black", size = 1),
+  axis.ticks = element_line(color = "black"),
+  axis.text = element_text(color = "black", size = 15),
+  axis.title = element_text(color = "black", size = 1),
+  axis.title.y = element_text(vjust = 2, face = "bold", size = 18),
+  axis.title.x = element_text(vjust = 0.1, face = "bold", size = 18),
+  axis.text.x = element_text(size = 16),
+  axis.text.y = element_text(size = 16),
+  legend.position = "none",
+  legend.direction = "vertical",
+  legend.text = element_text(size = 13),
+  legend.key = element_rect(fill = "white"),
+  legend.title = element_text(size = 15, face = "bold"),
+  legend.key.size = unit(1.0, "cm")
+)
+
+# Plot of HCN frequency against distance for each city
+# Solid line if significan. Thick black line is regression across all cities.
+datPops %>%
+  group_by(City) %>%
+  do(mod = lm(freqHCN ~ std_distance, data = .)) %>%
+  tidy(., mod) %>%
+  filter(term == "std_distance") %>%
+  select(City, p.value) %>%
+  merge(., datPops, by = "City", all.y = TRUE) %>%
+  mutate(significant = ifelse(p.value < 0.05, "Yes", "No")) %>%
+  ggplot(., aes(x = std_distance, y = freqHCN)) +  
+    geom_line(stat = "smooth", method="lm", aes(group = City, linetype = significant), alpha = 0.5, size = 1) +
+    geom_line(stat = "smooth", method="lm", colour = "black", size = 2.5) +
+    # scale_colour_manual(values = colors) +
+    xlab("Standardized distance") + ylab("Frequency of HCN") + 
+    scale_linetype_manual(values=c("dashed", "solid")) +
+    scale_y_continuous(breaks = seq(from = 0.1, to = 1, by = 0.1)) +
+    coord_cartesian(ylim = c(0.1, 1.025)) +
+    ng1
+
+# Plot of Ac frequency against distance for each city
+# Solid line if significan. Thick black line is regression across all cities.
+datIndAlleles_Ac %>%
+  group_by(City) %>%
+  do(mod = lm(AcHWE ~ std_distance, data = .)) %>%
+  tidy(., mod) %>%
+  filter(term == "std_distance") %>%
+  select(City, p.value) %>%
+  merge(., datIndAlleles_Ac, by = "City", all.y = TRUE) %>%
+  mutate(significant = ifelse(p.value < 0.05, "Yes", "No")) %>%
+  ggplot(., aes(x = std_distance, y = AcHWE)) +  
+  geom_line(stat = "smooth", method="lm", aes(group = City, linetype = significant), alpha = 0.5, size = 1) +
+  geom_line(stat = "smooth", method="lm", colour = "black", size = 2.5) +
+  # scale_colour_manual(values = colors) +
+  xlab("Standardized distance") + ylab("Frequency of Ac") + 
+  scale_linetype_manual(values=c("dashed", "solid")) +
+  scale_y_continuous(breaks = seq(from = 0.2, to = 1, by = 0.1)) +
+  coord_cartesian(ylim = c(0.2, 1.025)) +
+  ng1
+
+# Plot of Li frequency against distance for each city
+# Solid line if significan. Thick black line is regression across all cities.
+datIndAlleles_Li %>%
+  group_by(City) %>%
+  do(mod = lm(LiHWE ~ std_distance, data = .)) %>%
+  tidy(., mod) %>%
+  filter(term == "std_distance") %>%
+  select(City, p.value) %>%
+  merge(., datIndAlleles_Li, by = "City", all.y = TRUE) %>%
+  mutate(significant = ifelse(p.value < 0.05, "Yes", "No")) %>%
+  ggplot(., aes(x = std_distance, y = LiHWE)) +  
+  geom_line(stat = "smooth", method="lm", aes(group = City, linetype = significant), alpha = 0.5, size = 1) +
+  geom_line(stat = "smooth", method="lm", colour = "black", size = 2.5) +
+  # scale_colour_manual(values = colors) +
+  xlab("Standardized distance") + ylab("Frequency of Li") + 
+  scale_linetype_manual(values=c("dashed", "solid")) +
+  scale_y_continuous(breaks = seq(from = 0.1, to = 1, by = 0.1)) +
+  coord_cartesian(ylim = c(0.1, 1.025)) +
+  ng1
+
+
+
+
+
+
+
+
+
+
+
 
