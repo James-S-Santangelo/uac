@@ -19,8 +19,11 @@ datKATPlants <- read.csv("data-raw/AllPlants_KAT-Cities.csv", na.strings = "NA")
   rename(City = CITY, Population = Pop_Num, Plant = Plant_Num, Locus.Ac = LINAMARIN_RESULT, Locus.Li = LINAMARASE_RESULT) %>% # Rename columns so they're consistent with my data
   mutate(Dmg.1 = "NA", Dmg.2 = "NA", Dmg.Avg = "NA") %>%
   mutate(Transect = ifelse(City == "B" | City == "M" | City == "Y", "NA", as.character(Transect))) %>%
-  mutate(Locus.Ac = ifelse(City != "T", "NA", Locus.Ac), 
-         Locus.Li = ifelse(City != "T", "NA", Locus.Li))
+  mutate(Locus.Ac = ifelse(City != "T", "NA", Locus.Ac),
+         Locus.Li = ifelse(City != "T", "NA", Locus.Li)) %>%
+  group_by(City, Population) %>%
+  mutate(Locus.Ac = ifelse(City == "T" & any(!is.na(Locus.Ac)) & HCN_Result == 1, 1, Locus.Ac),
+         Locus.Li = ifelse(City == "T" & any(!is.na(Locus.Li)) & HCN_Result == 1, 1, Locus.Li))
 
 # Add Latitude and Longitude for KAT's Pop data to KAT's AllPlant dataset.
 # Done because JSS's AllPlant data contains Lat and Long coordinates
