@@ -13,6 +13,7 @@ rm(list=ls())
 # Load required packages
 library(tidyverse)
 library(broom)
+library(car)
 library(FactoMineR)
 library(factoextra)
 library(vegan)
@@ -189,7 +190,7 @@ writeClineResults <- function(dataframe_list) {
     
     ## Ac and Li, IF PRESENT ##
     
-    # If any row contains values for inferred Ac and Li HWE allele frequencies
+    # If no values for inferred Ac and Li HWE allele frequencies
     if (any(!is.na(dataframe[dataframe$City == city, c("AcHWE", "LiHWE")])) == FALSE) {
       clines_results <-
         append(
@@ -276,11 +277,85 @@ writeClineResults <- function(dataframe_list) {
             append = FALSE)
 }
 
+linearClineModelOnly <- function(dataframe_list){
+  
+  
+  # Initialize dataset that will hold model outputs
+  modelOutputData <- data.frame(
+    City = character(),
+    betaHCN = numeric(),
+    pvalHCN = numeric(),
+    betaAc = numeric(),
+    pvalAc = numeric(),
+    betaLi = numeric(),
+    pvalLi = numeric(),
+    stringsAsFactors = FALSE
+  )
+  
+  
+  for (i in 1:length(dataframe_list)) {
+    
+    # Retrieve dataframe from list
+    dataframe = dataframe_list[[i]]
+    
+    # Extract city as character
+    city = as.character(unique(dataframe$City))
+    
+    # Initialize vector to hold results
+    cline_results <- c()
+    
+    # Run linear model
+    clineModel <- lm(freqHCN ~ std_distance, data = dataframe)
+    
+    #Extract relavent coeficient
+    betaHCN <- round(summary(clineModel)$coefficients["std_distance", "Estimate"], 4)
+    pvalHCN <- round(summary(clineModel)$coefficients["std_distance", "Pr(>|t|)"], 4)
+    
+    # print(city)
+    # print(betaHCN)
+    # print(pvalHCN)
+    
+    cline_results <- append(cline_results,
+                            c(betaHCN, pvalHCN),
+                            after = length(cline_results))
+    
+    ## Ac and Li, IF PRESENT ##
+    
+    # If no values for inferred Ac and Li HWE allele frequencies
+    if (any(!is.na(dataframe[dataframe$City == city, c("AcHWE", "LiHWE")])) == FALSE) {
+      cline_results <- append(cline_results,
+          c("NA", "NA", "NA", "NA"),
+          after = length(cline_results)
+        )
+    }else{
+      
+      # AC
+      
+      clineModelAc <- lm(AcHWE ~ std_distance, data = dataframe)
+      betaAc <- round(summary(clineModelAc)$coefficients["std_distance", "Estimate"], 4)
+      pvalAc <- round(summary(clineModelAc)$coefficients["std_distance", "Pr(>|t|)"], 4)
+      
+      clineModelLi <- lm(LiHWE ~ std_distance, data = dataframe)
+      betaLi <- round(summary(clineModelLi)$coefficients["std_distance", "Estimate"], 4)
+      pvalLi <- round(summary(clineModelLi)$coefficients["std_distance", "Pr(>|t|)"], 4)
+      
+      cline_results <- append(cline_results,
+                              c(betaAc, pvalAc, betaLi, pvalLi),
+                              after = length(cline_results))
+    }
+    # print(city)
+    # print(cline_results)
+    modelOutputData[i, ] <- c(city, cline_results)
+  }  
+  return(modelOutputData)
+}
+
 ##Function for changing upper panel in 'pairs' correlation matrix to show correlation
 #coefficients and p-values
 panel.cor <- function(x, y, digits = 2, cex.cor, ...)
 {
-  usr <- par("usr"); on.exit(par(usr))
+  usr <- par("usr")
+  on.exit(par(usr))
   par(usr = c(0, 1, 0, 1))
   # correlation coefficient
   r <- cor(x, y, use = "complete.obs", method = "pearson")
@@ -292,14 +367,15 @@ panel.cor <- function(x, y, digits = 2, cex.cor, ...)
   p <- cor.test(x, y)$p.value
   txt2 <- format(c(p, 0.123456789), digits = digits)[1]
   txt2 <- paste("p= ", txt2, sep = "")
-  if(p<0.001) txt2 <- paste("p= ", "<0.001", sep = "")
+  if (p < 0.001)
+    txt2 <- paste("p= ", "<0.001", sep = "")
   text(0.5, 0.4, txt2)
 }
 
 #Function to add least squares regression line to lower panel of 'pairs' scatterplot matrix
-lsline = function(x,y) {
-  points(x,y,pch=".")
-  abline(lsfit(x,y),col="blue")
+lsline = function(x, y) {
+  points(x, y, pch = ".")
+  abline(lsfit(x, y), col = "blue")
 }
 
 #### OUPUT FROM INDIVIDUAL CLINES ####
@@ -310,7 +386,6 @@ city_dataframes <- split(datPops, datPops$City)
 # Write cline results to disk and global environment
 writeClineResults(city_dataframes)
 
-
 #### ANALYSIS OF CLINES ACROSS ALL CITIES ####
 
 ## HCN ##
@@ -318,22 +393,6 @@ writeClineResults(city_dataframes)
 clinesAllCities <- lm(freqHCN ~ std_distance*City, data = datPops)
 summary(clinesAllCities)
 car::Anova(clinesAllCities, type = 3)
-
-## AC ##
-
-datIndAlleles_Ac <- datPops %>%
-  filter(!is.na(AcHWE))
-clinesAllCities_Ac <- lm(AcHWE ~ std_distance*City, data = datIndAlleles_Ac)
-summary(clinesAllCities_Ac)
-car::Anova(clinesAllCities_Ac, type = 3)
-
-## LI ##
-
-datIndAlleles_Li <- datPops %>%
-  filter(!is.na(LiHWE))
-clinesAllCities_Ac <- lm(LiHWE ~ std_distance*City, data = datIndAlleles_Li)
-summary(datIndAlleles_Li)
-car::Anova(clinesAllCities_Ac, type = 3)
 
 #### ANALYSIS PREDICTING MEAN HCN FREQUENCIES ####
 
@@ -408,17 +467,15 @@ citySummaryData <- envPCAHCN_inds$coord  %>% # PCA scores for cities. Can be ext
   rownames_to_column("City") %>%
   merge(., citySummaryData, by = "City")
 
-# Run model with PC1 predicting the strength of clines.
-# HCNfreqMod <- lm(freqHCN ~ PC1_HCN*annualAI + PC1_HCN*daysNegNoSnow +
-#                            PC1_HCN*smd + annualAI*daysNegNoSnow +
-#                            annualAI*smd + daysNegNoSnow*smd,
-#                  data = citySummaryData)
-citySummaryData$PC1_HCN_squared <- citySummaryData$PC1_HCN^2
+
+# citySummaryData$PC1_HCN_squared <- citySummaryData$PC1_HCN^2
+# Model for change in mean HCN frequency
 HCNfreqMod <- lm(freqHCN ~ PC1_HCN + annualAI + daysNegNoSnow +
                    smd, 
                  data = citySummaryData)
 summary(HCNfreqMod)
 
+# Model selection and averaging of mena HCN frequency model
 options(na.action = "na.fail")
 HCNfreqMod_dredge <- dredge(HCNfreqMod, rank = "AICc", 
                             evaluate = TRUE,
@@ -427,6 +484,7 @@ HCNfreqMod_dredge <- dredge(HCNfreqMod, rank = "AICc",
 options(na.action = "na.omit")
 HCNfreqMod_dredge
 models_HCN <- get.models(HCNfreqMod_dredge, subset = delta < 2)
+models_HCN
 HCN_modAvg <- model.avg(models_HCN)
 summary(HCN_modAvg)
 HCN_modAvg$coefArray
@@ -497,6 +555,42 @@ citySummaryDataForAnalysis <- envPCAslope_inds$coord  %>% # PCA scores for citie
 SlopeMod <- lm(cyanSlopeForAnalysis ~ PC1_Slope, data = citySummaryDataForAnalysis)
 summary(SlopeMod)
 
+
+#### TABLES ####
+
+## TABLE 1 ##
+
+# Linear cline models only. Part of table 1
+linearClines <- linearClineModelOnly(city_dataframes)
+
+# Extract number of populations and plants per city. Merge with linear clines model output above
+table1 <- read.csv("data-clean/AllCities_AllPlants.csv") %>%
+  group_by(City) %>%
+  summarize(numPops = n_distinct(Population),
+            numPlants = n()) %>%
+  merge(., linearClines, by = "City")
+
+# Write table 1 to disk
+write_csv(table1, "analysis/tables/Table1_cityClineSummary.csv")
+
+## TABLE 2 ##
+
+table2 <- as.data.frame(rbind(
+  c("Full"),
+  summary(HCN_modAvg)$coefmat.full)) %>%
+  rownames_to_column()
+
+write_csv(table2, "analysis/tables/Table-2_freqHCN-FullModelAvg.csv")
+
+# TABLE S2
+
+tableS2 <- as.data.frame(rbind(
+  c("Conditional"),
+  summary(HCN_modAvg)$coefmat.subset)) %>%
+  rownames_to_column()
+
+write_csv(tableS2, "analysis/tables/Table-S2_freqHCN-CondModelAvg.csv")
+
 #### FIGURES ####
 
 #Theme used to plot figures throughout script. Modify depending on usage (e.g. poster, talk, etc.)
@@ -523,7 +617,7 @@ ng1 = theme(
   legend.key.size = unit(1.0, "cm")
 )
 
-## FIGURE 1 ##
+## FIGURE 2 ##
 
 colours = c("coral3", "cadetblue3", "burlywood3", "brown4",
             "blue1", "aquamarine2", "darkorchid3", "darkorange2",
@@ -559,7 +653,7 @@ ggsave(filename = "analysis/figures/Figure-1_HCN-by-distance.pdf",
        width = 10, height = 8, dpi = 600)
 
 
-## FIGURE 2 ##
+## FIGURE 3 ##
 
 # Figure 2a. HCN against # days < 0 with no snow
 HCN_by_DaysNeg <- citySummaryData %>%
@@ -601,7 +695,7 @@ ggsave(filename = "analysis/figures/Figure-2inset_envPCA_HCN_vars.pdf",
        plot = envPCA_HCN_vars, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
-## FIGURE 3 ##
+## FIGURE 4 ##
 
 # Figure 3. Slope against PC1
 Slope_by_PC1 <- citySummaryDataForAnalysis %>%
@@ -628,61 +722,4 @@ envPCA_Slope_vars <- fviz_pca_var(envPCAslope,
 ggsave(filename = "analysis/figures/Figure-3inset_envPCA_slope_vars.pdf", 
        plot = envPCA_Slope_vars, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
-
-
-
-
-
-
-# Plot of Ac frequency against distance for each city
-# Solid line if significan. Thick black line is regression across all cities.
-datIndAlleles_Ac %>%
-  group_by(City) %>%
-  do(mod = lm(AcHWE ~ std_distance, data = .)) %>%
-  tidy(., mod) %>%
-  filter(term == "std_distance") %>%
-  select(City, p.value) %>%
-  merge(., datIndAlleles_Ac, by = "City", all.y = TRUE) %>%
-  mutate(significant = ifelse(p.value < 0.05, "Yes", "No")) %>%
-  ggplot(., aes(x = std_distance, y = AcHWE)) +  
-  geom_line(stat = "smooth", method="lm", aes(group = City, linetype = significant), alpha = 0.5, size = 1) +
-  geom_line(stat = "smooth", method="lm", colour = "black", size = 2.5) +
-  # scale_colour_manual(values = colors) +
-  xlab("Standardized distance") + ylab("Frequency of Ac") + 
-  scale_linetype_manual(values=c("dashed", "solid")) +
-  scale_y_continuous(breaks = seq(from = 0.2, to = 1, by = 0.1)) +
-  coord_cartesian(ylim = c(0.2, 1.025)) +
-  ng1
-
-# Plot of Li frequency against distance for each city
-# Solid line if significan. Thick black line is regression across all cities.
-datIndAlleles_Li %>%
-  group_by(City) %>%
-  do(mod = lm(LiHWE ~ std_distance, data = .)) %>%
-  tidy(., mod) %>%
-  filter(term == "std_distance") %>%
-  select(City, p.value) %>%
-  merge(., datIndAlleles_Li, by = "City", all.y = TRUE) %>%
-  mutate(significant = ifelse(p.value < 0.05, "Yes", "No")) %>%
-  ggplot(., aes(x = std_distance, y = LiHWE)) +  
-  geom_line(stat = "smooth", method="lm", aes(group = City, linetype = significant), alpha = 0.5, size = 1) +
-  geom_line(stat = "smooth", method="lm", colour = "black", size = 2.5) +
-  # scale_colour_manual(values = colors) +
-  xlab("Standardized distance") + ylab("Frequency of Li") + 
-  scale_linetype_manual(values=c("dashed", "solid")) +
-  scale_y_continuous(breaks = seq(from = 0.1, to = 1, by = 0.1)) +
-  coord_cartesian(ylim = c(0.1, 1.025)) +
-  ng1
-
-# Plot of the strength of clines against PC1
-citySummaryData %>%
-  ggplot(., aes(x = Latitude, y = cyanSlopeForAnalysis)) +
-  geom_point(size = 2) +
-  geom_smooth(method = "lm", se = FALSE, color = "black") +
-  ylab("Standardized slope 
-of cline in HCN") +
-  xlab("Latitude") +
-  # scale_y_continuous(breaks = seq(from = -0.05, to = 0.35, by = 0.05)) +
-  # scale_x_continuous(breaks = seq(from = -4, to = 4, by = 1)) +
-  ng1
 
