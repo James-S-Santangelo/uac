@@ -1,5 +1,3 @@
-
-
 ### SETUP ###
 
 # Change default contrasts to enable type III SS
@@ -484,7 +482,6 @@ HCNfreqMod_dredge <- dredge(HCNfreqMod, rank = "AICc",
 options(na.action = "na.omit")
 HCNfreqMod_dredge
 models_HCN <- get.models(HCNfreqMod_dredge, subset = delta < 2)
-models_HCN
 HCN_modAvg <- model.avg(models_HCN)
 summary(HCN_modAvg)
 HCN_modAvg$coefArray
@@ -555,6 +552,104 @@ citySummaryDataForAnalysis <- envPCAslope_inds$coord  %>% # PCA scores for citie
 SlopeMod <- lm(cyanSlopeForAnalysis ~ PC1_Slope, data = citySummaryDataForAnalysis)
 summary(SlopeMod)
 
+#### ANALYSIS OF HAPLOTYPES BY HABITAT TYPE ####
+
+# Load in data
+haplotype_data <- read_csv("data-clean/haplotypeData.csv")
+
+## AC LOCUS ##
+
+# Counts and proportion of different haplotypes at Ac Locus
+haplo_counts_Ac <- haplotype_data %>%
+  group_by(haplotype_Ac) %>%
+  summarize(count = n(),
+            prop = round(count / nrow(haplotype_data), 3))
+
+# Correct/incorrect calls at Ac locus
+haplo_validation_Ac <- haplo_counts_Ac %>%
+  mutate(validation = case_when(
+    grepl("Ac", haplotype_Ac) ~ "Glucoside_positive",
+    grepl("unk", haplotype_Ac) ~ "Invalid",
+    TRUE ~ "Valid"
+  )) %>%
+  group_by(validation) %>%
+  summarize(total_prop = sum(prop))
+
+# Relative frequency of haplotypes at Ac Locus
+freqHaploAc <- haplotype_data %>%
+  group_by(City, Habitat, haplotype_Ac) %>%
+  filter(haplotype_Ac != "unk" & haplotype_Ac != "Ac") %>%
+  summarize(nAc = n()) %>%
+  mutate(freqHaploAc = nAc / sum(nAc)) %>%
+  ungroup() %>%
+  mutate(haplotype_Ac = as.factor(haplotype_Ac),
+         haplotype_Ac = fct_reorder(haplotype_Ac, freqHaploAc))
+
+# Dataframe with simpson's diversity for haplotypes
+simpsDivAc <- haplotype_data %>%
+  group_by(City, Habitat, haplotype_Ac) %>%
+  filter(haplotype_Ac != "unk" & haplotype_Ac != "Ac") %>%
+  summarize(n = n(),
+            nMin1 = n - 1, 
+            n_nMin1 = n * nMin1) %>%
+  ungroup() %>%
+  group_by(City, Habitat) %>%
+  summarize(N = sum(n),
+            sum_n_nMin1 = sum(n_nMin1),
+            simpson = 1 - (sum_n_nMin1 / (N* (N - 1))))
+
+# Model testing for variation in Ac haplotype relative frequency by haplotype and habitat type
+AcLocusMod <- lm(freqHaploAc ~ Habitat*haplotype_Ac, data = freqHaploAc)
+car::Anova(AcLocusMod, type = 3)
+
+# Model testing for variation in Ac haplotype simpson's diversity by haplotype and habitat type
+AcLocusMod_Simp <- lm(simpson ~ Habitat, data = simpsDivAc)
+summary(AcLocusMod_Simp)
+
+## LI LOCUS ##
+
+# Counts and proportion of different haplotypes at Li Locus
+haplo_counts_Li <- haplotype_data %>%
+  group_by(haplotype_Li) %>%
+  summarize(count = n(),
+            prop = round(count / nrow(haplotype_data), 3))
+
+# Correct/incorrect calls at Li locus
+haplo_validation_Li <- haplo_counts_Li %>%
+  mutate(validation = case_when(
+    grepl("Li", haplotype_Li) ~ "Enzyme_positive",
+    grepl("unk", haplotype_Li) ~ "Invalid",
+    TRUE ~ "Valid"
+  )) %>%
+  group_by(validation) %>%
+  summarize(total_prop = sum(prop))
+
+# Relative frequency of haplotypes at Li Locus
+freqHaploLi <- haplotype_data %>%
+  group_by(City, Habitat, haplotype_Li) %>%
+  filter(haplotype_Li != "unk" & haplotype_Li != "Li") %>%
+  summarize(nLi = n()) %>%
+  mutate(freqHaploLi = nLi / sum(nLi)) %>%
+  ungroup() %>%
+  mutate(haplotype_Li = as.factor(haplotype_Li),
+         haplotype_Li = fct_reorder(haplotype_Li, freqHaploLi))
+
+# Dataframe with simpson's diversity for haplotypes
+simpsDivLi <- haplotype_data %>%
+  group_by(City, Habitat, haplotype_Li) %>%
+  filter(haplotype_Li != "unk" & haplotype_Li != "Li") %>%
+  summarize(n = n(),
+            nMin1 = n - 1, 
+            n_nMin1 = n * nMin1) %>%
+  ungroup() %>%
+  group_by(City, Habitat) %>%
+  summarize(N = sum(n),
+            sum_n_nMin1 = sum(n_nMin1),
+            simpson = 1 - (sum_n_nMin1 / (N* (N - 1))))
+
+# Model testing for variation in Ac haplotype relative frequency by haplotype and habitat type
+LiLocusMod_Simp <- lm(simpson ~ Habitat, data = simpsDivLi)
+summary(LiLocusMod_Simp, type = 3)
 
 #### TABLES ####
 
@@ -683,7 +778,7 @@ ggsave(filename = "analysis/figures/Figure-2a_HCN-by-PC1.pdf",
        plot = HCN_by_PC1, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
-#Figure 2b inset
+# Figure 2b inset
 envPCA_HCN_vars <- fviz_pca_var(envPCAHCN,
              labelsize = 6,
              col.var = "contrib", # Color by contributions to the PC
@@ -711,7 +806,7 @@ ggsave(filename = "analysis/figures/Figure-3_Slope-by-PC1.pdf",
        plot = Slope_by_PC1, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
-#Figure 3 inset
+# Figure 3 inset
 envPCA_Slope_vars <- fviz_pca_var(envPCAslope,
                                 labelsize = 6,
                                 col.var = "contrib", # Color by contributions to the PC
@@ -723,3 +818,29 @@ ggsave(filename = "analysis/figures/Figure-3inset_envPCA_slope_vars.pdf",
        plot = envPCA_Slope_vars, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
+## TEST FIGURES
+
+plot_Haplo_Li <- ggplot(freqHaploLi, aes(x = Habitat, y = freqHaploLi, fill = haplotype_Li)) +
+  geom_bar(stat = "identity", position = "stack", color = "black") + 
+  xlab("Habitat") + ylab("Relative frequency") +
+  facet_grid(~ City) + ng1 +
+  theme(aspect.ratio = 3.0,
+        legend.position = "top",
+        legend.direction = "horizontal",
+        legend.key.size = unit(0.5, "cm"))
+plot_Haplo_Li
+
+plot_Haplo_Ac <- ggplot(freqHaploAc, aes(x = Habitat, y = freqHaploAc, fill = haplotype_Ac)) +
+  geom_bar(stat = "identity", position = "stack", color = "black") + 
+  xlab("Habitat") + ylab("Relative frequency") +
+  facet_grid(~ City) + ng1 +
+  theme(aspect.ratio = 3.0,
+        legend.position = "top",
+        legend.direction = "horizontal",
+        legend.key.size = unit(0.5, "cm"))
+plot_Haplo_Ac
+
+haplotype_data %>%
+  group_by(City, Habitat) %>%
+  summarize(count = n())
+  
