@@ -565,6 +565,11 @@ haplo_counts_Ac <- haplotype_data %>%
   summarize(count = n(),
             prop = round(count / nrow(haplotype_data), 3))
 
+haplo_counts_Ac_City <- haplotype_data %>%
+  group_by(haplotype_Ac, City) %>%
+  summarize(count = n(),
+            prop = round(count / nrow(haplotype_data), 3))
+
 # Correct/incorrect calls at Ac locus
 haplo_validation_Ac <- haplo_counts_Ac %>%
   mutate(validation = case_when(
@@ -583,7 +588,8 @@ freqHaploAc <- haplotype_data %>%
   mutate(freqHaploAc = nAc / sum(nAc)) %>%
   ungroup() %>%
   mutate(haplotype_Ac = as.factor(haplotype_Ac),
-         haplotype_Ac = fct_reorder(haplotype_Ac, freqHaploAc))
+         haplotype_Ac = fct_reorder(haplotype_Ac, freqHaploAc)) %>%
+  complete(City, Habitat, haplotype_Ac, fill = list(freqHaploAc = 0))
 
 # Dataframe with simpson's diversity for haplotypes
 simpsDivAc <- haplotype_data %>%
@@ -606,11 +612,21 @@ car::Anova(AcLocusMod, type = 3)
 AcLocusMod_Simp <- lm(simpson ~ Habitat, data = simpsDivAc)
 summary(AcLocusMod_Simp)
 
+# Get Simpson's index in each habitat
+simpsDivAc %>%
+  group_by(Habitat) %>%
+  summarize(meanSimp = mean(simpson))
+
 ## LI LOCUS ##
 
 # Counts and proportion of different haplotypes at Li Locus
 haplo_counts_Li <- haplotype_data %>%
   group_by(haplotype_Li) %>%
+  summarize(count = n(),
+            prop = round(count / nrow(haplotype_data), 3))
+
+haplo_counts_Li_City <- haplotype_data %>%
+  group_by(haplotype_Li, City) %>%
   summarize(count = n(),
             prop = round(count / nrow(haplotype_data), 3))
 
@@ -632,7 +648,8 @@ freqHaploLi <- haplotype_data %>%
   mutate(freqHaploLi = nLi / sum(nLi)) %>%
   ungroup() %>%
   mutate(haplotype_Li = as.factor(haplotype_Li),
-         haplotype_Li = fct_reorder(haplotype_Li, freqHaploLi))
+         haplotype_Li = fct_reorder(haplotype_Li, freqHaploLi)) %>%
+  complete(City, Habitat, haplotype_Li, fill = list(freqHaploLi = 0))
 
 # Dataframe with simpson's diversity for haplotypes
 simpsDivLi <- haplotype_data %>%
@@ -647,9 +664,18 @@ simpsDivLi <- haplotype_data %>%
             sum_n_nMin1 = sum(n_nMin1),
             simpson = 1 - (sum_n_nMin1 / (N* (N - 1))))
 
+# Model testing for variation in Li haplotype relative frequency by haplotype and habitat type
+LiLocusMod <- lm(freqHaploLi ~ Habitat*haplotype_Li, data = freqHaploLi)
+car::Anova(LiLocusMod, type = 3)
+
 # Model testing for variation in Ac haplotype relative frequency by haplotype and habitat type
 LiLocusMod_Simp <- lm(simpson ~ Habitat, data = simpsDivLi)
 summary(LiLocusMod_Simp, type = 3)
+
+# Get Simpson's index in each habitat
+simpsDivLi %>%
+  group_by(Habitat) %>%
+  summarize(meanSimp = mean(simpson))
 
 #### TABLES ####
 
@@ -719,38 +745,64 @@ colours = c("coral3", "cadetblue3", "burlywood3", "brown4",
             "khaki3", "hotpink2", "peru", "navy",
             "yellow3", "thistle3", "springgreen3", "cyan")
 # Plot of HCN frequency against distance for each city
-# Solid line if significan. Thick black line is regression across all cities.
+# Solid line if significant. Thick black line is regression across all cities.
 HCN_by_city <- datPops %>%
   group_by(City) %>%
   do(mod = lm(freqHCN ~ std_distance, data = .)) %>%
   tidy(., mod) %>%
+  mutate(intercept = estimate[term == "(Intercept)"]) %>%
   filter(term == "std_distance") %>%
-  select(City, p.value) %>%
+  mutate(predicted = intercept + (estimate * 1.0)) %>%
+  select(City, p.value, predicted) %>%
   merge(., datPops, by = "City", all.y = TRUE) %>%
   mutate(significant = ifelse(p.value < 0.05, "Yes", "No")) %>%
   ggplot(., aes(x = std_distance, y = freqHCN)) +  
-    geom_line(stat = "smooth", method="lm", aes(linetype = significant, 
-                                                color = City), 
+    geom_line(stat = "smooth", method="lm", aes(linetype = significant,
+                                                group = City), 
               alpha = 0.7, size = 1) +
     geom_line(stat = "smooth", method="lm", colour = "black", size = 2.5) +
     # scale_colour_manual(values = colors) +
     xlab("Standardized distance") + ylab("Frequency of HCN") + 
     scale_linetype_manual(values=c("dashed", "solid")) +
     scale_y_continuous(breaks = seq(from = 0.1, to = 1, by = 0.1)) +
-    coord_cartesian(ylim = c(0.1, 1.025)) +
-    scale_colour_manual(values = colours) + 
-    ng1 + theme(legend.position = "right",
-                legend.key.height = unit(0.5, "cm")) +
+    scale_x_continuous(breaks = seq(from = 0, to = 1.1, by = 0.25)) +
+    coord_cartesian(ylim = c(0.1, 1.025), xlim = c(0, 1), clip = 'off') +
+    geom_text(aes(label = City, x = 1.005, y = predicted), hjust = 0) + 
+    ng1 +
+    theme(legend.position = "top", legend.direction = "horizontal",
+          legend.key.height = unit(0.5, "cm")) +
     guides(color = guide_legend(override.aes = list(size = 2)))
-  
-ggsave(filename = "analysis/figures/Figure-1_HCN-by-distance.pdf", 
+    # geom_dl(aes(label = City), method = list(dl.trans(x = x + 0.2), "last.points", cex = 0.8))
+HCN_by_city
+
+ggsave(filename = "analysis/figures/Figure2_HCN-by-distance.pdf", 
        plot = HCN_by_city, device = 'pdf', units = 'in',
-       width = 10, height = 8, dpi = 600)
+       width = 12, height = 8, dpi = 600)
 
 
 ## FIGURE 3 ##
 
-# Figure 2a. HCN against # days < 0 with no snow
+# Add abbreviations
+citySummaryData <- citySummaryData %>%
+  mutate(abbr = case_when(City == "Jacksonville" ~ "Jax",
+                          City == "Tampa" ~ "Tpa",
+                          City == "Atlanta" ~ "Atl",
+                          City == "Norfolk" ~ "Nor",
+                          City == "Charlotte" ~ "Clt",
+                          City == "Toronto" ~ "Tor",
+                          City == "Montreal" ~ "Mtl",
+                          City == "Detroit" ~ "Det",
+                          City == "Washington D.C." ~ "DC",
+                          City == "Cleveland" ~ "Clv",
+                          City == "NewYork" ~ "NY",
+                          City == "Pittsburgh" ~ "Pgh",
+                          City == "Boston" ~ "Bos",
+                          City == "Baltimore" ~ "Blt",
+                          City == "Cincinnati" ~ "Cin",
+                          TRUE ~ "Phl"))
+  
+
+# Figure 3a. HCN against # days < 0 with no snow
 HCN_by_DaysNeg <- citySummaryData %>%
   ggplot(., aes(x = daysNegNoSnow, y = freqHCN)) +
   geom_point(size = 2.5) +
@@ -758,13 +810,15 @@ HCN_by_DaysNeg <- citySummaryData %>%
               se = FALSE) +
   scale_x_continuous(breaks = seq(from = 0, to = 35, by = 5)) +
   xlab("# days < 0°C with no snow") + ylab("Mean HCN frequency") +
+  geom_text(aes(label = abbr), vjust = 1, hjust =-0.2) + 
   ng1
+HCN_by_DaysNeg
 
-ggsave(filename = "analysis/figures/Figure-2a_HCN-by-NumDaysNegNoSnow.pdf", 
+ggsave(filename = "analysis/figures/Figure3a_HCN-by-NumDaysNegNoSnow.pdf", 
        plot = HCN_by_DaysNeg, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
-# Figure 2a. HCN against PC1
+# Figure 3a. HCN against PC1
 HCN_by_PC1 <- citySummaryData %>%
   ggplot(., aes(x = PC1_HCN, y = freqHCN)) +
   geom_point(size = 2.5) +
@@ -772,13 +826,15 @@ HCN_by_PC1 <- citySummaryData %>%
               se = FALSE) +
   # scale_x_continuous(breaks = seq(from = 0, to = 35, by = 5)) +
   xlab("PC1 (90.2%)") + ylab("Mean HCN frequency") +
+  geom_text(aes(label = abbr), vjust = 1, hjust =-0.2) + 
   ng1
+HCN_by_PC1
 
-ggsave(filename = "analysis/figures/Figure-2a_HCN-by-PC1.pdf", 
+ggsave(filename = "analysis/figures/Figure3a_HCN-by-PC1.pdf", 
        plot = HCN_by_PC1, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
-# Figure 2b inset
+# Figure 3b inset
 envPCA_HCN_vars <- fviz_pca_var(envPCAHCN,
              labelsize = 6,
              col.var = "contrib", # Color by contributions to the PC
@@ -786,13 +842,13 @@ envPCA_HCN_vars <- fviz_pca_var(envPCAHCN,
              repel = TRUE     # Avoid text overlapping
 ) + ng1 + xlab("PC1 (90.2%)") + ylab("PC2 (7%)")
 
-ggsave(filename = "analysis/figures/Figure-2inset_envPCA_HCN_vars.pdf", 
+ggsave(filename = "analysis/figures/Figure3inset_envPCA_HCN_vars.pdf", 
        plot = envPCA_HCN_vars, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
 ## FIGURE 4 ##
 
-# Figure 3. Slope against PC1
+# Figure 4. Slope against PC1
 Slope_by_PC1 <- citySummaryDataForAnalysis %>%
   ggplot(., aes(x = PC1_Slope, y = cyanSlopeForAnalysis)) +
   geom_point(size = 2.5) +
@@ -800,9 +856,11 @@ Slope_by_PC1 <- citySummaryDataForAnalysis %>%
               se = FALSE) +
   # scale_x_continuous(breaks = seq(from = 0, to = 35, by = 5)) +
   xlab("PC1 (92.8%)") + ylab("Slope of HCN cline") +
+  geom_text(aes(label = abbr), vjust = 1, hjust =-0.2) + 
   ng1
+Slope_by_PC1
 
-ggsave(filename = "analysis/figures/Figure-3_Slope-by-PC1.pdf", 
+ggsave(filename = "analysis/figures/Figure4_Slope-by-PC1.pdf", 
        plot = Slope_by_PC1, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
@@ -814,7 +872,7 @@ envPCA_Slope_vars <- fviz_pca_var(envPCAslope,
                                 repel = TRUE     # Avoid text overlapping
 ) + ng1 + xlab("PC1 (92.8%)") + ylab("PC2 (3.7%)")
 
-ggsave(filename = "analysis/figures/Figure-3inset_envPCA_slope_vars.pdf", 
+ggsave(filename = "analysis/figures/Figure4inset_envPCA_slope_vars.pdf", 
        plot = envPCA_Slope_vars, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
