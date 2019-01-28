@@ -805,12 +805,12 @@ citySummaryData <- citySummaryData %>%
 # Figure 3a. HCN against # days < 0 with no snow
 HCN_by_DaysNeg <- citySummaryData %>%
   ggplot(., aes(x = daysNegNoSnow, y = freqHCN)) +
-  geom_point(size = 2.5) +
+  # geom_point(size = 2.5) +
   geom_smooth(method = "lm", size = 1.5, colour = "black", 
               se = FALSE) +
   scale_x_continuous(breaks = seq(from = 0, to = 35, by = 5)) +
   xlab("# days < 0°C with no snow") + ylab("Mean HCN frequency") +
-  geom_text(aes(label = abbr), vjust = 1, hjust =-0.2) + 
+  geom_text(aes(label = abbr), vjust = 0, hjust = 0) + 
   ng1
 HCN_by_DaysNeg
 
@@ -818,19 +818,19 @@ ggsave(filename = "analysis/figures/Figure3a_HCN-by-NumDaysNegNoSnow.pdf",
        plot = HCN_by_DaysNeg, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
-# Figure 3a. HCN against PC1
+# Figure 3b. HCN against PC1
 HCN_by_PC1 <- citySummaryData %>%
   ggplot(., aes(x = PC1_HCN, y = freqHCN)) +
-  geom_point(size = 2.5) +
+  # geom_point(size = 2.5) +
   geom_smooth(method = "lm", size = 1.5, colour = "black", 
               se = FALSE) +
   # scale_x_continuous(breaks = seq(from = 0, to = 35, by = 5)) +
   xlab("PC1 (90.2%)") + ylab("Mean HCN frequency") +
-  geom_text(aes(label = abbr), vjust = 1, hjust =-0.2) + 
+  geom_text(aes(label = abbr), vjust = 0, hjust = 0) + 
   ng1
 HCN_by_PC1
 
-ggsave(filename = "analysis/figures/Figure3a_HCN-by-PC1.pdf", 
+ggsave(filename = "analysis/figures/Figure3b_HCN-by-PC1.pdf", 
        plot = HCN_by_PC1, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
@@ -851,12 +851,12 @@ ggsave(filename = "analysis/figures/Figure3inset_envPCA_HCN_vars.pdf",
 # Figure 4. Slope against PC1
 Slope_by_PC1 <- citySummaryDataForAnalysis %>%
   ggplot(., aes(x = PC1_Slope, y = cyanSlopeForAnalysis)) +
-  geom_point(size = 2.5) +
+  # geom_point(size = 2.5) +
   geom_smooth(method = "lm", size = 1.5, colour = "black", 
               se = FALSE) +
   # scale_x_continuous(breaks = seq(from = 0, to = 35, by = 5)) +
   xlab("PC1 (92.8%)") + ylab("Slope of HCN cline") +
-  geom_text(aes(label = abbr), vjust = 1, hjust =-0.2) + 
+  geom_text(aes(label = abbr), vjust = 0, hjust = 0) + 
   ng1
 Slope_by_PC1
 
