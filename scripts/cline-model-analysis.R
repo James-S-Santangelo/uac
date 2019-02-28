@@ -399,14 +399,12 @@ envPredictorsHCN <- citySummaryData %>%
          mwtBio, mstBio, smd, snowfall,
          daysNegNoSnow)
 
-# Visualize correlations among remaining predictors.
-pairs(envPredictorsHCN, upper.panel = panel.cor, lower.panel = lsline)
 
 # AnnualAI, daysNegNoSnow, and smd show only moderate correlations with other
 # variables. These will be kept as disting predictors. monthlyPET will be
 # eliminated since it is highly correlated with, and measures the same thing
 # as, annualPET. The remaining variables all show strong correlations and will
-# be reduced through PCA.
+# be reduced through PCA. See text S1 for details and table SX for correlation matrix
 
 envPredictorsHCN_forPCA <- envPredictorsHCN %>%
   select(annualPET, monthlyPrecip, mwtBio, mstBio,
@@ -454,7 +452,11 @@ HCNfreqMod_dredge <- dredge(HCNfreqMod, rank = "AICc",
                             extra = c("R^2", "adjR^2", F = function(x)
                               summary(x)$fstatistic[[1]]))
 options(na.action = "na.omit")
-HCNfreqMod_dredge
+
+# Get all dredge models as data frame and save to disk
+HCN_dredge_models <- as.data.frame(HCNfreqMod_dredge)
+write_csv(HCN_dredge_models, path = "analysis/HCN_dredge_output.csv", col_names = TRUE)
+
 models_HCN <- get.models(HCNfreqMod_dredge, subset = delta < 2)
 HCN_modAvg <- model.avg(models_HCN)
 summary(HCN_modAvg)
