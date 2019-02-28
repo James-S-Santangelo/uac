@@ -138,9 +138,9 @@ writeClineResults <- function(dataframe_list) {
   
   clineOrderData <- data.frame(
     City = character(),
-    cyanOrder = character(),
-    AcOrder = character(),
-    LiOrder = character(),
+    freqHCN = character(),
+    AcHWE = character(),
+    LiHWE = character(),
     stringsAsFactors = FALSE
   )
   
@@ -538,12 +538,12 @@ haplotype_data <- read_csv("data-clean/haplotypeData.csv")
 # Counts and proportion of different haplotypes at Ac Locus
 haplo_counts_Ac <- haplotype_data %>%
   group_by(haplotype_Ac) %>%
-  summarize(count = n(),
+  summarise(count = n(),
             prop = round(count / nrow(haplotype_data), 3))
 
 haplo_counts_Ac_City <- haplotype_data %>%
   group_by(haplotype_Ac, City) %>%
-  summarize(count = n(),
+  summarise(count = n(),
             prop = round(count / nrow(haplotype_data), 3))
 
 # Correct/incorrect calls at Ac locus
@@ -554,13 +554,13 @@ haplo_validation_Ac <- haplo_counts_Ac %>%
     TRUE ~ "Valid"
   )) %>%
   group_by(validation) %>%
-  summarize(total_prop = sum(prop))
+  summarise(total_prop = sum(prop))
 
 # Relative frequency of haplotypes at Ac Locus
 freqHaploAc <- haplotype_data %>%
   group_by(City, Habitat, haplotype_Ac) %>%
   filter(haplotype_Ac != "unk" & haplotype_Ac != "Ac") %>%
-  summarize(nAc = n()) %>%
+  summarise(nAc = n()) %>%
   mutate(freqHaploAc = nAc / sum(nAc)) %>%
   ungroup() %>%
   mutate(haplotype_Ac = as.factor(haplotype_Ac),
@@ -598,12 +598,12 @@ simpsDivAc %>%
 # Counts and proportion of different haplotypes at Li Locus
 haplo_counts_Li <- haplotype_data %>%
   group_by(haplotype_Li) %>%
-  summarize(count = n(),
+  summarise(count = n(),
             prop = round(count / nrow(haplotype_data), 3))
 
 haplo_counts_Li_City <- haplotype_data %>%
   group_by(haplotype_Li, City) %>%
-  summarize(count = n(),
+  summarise(count = n(),
             prop = round(count / nrow(haplotype_data), 3))
 
 # Correct/incorrect calls at Li locus
@@ -614,13 +614,13 @@ haplo_validation_Li <- haplo_counts_Li %>%
     TRUE ~ "Valid"
   )) %>%
   group_by(validation) %>%
-  summarize(total_prop = sum(prop))
+  summarise(total_prop = sum(prop))
 
 # Relative frequency of haplotypes at Li Locus
 freqHaploLi <- haplotype_data %>%
   group_by(City, Habitat, haplotype_Li) %>%
   filter(haplotype_Li != "unk" & haplotype_Li != "Li") %>%
-  summarize(nLi = n()) %>%
+  summarise(nLi = n()) %>%
   mutate(freqHaploLi = nLi / sum(nLi)) %>%
   ungroup() %>%
   mutate(haplotype_Li = as.factor(haplotype_Li),
@@ -852,27 +852,110 @@ ggsave(filename = "analysis/figures/Figure4inset_envPCA_slope_vars.pdf",
        plot = envPCA_Slope_vars, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
+#### SUPPLEMENTARY FIGURES ####
+
+## HAPLOTYPE FREQUENCIES
+
+Li_Haplo_Freqs <- ggplot(freqHaploLi, aes(x = Habitat, y = freqHaploLi, fill = haplotype_Li)) +
+  geom_bar(stat='identity') + 
+  xlab("Habitat") + ylab("Haplotype frequency") + 
+  facet_grid(~City) +
+  scale_fill_manual(values = c("#00A08A", "#F2AD00", "#F98400", "#5BBCD6")) +
+  ng1 + theme(legend.position = "top",
+              legend.direction = "horizontal",
+              aspect.ratio=3.0, legend.text=element_text(size=10),
+              legend.title = element_text(size = 0), 
+              legend.key.size = unit(0.5, "cm"),
+              axis.text.x = element_text(angle = 45, hjust = 1))
+Li_Haplo_Freqs
+
+ggsave(filename = 'analysis/figures/supplemental/Li_haplotype_freqs.pdf', 
+       plot = Li_Haplo_Freqs, device = "pdf", 
+       width = 8, height = 5, dpi = 300)
+
+Ac_Haplo_Freqs <- ggplot(freqHaploAc, aes(x = Habitat, y = freqHaploAc, fill = haplotype_Ac)) +
+  geom_bar(stat='identity') + 
+  xlab("Habitat") + ylab("Haplotype frequency") + 
+  facet_grid(~City) +
+  scale_fill_manual(values = c("#F98400", "#5BBCD6")) +
+  ng1 + theme(legend.position = "top",
+              legend.direction = "horizontal",
+              aspect.ratio=3.0, legend.text=element_text(size=10),
+              legend.title = element_text(size = 0), 
+              legend.key.size = unit(0.5, "cm"),
+              axis.text.x = element_text(angle = 45, hjust = 1))
+Ac_Haplo_Freqs
+
+ggsave(filename = 'analysis/figures/supplemental/Ac_haplotype_freqs.pdf', 
+       plot = Ac_Haplo_Freqs, device = "pdf", 
+       width = 8, height = 5, dpi = 300)
+
+## INDIVIDUAL CLINE BIPLOTS
+
+clineBiplot <- function(df, response_var, outpath, model_order_df){
+  
+  # Get city name
+  city_name <- df$City[1]
+  print(city_name)
+  if(model_order_df[model_order_df$City == city_name, response_var] == "linear"){
+    
+    plot <- df %>%
+      ggplot(., aes_string(x = "std_distance", y = response_var)) +
+      geom_point(colour = "black", size = 3.5) +
+      geom_smooth(method = "lm", se = FALSE, colour = "black", size = 2) + 
+      ylab("Frequency of HCN") + xlab("Standardized distance") +
+      ng1
+    
+    # Full path to which data frame will be written
+    path <- paste0(outpath, city_name, ".pdf")
+    # print(path)
+    
+    # Write dataframe
+    ggsave(filename = path, plot = plot, device = "pdf", 
+           width = 5, height = 5, dpi = 300)
+    
+  }else if(model_order_df[model_order_df$City == city_name, response_var] == "quadratic"){
+    
+    plot <- df %>%
+      ggplot(., aes_string(x = "std_distance", y = response_var)) +
+      geom_point(colour = "black", size = 3.5) +
+      geom_smooth(method = "lm", formula = y ~ x + I(x^2), 
+                  se = FALSE, colour = "black", size = 2) + 
+      ylab("Frequency of HCN") + xlab("Standardized distance") +
+      ng1   
+    
+    path <- paste0(outpath, city_name, ".pdf")
+    ggsave(filename = path, plot = plot, device = "pdf", 
+           width = 5, height = 5, dpi = 300)
+    
+  }
+}
+
+# Create list with city dataframes as elements
+city_df_list <- datPops %>% split(.$City)
+
+# Create biplot for all cities with HCN as response
+outpath <- "analysis/figures/individualCline_biplots/HCN/"
+purrr::walk(city_df_list, clineBiplot, 
+            response_var = "freqHCN", 
+            outpath = outpath,
+            model_order_df = clineModelOrder)
+
+# Create biplot for all cities with Ac as response
+outpath <- "analysis/figures/individualCline_biplots/Ac/"
+purrr::walk(city_df_list, clineBiplot, 
+            response_var = "AcHWE", 
+            outpath = outpath,
+            model_order_df = clineModelOrder)
+
+# Create biplot for all cities with Li as response
+outpath <- "analysis/figures/individualCline_biplots/Li/"
+purrr::walk(city_df_list, clineBiplot, 
+            response_var = "LiHWE", 
+            outpath = outpath,
+            model_order_df = clineModelOrder)
+
 ## TEST FIGURES
-
-plot_Haplo_Li <- ggplot(freqHaploLi, aes(x = Habitat, y = freqHaploLi, fill = haplotype_Li)) +
-  geom_bar(stat = "identity", position = "stack", color = "black") + 
-  xlab("Habitat") + ylab("Relative frequency") +
-  facet_grid(~ City) + ng1 +
-  theme(aspect.ratio = 3.0,
-        legend.position = "top",
-        legend.direction = "horizontal",
-        legend.key.size = unit(0.5, "cm"))
-plot_Haplo_Li
-
-plot_Haplo_Ac <- ggplot(freqHaploAc, aes(x = Habitat, y = freqHaploAc, fill = haplotype_Ac)) +
-  geom_bar(stat = "identity", position = "stack", color = "black") + 
-  xlab("Habitat") + ylab("Relative frequency") +
-  facet_grid(~ City) + ng1 +
-  theme(aspect.ratio = 3.0,
-        legend.position = "top",
-        legend.direction = "horizontal",
-        legend.key.size = unit(0.5, "cm"))
-plot_Haplo_Ac
 
 haplotype_data %>%
   group_by(City, Habitat) %>%
@@ -898,4 +981,6 @@ corr_mat[upper.tri(corr_mat)] <- round(corr_mat_object$P[upper.tri(corr_mat_obje
 corr_mat <- as.data.frame(corr_mat) %>%
   rownames_to_column()
 write_csv(corr_mat, path = "analysis/weatherCorrMat.csv", col_names = TRUE)
+
+
   
