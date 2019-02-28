@@ -17,6 +17,7 @@ library(factoextra)
 library(vegan)
 library(RColorBrewer)
 library(MuMIn)
+library(Hmisc)
 
 # Load data with population-level data for all cities
 datPops <- read.csv("data-clean/AllCities_AllPopulations.csv")
@@ -348,33 +349,6 @@ linearClineModelOnly <- function(dataframe_list){
   return(modelOutputData)
 }
 
-##Function for changing upper panel in 'pairs' correlation matrix to show correlation
-#coefficients and p-values
-panel.cor <- function(x, y, digits = 2, cex.cor, ...)
-{
-  usr <- par("usr")
-  on.exit(par(usr))
-  par(usr = c(0, 1, 0, 1))
-  # correlation coefficient
-  r <- cor(x, y, use = "complete.obs", method = "pearson")
-  txt <- format(c(r, 0.123456789), digits = digits)[1]
-  txt <- paste("r= ", txt, sep = "")
-  text(0.5, 0.6, txt)
-  
-  # p-value calculation
-  p <- cor.test(x, y)$p.value
-  txt2 <- format(c(p, 0.123456789), digits = digits)[1]
-  txt2 <- paste("p= ", txt2, sep = "")
-  if (p < 0.001)
-    txt2 <- paste("p= ", "<0.001", sep = "")
-  text(0.5, 0.4, txt2)
-}
-
-#Function to add least squares regression line to lower panel of 'pairs' scatterplot matrix
-lsline = function(x, y) {
-  points(x, y, pch = ".")
-  abline(lsfit(x, y), col = "blue")
-}
 
 #### OUPUT FROM INDIVIDUAL CLINES ####
 
@@ -901,4 +875,25 @@ plot_Haplo_Ac
 haplotype_data %>%
   group_by(City, Habitat) %>%
   summarize(count = n())
+
+#### CORRELATIONS AMONG WEATHER VARIABLES
+
+# Select weather variables
+weather_data <- citySummaryData %>%
+  select(Latitude, Longitude, annualAI, monthlyPET, annualPET,
+         monthlyPrecip, mwtBio, mstBio, smd, snow_depth, snowfall,
+         daysNegNoSnow) %>%
+  as.matrix()
+
+# Create correlation matrix
+corr_mat_object <- rcorr(weather_data, type = "pearson")
+corr_mat <- round(corr_mat_object$r, 3)
+
+# Assign P-values to upper triangle of correlation matrix
+corr_mat[upper.tri(corr_mat)] <- round(corr_mat_object$P[upper.tri(corr_mat_object$P)], 3)
+
+# Write correlation matrix to disk
+corr_mat <- as.data.frame(corr_mat) %>%
+  rownames_to_column()
+write_csv(corr_mat, path = "analysis/weatherCorrMat.csv", col_names = TRUE)
   

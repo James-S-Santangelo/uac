@@ -7,7 +7,8 @@
 library(tidyverse)
 
 # Load in daily summaries
-weather_data <- read_csv("data-raw/DailyNormals_AllCities_Unfiltered.csv", col_names = TRUE)
+weather_data <- read_csv("data-raw/DailyNormals_AllCities_Unfiltered.csv", 
+                         col_names = TRUE, na = c("CA", "NA", ""))
 glimpse(weather_data)
 
 # Filter data
