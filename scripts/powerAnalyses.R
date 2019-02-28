@@ -53,6 +53,10 @@ ModTorC <- lm(freqHCN ~ Distance, data = KT_pops_TorC)
 SumTorC <- summary(ModTorC)
 SumTorC$coefficients[8]
 
+# Model for Boston
+KT_pops_Bos <- KT_pops %>% filter(City == "Boston")
+ModBos <- lm(freqHCN ~ Distance, data = KT_pops_Bos)
+SumBos <- summary(ModBos)
 
 #The strongest pattern is found in transect B of Toronto. Will use this for analysis#
 #####Function to analyze Toronto. Note that function is not fully automated and
@@ -93,6 +97,11 @@ P9T <- replicate(1000, FunPval(KT_plants_TorB, size = 12))
 P10T <- replicate(1000, FunPval(KT_plants_TorB, size = 11))
 P11T <- replicate(1000, FunPval(KT_plants_TorB, size = 10))
  
+# abs_simulated_means <- abs(P1T)
+# abs_diff_means_obs <- abs(diff_means_obs)
+exceed_count <- length(P1T[P1T <= SumTorB$coefficients[8]])
+p_val <- exceed_count / 1000
+
 #Bind results into table#
 PvalTor <- cbind(P1T, P2T, P3T, P4T, P5T, P6T, P7T, P8T, P9T, P10T, P11T)
 PvalTor <- as.data.frame(PvalTor)
@@ -142,20 +151,39 @@ S9T <- replicate(1000, FunSlope(KT_plants_TorB, size = 12))
 S10T <- replicate(1000, FunSlope(KT_plants_TorB, size = 11))
 S11T <- replicate(1000, FunSlope(KT_plants_TorB, size = 10))
 
+
+# abs_simulated_means <- abs(P1T)
+# abs_diff_means_obs <- abs(diff_means_obs)
+exceed_count <- length(S11T[S11T >= SumTorB$coefficients[2]])
+p_val <- exceed_count / 1000
+
+
 #Bind results into table#
 SlopeTor <- cbind(S1T, S2T, S3T, S4T, S5T, S6T, S7T, S8T, S9T, S10T, S11T)
 SlopeTor <- as.data.frame(SlopeTor)
 Plants <- c(20, 19, 18, 17, 16, 15, 14, 13, 12 ,11 ,10)
 MeansTorSlope <- colMeans(SlopeTor)
-TorPlotSlope <- as.data.frame(cbind(Plants, MeansTorSlope))
+SdTorSlopePop <- sapply(SlopeTor, function(cl) sds = sd(cl))
+TorPlotSlope <- as.data.frame(cbind(SdTorSlopePop, Plants, MeansTorSlope))
 
 #Plot number of plants vs. mean slope#
 plotTorSlope<-ggplot(TorPlotSlope, aes(x = Plants, y = MeansTorSlope)) +
   geom_line(colour = "black",size = 1) + ylab("Mean Slope") + 
-  xlab("Number of plants") + geom_point(size = 2) + coord_cartesian(ylim=c(0.002, 0.015))+
+  xlab("Number of plants") + geom_point(size = 2) + 
+  coord_cartesian(ylim=c(0.002, 0.015)) +
   scale_y_continuous(breaks = seq(from = 0.002, to = 0.015, by = 0.002))+
   scale_x_reverse(breaks = seq(from = 10, to = 20, by = 2))
 plotTorSlope + ng1
+
+#Plot number of plants vs. StDev in slope#
+plotTorSlopeSD<-ggplot(TorPlotSlope, aes(x = Plants, y = SdTorSlopePop)) +
+  geom_line(colour = "black",size = 1) + ylab("Mean Slope") + 
+  xlab("Number of plants") + geom_point(size = 2) +
+  # coord_cartesian(ylim=c(0.002, 0.015))+
+  # scale_y_continuous(breaks = seq(from = 0.002, to = 0.015, by = 0.002))+
+  scale_x_reverse(breaks = seq(from = 10, to = 20, by = 2))
+plotTorSlopeSD + ng1
+
 
 ###ANALYSIS OF BOSTON###
 
@@ -202,6 +230,9 @@ S9B <- replicate(1000, FunSlope(KT_plants_Bos, size = 12))
 S10B <- replicate(1000, FunSlope(KT_plants_Bos, size = 11))
 S11B <- replicate(1000, FunSlope(KT_plants_Bos, size = 10))
 
+exceed_count <- length(S11B[S11B >= SumBos$coefficients[2]])
+p_val <- exceed_count / 1000
+
 #Bind results into table#
 SlopeBos <- cbind(S1B, S2B, S3B, S4B, S5B, S6B, S7B, S8B, S9B, S10B, S11B)
 SlopeBos <- as.data.frame(SlopeBos)
@@ -243,7 +274,6 @@ P7T <- replicate(1000, FunPvalPop(KT_pops_TorB, size = 20))
 P8T <- replicate(1000, FunPvalPop(KT_pops_TorB, size = 15))
 P9T <- replicate(1000, FunPvalPop(KT_pops_TorB, size = 10))
 
-
 #Bind results into table#
 PvalTorPop <- cbind(P1T, P2T, P3T, P4T, P5T, P6T, P7T, P8T, P9T)
 PvalTorPop <- as.data.frame(PvalTorPop)
@@ -282,6 +312,10 @@ S6T <- replicate(1000, FunSlopePop(KT_pops_TorB, size = 25))
 S7T <- replicate(1000, FunSlopePop(KT_pops_TorB, size = 20))
 S8T <- replicate(1000, FunSlopePop(KT_pops_TorB, size = 15))
 S9T <- replicate(1000, FunSlopePop(KT_pops_TorB, size = 10))
+
+exceed_count <- length(S9T[S9T >= SumTorB$coefficients[2]])
+p_val <- exceed_count / 1000
+
 
 #Bind results into table#
 SlopeTorPop <- cbind(S1T, S2T, S3T, S4T, S5T, S6T, S7T, S8T, S9T)
