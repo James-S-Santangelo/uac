@@ -896,7 +896,7 @@ clineBiplot <- function(df, response_var, outpath, model_order_df){
   
   # Get city name
   city_name <- df$City[1]
-  print(city_name)
+  # print(city_name)
   if(model_order_df[model_order_df$City == city_name, response_var] == "linear"){
     
     plot <- df %>%
