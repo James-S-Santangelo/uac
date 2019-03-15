@@ -955,6 +955,16 @@ purrr::walk(city_df_list, clineBiplot,
             outpath = outpath,
             model_order_df = clineModelOrder)
 
+#Plot of HCN frequencies with latitude
+plotHCN_by_lat <- ggplot(citySummaryData, aes(x = Latitude, y = freqHCN)) +
+  geom_point(colour = "black", size = 3.5) +
+  geom_smooth(method = "lm", se = FALSE, colour = "black", size = 2) + 
+  ylab("Frequency of HCN") + xlab("Latitude") +
+  ng1
+plotHCN_by_lat
+
+ggsave(filename = "analysis/figures/supplemental/figureS2_HCN_by_Lat.pdf", plot = plotHCN_by_lat, device = "pdf", 
+       width = 5, height = 5, dpi = 300)
 ## TEST FIGURES
 
 haplotype_data %>%
