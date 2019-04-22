@@ -366,10 +366,31 @@ clinesAllCities <- lm(freqHCN ~ std_distance*City, data = datPops)
 summary(clinesAllCities)
 car::Anova(clinesAllCities, type = 3)
 
-#### ANALYSIS PREDICTING MEAN HCN FREQUENCIES ####
+#### CORRELATIONS AMONG WEATHER VARIABLES
 
 # Load in city summary dataset
 citySummaryData <- read_csv("data-clean/citySummaryData.csv")
+
+# Select weather variables
+weather_data <- citySummaryData %>%
+  select(Latitude, Longitude, annualAI, monthlyPET, annualPET,
+         monthlyPrecip, mwtBio, mstBio, smd, snow_depth, snowfall,
+         daysNegNoSnow) %>%
+  as.matrix()
+
+# Create correlation matrix
+corr_mat_object <- rcorr(weather_data, type = "pearson")
+corr_mat <- round(corr_mat_object$r, 3)
+
+# Assign P-values to upper triangle of correlation matrix
+corr_mat[upper.tri(corr_mat)] <- round(corr_mat_object$P[upper.tri(corr_mat_object$P)], 3)
+
+# Write correlation matrix to disk
+corr_mat <- as.data.frame(corr_mat) %>%
+  rownames_to_column()
+write_csv(corr_mat, path = "analysis/weatherCorrMat.csv", col_names = TRUE)
+
+#### ANALYSIS PREDICTING MEAN HCN FREQUENCIES ####
 
 # Get range of HCN frequencies
 citySummaryData %>%
@@ -389,8 +410,30 @@ summary(lm(freqHCN ~ smd, data = citySummaryData)) # KEEP
 summary(lm(freqHCN ~ snow_depth, data = citySummaryData)) # REMOVE
 summary(lm(freqHCN ~ snowfall, data = citySummaryData)) # KEEP
 summary(lm(freqHCN ~ daysNegNoSnow, data = citySummaryData)) # KEEP
+summary(lm(freqHCN ~ snowfall*mwtBio, data = citySummaryData))
+
+# set up grid of (x,y) values
+snowfall <- seq(0, 1.5, by=0.005)
+mwtBio <- seq(-16.5,10.5, by=0.09)
+gg <- expand.grid(snowfall=snowfall, mwtBio=mwtBio)
+# prediction from the linear model
+gg$freqHCN <-predict(inter_mod,newdata=gg)
+
+# contour plot 
+library(ggplot2)
+library(visreg)  
+library(grDevices)
+inter_mod <- lm(freqHCN ~ daysNegNoSnow*PC1_HCN, data = citySummaryData)
+visreg2d(inter_mod, "daysNegNoSnow", "PC1_HCN")
+
+jet.colors <- colorRampPalette(matlab.like(9))
+ggplot(gg, aes(x=snowfall, y=mwtBio, z=freqHCN))+
+  stat_contour(aes(color=..level..), binwidth = 0.0001)+
+  scale_color_gradientn(colours=jet.colors(8)) +
+  theme_classic()
 
 # Pull out columns with remaining environmental predictors.
+
 # Predictors kept if P <= 0.1 from above models
 envPredictorsHCN <- citySummaryData %>%
   column_to_rownames('City') %>%
@@ -399,9 +442,8 @@ envPredictorsHCN <- citySummaryData %>%
          mwtBio, mstBio, smd, snowfall,
          daysNegNoSnow)
 
-
 # AnnualAI, daysNegNoSnow, and smd show only moderate correlations with other
-# variables. These will be kept as disting predictors. monthlyPET will be
+# variables. These will be kept as distinct predictors. monthlyPET will be
 # eliminated since it is highly correlated with, and measures the same thing
 # as, annualPET. The remaining variables all show strong correlations and will
 # be reduced through PCA. See text S1 for details and table SX for correlation matrix
@@ -437,7 +479,6 @@ citySummaryData <- envPCAHCN_inds$coord  %>% # PCA scores for cities. Can be ext
   rownames_to_column("City") %>%
   merge(., citySummaryData, by = "City")
 
-
 # citySummaryData$PC1_HCN_squared <- citySummaryData$PC1_HCN^2
 # Model for change in mean HCN frequency
 HCNfreqMod <- lm(freqHCN ~ PC1_HCN + annualAI + daysNegNoSnow +
@@ -470,9 +511,6 @@ citySummaryDataForAnalysis <- citySummaryData %>%
 
 ## CORRELATIONS AMOMG PREDICTORS
 
-# Pairwise correlation matrix
-pairs(envPredictors, upper.panel = panel.cor, lower.panel = lsline)
-
 #Run Models for each environmental variable predicting the strength of clines
 summary(lm(cyanSlopeForAnalysis ~ Latitude, data = citySummaryDataForAnalysis)) # KEEP
 summary(lm(cyanSlopeForAnalysis ~ Longitude, data = citySummaryDataForAnalysis)) # REMOVE
@@ -492,11 +530,6 @@ summary(lm(cyanSlopeForAnalysis ~ daysNegNoSnow, data = citySummaryDataForAnalys
 envPredictorsSlope <- citySummaryDataForAnalysis %>%
   column_to_rownames('City') %>%
   select(mwtBio, mstBio, snow_depth, snowfall)
-
-# Visualize correlations among remaining predictors.
-pairs(envPredictorsSlope, upper.panel = panel.cor, lower.panel = lsline)
-
-# All remaining variables highly correlated. Perform PCA.
 
 # Perform PCA of remaining environmental variables 
 envPCAslope <- prcomp(envPredictorsSlope, center = TRUE, scale = TRUE)
@@ -970,27 +1003,6 @@ ggsave(filename = "analysis/figures/supplemental/figureS2_HCN_by_Lat.pdf", plot 
 haplotype_data %>%
   group_by(City, Habitat) %>%
   summarize(count = n())
-
-#### CORRELATIONS AMONG WEATHER VARIABLES
-
-# Select weather variables
-weather_data <- citySummaryData %>%
-  select(Latitude, Longitude, annualAI, monthlyPET, annualPET,
-         monthlyPrecip, mwtBio, mstBio, smd, snow_depth, snowfall,
-         daysNegNoSnow) %>%
-  as.matrix()
-
-# Create correlation matrix
-corr_mat_object <- rcorr(weather_data, type = "pearson")
-corr_mat <- round(corr_mat_object$r, 3)
-
-# Assign P-values to upper triangle of correlation matrix
-corr_mat[upper.tri(corr_mat)] <- round(corr_mat_object$P[upper.tri(corr_mat_object$P)], 3)
-
-# Write correlation matrix to disk
-corr_mat <- as.data.frame(corr_mat) %>%
-  rownames_to_column()
-write_csv(corr_mat, path = "analysis/weatherCorrMat.csv", col_names = TRUE)
 
 
   
