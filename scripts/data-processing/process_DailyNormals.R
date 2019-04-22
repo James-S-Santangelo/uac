@@ -39,10 +39,11 @@ weather_data_filtered <- weather_data %>%
 
 # Summarize number of observations for each city
 weather_summ <- weather_data_filtered %>% 
-  group_by(City) %>%
+  group_by(City, STATION_NAME) %>%
   summarize(min_year = min(Year),
             max_year = max(Year),
-            count = n())
+            count = n()) %>%
+  mutate(STATION_NAME = str_to_title(STATION_NAME))
 
 # Write filtered data to disk
 write_csv(weather_data_filtered, "data-clean/DailyNormals_AllCities_Filtered.csv")
