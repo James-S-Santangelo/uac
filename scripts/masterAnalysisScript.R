@@ -1,3 +1,14 @@
+# Predicting the strength of urban-rural clines in a 
+# Mendelian polymorphism along a latitudinal gradient 
+#
+# Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan
+# Jibran Syed, Rob W. Ness, Marc T. J. Johnson
+
+
+# Script to cary out all analyses reported in manuscript
+# Script also generates tables and figures
+
+
 ### SETUP ###
 
 # Change default contrasts to enable type III SS
@@ -11,35 +22,30 @@ rm(list=ls())
 # Load required packages
 library(tidyverse)
 library(broom)
-library(car)
-library(FactoMineR)
+library(Hmisc)
 library(factoextra)
 library(vegan)
-library(RColorBrewer)
 library(MuMIn)
-library(Hmisc)
-
-# Load data with population-level data for all cities
-datPops <- read.csv("data-clean/AllCities_AllPopulations.csv")
+library(car)
 
 #### FUNCTIONS ####
 
+#' Assesses whether a linear or quadratic model is best fit
+#'
+#' Quadratic model is assumed to be better fit if it improves model AIC
+#' by more than 2 points.
+#' 
+#' @param response Response variable to use in cline models. One of "freqHCN",
+#' "AcHWE", or "LiHWE".
+#' @param data Dataset to use for running cline model.
+#' @return list with first element being the lm model object for the best fit model and
+#' the second being a string with the model order ("linear" or "quadratic").
 getBestFitClineModel <- function(response, data) {
-  #' Assesses whether a linear or quadratic model is best fit
-  #'
-  #' Quadratic model is assumed to be better fit if it improves model AIC
-  #' by more than 2 points.
-  #' 
-  #' @param response Response variable to use in cline models. One of "freqHCN",
-  #' "AcHWE", or "LiHWE".
-  #' @param data Dataset to use for running cline model.
-  #' @return list with first element being the lm model object for the best fit model and
-  #' the second being a string with the model order ("linear" or "quadratic").
   
   # Pull variables for linear model from dataset
-  response <- data[, response]
-  std_distance <- data[, "std_distance"]
-  std_distance_squared <- data[, "std_distance_squared"]
+  response <- data %>% pull(response) #[, response]
+  std_distance <- data %>% pull("std_distance")
+  std_distance_squared <- data %>% pull("std_distance_squared")
   
   # Define linear and quadratic models for analysis of HCN with distance
   quadratic_model = lm(response ~ std_distance + std_distance_squared) # Specify quadratic model
@@ -63,17 +69,16 @@ getBestFitClineModel <- function(response, data) {
               model_order = order))
 }
 
+#' Retrieves the slopes and P-values for linear and quadratic (if present) terms from lm object
+#'
+#' @param best_model_output lm object representing best fit cline model
+#' @param best_model_order String representing order of best fit model
+#' @param clines_results Vector storing coefficients from model output
+#' @return clines_results: Vector storing coefficients from model output
 getClineModelOutputFromOrder <-
   function(best_model_output,
            best_model_order,
            clines_results) {
-    #' Retrieves the slopes and P-values for linear and quadratic (if present) terms from lm object
-    #'
-    #' @param best_model_output lm object representing best fit cline model
-    #' @param best_model_order String representing order of best fit model
-    #' @param clines_results Vector storing coefficients from model output
-    #' @return clines_results: Vector storing coefficients from model output
-    
     
     # Tidy model output
     tidy_output <- broom::tidy(best_model_output)
@@ -109,14 +114,14 @@ getClineModelOutputFromOrder <-
     return(clines_results)
   }
 
+#' Writes cline model output for HCN, Ac, and Li to table
+#'
+#' @param dataframe_list A list containing individual dataframes with
+#' the frequency of HCN, Ac (if present), and Li (if present), and
+#' standardized distance to the urban centre and distance squared
+#' (for quadratic cline model)
+#' @return None: Writes dataframe to disk and assigns to global environment
 writeClineResults <- function(dataframe_list) {
-  #' Writes cline model output for HCN, Ac, and Li to table
-  #'
-  #' @param dataframe_list A list containing individual dataframes with
-  #' the frequency of HCN, Ac (if present), and Li (if present), and
-  #' standardized distance to the urban centre and distance squared
-  #' (for quadratic cline model)
-  #' @return None: Writes dataframe to disk and assigns to global environment
   
   # Initialize dataset that will hold model outputs
   modelOutputData <- data.frame(
@@ -271,14 +276,20 @@ writeClineResults <- function(dataframe_list) {
   
   assign("clineModelOrder", clineOrderData, envir = .GlobalEnv)
   write_csv(clineOrderData,
-            "analysis/clineOrderData.csv",
+            "analysis/tables/supplemental/TableS3_clineOrderData.csv",
             na = "NA",
             append = FALSE)
 }
 
+#' Writes cline model output of linear model (first-order only)for HCN, Ac, and Li to table
+#'
+#' @param dataframe_list A list containing individual dataframes with
+#' the frequency of HCN, Ac (if present), and Li (if present), and
+#' standardized distance to the urban centre and distance squared
+#' (for quadratic cline model)
+#' @return modelOutputData A dataframe with slopes and P-values of first-order linear models
 linearClineModelOnly <- function(dataframe_list){
-  
-  
+
   # Initialize dataset that will hold model outputs
   modelOutputData <- data.frame(
     City = character(),
@@ -290,7 +301,6 @@ linearClineModelOnly <- function(dataframe_list){
     pvalLi = numeric(),
     stringsAsFactors = FALSE
   )
-  
   
   for (i in 1:length(dataframe_list)) {
     
@@ -309,10 +319,6 @@ linearClineModelOnly <- function(dataframe_list){
     #Extract relavent coeficient
     betaHCN <- round(summary(clineModel)$coefficients["std_distance", "Estimate"], 4)
     pvalHCN <- round(summary(clineModel)$coefficients["std_distance", "Pr(>|t|)"], 4)
-    
-    # print(city)
-    # print(betaHCN)
-    # print(pvalHCN)
     
     cline_results <- append(cline_results,
                             c(betaHCN, pvalHCN),
@@ -349,8 +355,58 @@ linearClineModelOnly <- function(dataframe_list){
   return(modelOutputData)
 }
 
+#' Generates biplot of frequency of HCN, Ac, or Li, against distance
+#'
+#' @param df Dataframe with population mean allele or phenotype frequencies and distance
+#' @param response_var One of 'freqHCN', 'AcHWE', or 'LiHWE'
+#' @param outpath Path to which figures should be written
+#' @param model_order_df Dataframe specifying order of best fit linear model as
+#'    'linear' or 'quadratic'. Gerenated with `getBestFitClineModel`
+#' 
+#' @return modelOutputData A dataframe with slopes and P-values of first-order linear models
+clineBiplot <- function(df, response_var, outpath, model_order_df){
+  
+  # Get city name
+  city_name <- df$City[1]
+  # print(city_name)
+  if(model_order_df[model_order_df$City == city_name, response_var] == "linear"){
+    
+    plot <- df %>%
+      ggplot(., aes_string(x = "std_distance", y = response_var)) +
+      geom_point(colour = "black", size = 3.5) +
+      geom_smooth(method = "lm", se = FALSE, colour = "black", size = 2) + 
+      ylab(sprintf("Frequency of %s", response_var)) + xlab("Standardized distance") +
+      ng1
+    
+    # Full path to which data frame will be written
+    path <- paste0(outpath, city_name, ".pdf")
+    # print(path)
+    
+    # Write dataframe
+    ggsave(filename = path, plot = plot, device = "pdf", 
+           width = 5, height = 5, dpi = 300)
+    
+  }else if(model_order_df[model_order_df$City == city_name, response_var] == "quadratic"){
+    
+    plot <- df %>%
+      ggplot(., aes_string(x = "std_distance", y = response_var)) +
+      geom_point(colour = "black", size = 3.5) +
+      geom_smooth(method = "lm", formula = y ~ x + I(x^2), 
+                  se = FALSE, colour = "black", size = 2) + 
+      ylab(sprintf("Frequency of %s", response_var)) + xlab("Standardized distance") +
+      ng1   
+    
+    path <- paste0(outpath, city_name, ".pdf")
+    ggsave(filename = path, plot = plot, device = "pdf", 
+           width = 5, height = 5, dpi = 300)
+    
+  }
+}
 
 #### OUPUT FROM INDIVIDUAL CLINES ####
+
+# Load data with population-level data for all cities
+datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
 
 # Split cities into different dataframes stored as list
 city_dataframes <- split(datPops, datPops$City)
@@ -358,15 +414,26 @@ city_dataframes <- split(datPops, datPops$City)
 # Write cline results to disk and global environment
 writeClineResults(city_dataframes)
 
+# Logistic regression for each city
+allPlants %>% 
+  group_by(City) %>%
+  do(mod = glm(HCN_Result ~ Distance, data = .)) %>%
+  broom::tidy(., mod) %>%
+  filter(term == "Distance") %>%
+  mutate(p.value = round(p.value, 5)) %>% 
+  View()
+
 #### ANALYSIS OF CLINES ACROSS ALL CITIES ####
 
 ## HCN ##
 
+# Anova for overall effect of distance, city, and whether the strenth of clines
+# varies across cities (i.e., distance x city interaction)
 clinesAllCities <- lm(freqHCN ~ std_distance*City, data = datPops)
 summary(clinesAllCities)
-car::Anova(clinesAllCities, type = 3)
+Anova(clinesAllCities, type = 3)
 
-#### CORRELATIONS AMONG WEATHER VARIABLES
+#### CORRELATIONS AMONG CLIMATIC VARIABLES ####
 
 # Load in city summary dataset
 citySummaryData <- read_csv("data-clean/citySummaryData.csv")
@@ -388,7 +455,6 @@ corr_mat[upper.tri(corr_mat)] <- round(corr_mat_object$P[upper.tri(corr_mat_obje
 # Write correlation matrix to disk
 corr_mat <- as.data.frame(corr_mat) %>%
   rownames_to_column()
-write_csv(corr_mat, path = "analysis/weatherCorrMat.csv", col_names = TRUE)
 
 #### ANALYSIS PREDICTING MEAN HCN FREQUENCIES ####
 
@@ -412,27 +478,6 @@ summary(lm(freqHCN ~ snowfall, data = citySummaryData)) # KEEP
 summary(lm(freqHCN ~ daysNegNoSnow, data = citySummaryData)) # KEEP
 summary(lm(freqHCN ~ snowfall*mwtBio, data = citySummaryData))
 
-# set up grid of (x,y) values
-snowfall <- seq(0, 1.5, by=0.005)
-mwtBio <- seq(-16.5,10.5, by=0.09)
-gg <- expand.grid(snowfall=snowfall, mwtBio=mwtBio)
-# prediction from the linear model
-gg$freqHCN <-predict(inter_mod,newdata=gg)
-
-# contour plot 
-library(ggplot2)
-library(visreg)  
-library(grDevices)
-inter_mod <- lm(freqHCN ~ daysNegNoSnow*PC1_HCN, data = citySummaryData)
-visreg2d(inter_mod, "daysNegNoSnow", "PC1_HCN")
-
-jet.colors <- colorRampPalette(matlab.like(9))
-ggplot(gg, aes(x=snowfall, y=mwtBio, z=freqHCN))+
-  stat_contour(aes(color=..level..), binwidth = 0.0001)+
-  scale_color_gradientn(colours=jet.colors(8)) +
-  theme_classic()
-
-# Pull out columns with remaining environmental predictors.
 
 # Predictors kept if P <= 0.1 from above models
 envPredictorsHCN <- citySummaryData %>%
@@ -494,22 +539,17 @@ HCNfreqMod_dredge <- dredge(HCNfreqMod, rank = "AICc",
                               summary(x)$fstatistic[[1]]))
 options(na.action = "na.omit")
 
-# Get all dredge models as data frame and save to disk
+# Get all dredge models as data frame and summarise output
 HCN_dredge_models <- as.data.frame(HCNfreqMod_dredge)
-write_csv(HCN_dredge_models, path = "analysis/HCN_dredge_output.csv", col_names = TRUE)
-
 models_HCN <- get.models(HCNfreqMod_dredge, subset = delta < 2)
 HCN_modAvg <- model.avg(models_HCN)
 summary(HCN_modAvg)
-HCN_modAvg$coefArray
 
 #### ANALYSIS OF FACTORS PREDICTING CLINE STRENGTH ####
 
 # Generate reduced dataset that excludes Tampa, which is fixed for HCN
 citySummaryDataForAnalysis <- citySummaryData %>%
   filter(City != "Tampa")
-
-## CORRELATIONS AMOMG PREDICTORS
 
 #Run Models for each environmental variable predicting the strength of clines
 summary(lm(cyanSlopeForAnalysis ~ Latitude, data = citySummaryDataForAnalysis)) # KEEP
@@ -568,6 +608,14 @@ haplotype_data <- read_csv("data-clean/haplotypeData.csv")
 
 ## AC LOCUS ##
 
+# Number of plants per population and city
+haplotype_data %>% 
+  group_by(City, Habitat, haplotype_Ac) %>% 
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  group_by(City, Habitat) %>% 
+  summarise(sum = sum(count))
+
 # Counts and proportion of different haplotypes at Ac Locus
 haplo_counts_Ac <- haplotype_data %>%
   group_by(haplotype_Ac) %>%
@@ -604,18 +652,14 @@ freqHaploAc <- haplotype_data %>%
 simpsDivAc <- haplotype_data %>%
   group_by(City, Habitat, haplotype_Ac) %>%
   filter(haplotype_Ac != "unk" & haplotype_Ac != "Ac") %>%
-  summarize(n = n(),
+  summarise(n = n(),
             nMin1 = n - 1, 
             n_nMin1 = n * nMin1) %>%
   ungroup() %>%
   group_by(City, Habitat) %>%
-  summarize(N = sum(n),
+  summarise(N = sum(n),
             sum_n_nMin1 = sum(n_nMin1),
             simpson = 1 - (sum_n_nMin1 / (N* (N - 1))))
-
-# Model testing for variation in Ac haplotype relative frequency by haplotype and habitat type
-AcLocusMod <- lm(freqHaploAc ~ Habitat*haplotype_Ac, data = freqHaploAc)
-car::Anova(AcLocusMod, type = 3)
 
 # Model testing for variation in Ac haplotype simpson's diversity by haplotype and habitat type
 AcLocusMod_Simp <- lm(simpson ~ Habitat, data = simpsDivAc)
@@ -624,7 +668,7 @@ summary(AcLocusMod_Simp)
 # Get Simpson's index in each habitat
 simpsDivAc %>%
   group_by(Habitat) %>%
-  summarize(meanSimp = mean(simpson))
+  summarise(meanSimp = mean(simpson))
 
 ## LI LOCUS ##
 
@@ -664,18 +708,18 @@ freqHaploLi <- haplotype_data %>%
 simpsDivLi <- haplotype_data %>%
   group_by(City, Habitat, haplotype_Li) %>%
   filter(haplotype_Li != "unk" & haplotype_Li != "Li") %>%
-  summarize(n = n(),
+  summarise(n = n(),
             nMin1 = n - 1, 
             n_nMin1 = n * nMin1) %>%
   ungroup() %>%
   group_by(City, Habitat) %>%
-  summarize(N = sum(n),
+  summarise(N = sum(n),
             sum_n_nMin1 = sum(n_nMin1),
             simpson = 1 - (sum_n_nMin1 / (N* (N - 1))))
 
 # Model testing for variation in Li haplotype relative frequency by haplotype and habitat type
 LiLocusMod <- lm(freqHaploLi ~ Habitat*haplotype_Li, data = freqHaploLi)
-car::Anova(LiLocusMod, type = 3)
+Anova(LiLocusMod, type = 3)
 
 # Model testing for variation in Ac haplotype relative frequency by haplotype and habitat type
 LiLocusMod_Simp <- lm(simpson ~ Habitat, data = simpsDivLi)
@@ -684,11 +728,11 @@ summary(LiLocusMod_Simp, type = 3)
 # Get Simpson's index in each habitat
 simpsDivLi %>%
   group_by(Habitat) %>%
-  summarize(meanSimp = mean(simpson))
+  summarise(meanSimp = mean(simpson))
 
 #### TABLES ####
 
-## TABLE 1 ##
+## TABLE 1 
 
 # Linear cline models only. Part of table 1
 linearClines <- linearClineModelOnly(city_dataframes)
@@ -696,34 +740,54 @@ linearClines <- linearClineModelOnly(city_dataframes)
 # Extract number of populations and plants per city. Merge with linear clines model output above
 table1 <- read.csv("data-clean/AllCities_AllPlants.csv") %>%
   group_by(City) %>%
-  summarize(numPops = n_distinct(Population),
+  summarise(numPops = n_distinct(Population),
             numPlants = n()) %>%
   merge(., linearClines, by = "City")
 
 # Write table 1 to disk
-write_csv(table1, "analysis/tables/Table1_cityClineSummary.csv")
+write_csv(table1, "analysis/tables/main-text/Table1_cityClineSummary.csv")
 
-## TABLE 2 ##
+## TABLE S1
 
-table2 <- as.data.frame(rbind(
+weather_data <- read_csv("data-clean/DailyNormals_AllCities_Filtered.csv")
+
+# Summarize number of observations for each city
+weather_summ <- weather_data %>% 
+  group_by(City, STATION_NAME) %>%
+  summarise(min_year = min(Year),
+            max_year = max(Year),
+            count = n()) %>%
+  mutate(STATION_NAME = str_to_title(STATION_NAME))
+
+# Write summarized data to disk
+write_csv(weather_summ, "analysis/tables/supplemental/TableS1_DailyNormals_Summary.csv")
+
+## TABLE S2
+
+write_csv(corr_mat, path = "analysis/tables/supplemental/TableS2_weatherCorrMat.csv", 
+          col_names = TRUE)
+
+## TABLE S3
+
+# Written to disk by `writeClineResults` function
+
+## TABLE S4
+
+write_csv(HCN_dredge_models, path = "analysis/tables/supplemental/TableS4_HCN_dredge_output.csv", 
+          col_names = TRUE)
+
+## TABLE S5
+
+tableS5 <- as.data.frame(rbind(
   c("Full"),
   summary(HCN_modAvg)$coefmat.full)) %>%
   rownames_to_column()
 
-write_csv(table2, "analysis/tables/Table-2_freqHCN-FullModelAvg.csv")
-
-# TABLE S2
-
-tableS2 <- as.data.frame(rbind(
-  c("Conditional"),
-  summary(HCN_modAvg)$coefmat.subset)) %>%
-  rownames_to_column()
-
-write_csv(tableS2, "analysis/tables/Table-S2_freqHCN-CondModelAvg.csv")
+write_csv(tableS5, "analysis/tables/supplemental/TableS5_freqHCN_FullModelAvg.csv")
 
 #### FIGURES ####
 
-#Theme used to plot figures throughout script. Modify depending on usage (e.g. poster, talk, etc.)
+#Theme used to plot figures throughout script.
 ng1 = theme(
   aspect.ratio = 0.7,
   panel.background = element_blank(),
@@ -747,12 +811,12 @@ ng1 = theme(
   legend.key.size = unit(1.0, "cm")
 )
 
-## FIGURE 2 ##
+## FIGURE 1
 
-colours = c("coral3", "cadetblue3", "burlywood3", "brown4",
-            "blue1", "aquamarine2", "darkorchid3", "darkorange2",
-            "khaki3", "hotpink2", "peru", "navy",
-            "yellow3", "thistle3", "springgreen3", "cyan")
+# Figure 1 was generated in QGIS (v. 3.2.3) and is not included here
+
+## FIGURE 2 
+
 # Plot of HCN frequency against distance for each city
 # Solid line if significant. Thick black line is regression across all cities.
 HCN_by_city <- datPops %>%
@@ -784,7 +848,7 @@ HCN_by_city <- datPops %>%
     # geom_dl(aes(label = City), method = list(dl.trans(x = x + 0.2), "last.points", cex = 0.8))
 HCN_by_city
 
-ggsave(filename = "analysis/figures/Figure2_HCN-by-distance.pdf", 
+ggsave(filename = "analysis/figures/main-text/from_R/Figure2_HCN-by-distance.pdf", 
        plot = HCN_by_city, device = 'pdf', units = 'in',
        width = 12, height = 8, dpi = 600)
 
@@ -823,7 +887,7 @@ HCN_by_DaysNeg <- citySummaryData %>%
   ng1
 HCN_by_DaysNeg
 
-ggsave(filename = "analysis/figures/Figure3a_HCN-by-NumDaysNegNoSnow.pdf", 
+ggsave(filename = "analysis/figures/main-text/from_R/Figure3a_HCN-by-NumDaysNegNoSnow.pdf", 
        plot = HCN_by_DaysNeg, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
@@ -839,23 +903,15 @@ HCN_by_PC1 <- citySummaryData %>%
   ng1
 HCN_by_PC1
 
-ggsave(filename = "analysis/figures/Figure3b_HCN-by-PC1.pdf", 
+ggsave(filename = "analysis/figures/main-text/from_R/Figure3b_HCN-by-PC1.pdf", 
        plot = HCN_by_PC1, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
-# Figure 3b inset
-envPCA_HCN_vars <- fviz_pca_var(envPCAHCN,
-             labelsize = 6,
-             col.var = "contrib", # Color by contributions to the PC
-             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-             repel = TRUE     # Avoid text overlapping
-) + ng1 + xlab("PC1 (90.2%)") + ylab("PC2 (7%)")
 
-ggsave(filename = "analysis/figures/Figure3inset_envPCA_HCN_vars.pdf", 
-       plot = envPCA_HCN_vars, device = 'pdf', units = 'in',
-       width = 5, height = 5, dpi = 600)
+## FIGURE 4 
 
-## FIGURE 4 ##
+citySummaryDataForAnalysis <- citySummaryDataForAnalysis %>% 
+  left_join(., citySummaryData %>% select(City, abbr), by = "City")
 
 # Figure 4. Slope against PC1
 Slope_by_PC1 <- citySummaryDataForAnalysis %>%
@@ -869,42 +925,29 @@ Slope_by_PC1 <- citySummaryDataForAnalysis %>%
   ng1
 Slope_by_PC1
 
-ggsave(filename = "analysis/figures/Figure4_Slope-by-PC1.pdf", 
+ggsave(filename = "analysis/figures/main-text/from_R/Figure4_Slope-by-PC1.pdf", 
        plot = Slope_by_PC1, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
-# Figure 3 inset
-envPCA_Slope_vars <- fviz_pca_var(envPCAslope,
-                                labelsize = 6,
-                                col.var = "contrib", # Color by contributions to the PC
-                                gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
-                                repel = TRUE     # Avoid text overlapping
-) + ng1 + xlab("PC1 (92.8%)") + ylab("PC2 (3.7%)")
+## FIGURE S1
 
-ggsave(filename = "analysis/figures/Figure4inset_envPCA_slope_vars.pdf", 
-       plot = envPCA_Slope_vars, device = 'pdf', units = 'in',
-       width = 5, height = 5, dpi = 600)
+# Figure S1 is generated with scripts/powerAnalysis.R
 
-#### SUPPLEMENTARY FIGURES ####
+## FIGURE S2
 
-## HAPLOTYPE FREQUENCIES
+#Plot of HCN frequencies with latitude
+plotHCN_by_lat <- ggplot(citySummaryData, aes(x = Latitude, y = freqHCN)) +
+  geom_point(colour = "black", size = 3.5) +
+  geom_smooth(method = "lm", se = FALSE, colour = "black", size = 2) + 
+  ylab("Frequency of HCN") + xlab("Latitude") +
+  ng1
+plotHCN_by_lat
 
-Li_Haplo_Freqs <- ggplot(freqHaploLi, aes(x = Habitat, y = freqHaploLi, fill = haplotype_Li)) +
-  geom_bar(stat='identity') + 
-  xlab("Habitat") + ylab("Haplotype frequency") + 
-  facet_grid(~City) +
-  scale_fill_manual(values = c("#00A08A", "#F2AD00", "#F98400", "#5BBCD6")) +
-  ng1 + theme(legend.position = "top",
-              legend.direction = "horizontal",
-              aspect.ratio=3.0, legend.text=element_text(size=10),
-              legend.title = element_text(size = 0), 
-              legend.key.size = unit(0.5, "cm"),
-              axis.text.x = element_text(angle = 45, hjust = 1))
-Li_Haplo_Freqs
+ggsave(filename = "analysis/figures/supplemental/from_R/FigureS2_HCN_by_Lat.pdf", 
+       plot = plotHCN_by_lat, device = "pdf", 
+       width = 5, height = 5, dpi = 300)
 
-ggsave(filename = 'analysis/figures/supplemental/Li_haplotype_freqs.pdf', 
-       plot = Li_Haplo_Freqs, device = "pdf", 
-       width = 8, height = 5, dpi = 300)
+## FIGURE S3
 
 Ac_Haplo_Freqs <- ggplot(freqHaploAc, aes(x = Habitat, y = freqHaploAc, fill = haplotype_Ac)) +
   geom_bar(stat='identity') + 
@@ -919,50 +962,30 @@ Ac_Haplo_Freqs <- ggplot(freqHaploAc, aes(x = Habitat, y = freqHaploAc, fill = h
               axis.text.x = element_text(angle = 45, hjust = 1))
 Ac_Haplo_Freqs
 
-ggsave(filename = 'analysis/figures/supplemental/Ac_haplotype_freqs.pdf', 
+ggsave(filename = 'analysis/figures/supplemental/from_R/FigureS3_Ac_haplotype_freqs.pdf', 
        plot = Ac_Haplo_Freqs, device = "pdf", 
        width = 8, height = 5, dpi = 300)
 
-## INDIVIDUAL CLINE BIPLOTS
+## FIGURE S4
 
-clineBiplot <- function(df, response_var, outpath, model_order_df){
-  
-  # Get city name
-  city_name <- df$City[1]
-  # print(city_name)
-  if(model_order_df[model_order_df$City == city_name, response_var] == "linear"){
-    
-    plot <- df %>%
-      ggplot(., aes_string(x = "std_distance", y = response_var)) +
-      geom_point(colour = "black", size = 3.5) +
-      geom_smooth(method = "lm", se = FALSE, colour = "black", size = 2) + 
-      ylab("Frequency of HCN") + xlab("Standardized distance") +
-      ng1
-    
-    # Full path to which data frame will be written
-    path <- paste0(outpath, city_name, ".pdf")
-    # print(path)
-    
-    # Write dataframe
-    ggsave(filename = path, plot = plot, device = "pdf", 
-           width = 5, height = 5, dpi = 300)
-    
-  }else if(model_order_df[model_order_df$City == city_name, response_var] == "quadratic"){
-    
-    plot <- df %>%
-      ggplot(., aes_string(x = "std_distance", y = response_var)) +
-      geom_point(colour = "black", size = 3.5) +
-      geom_smooth(method = "lm", formula = y ~ x + I(x^2), 
-                  se = FALSE, colour = "black", size = 2) + 
-      ylab("Frequency of HCN") + xlab("Standardized distance") +
-      ng1   
-    
-    path <- paste0(outpath, city_name, ".pdf")
-    ggsave(filename = path, plot = plot, device = "pdf", 
-           width = 5, height = 5, dpi = 300)
-    
-  }
-}
+Li_Haplo_Freqs <- ggplot(freqHaploLi, aes(x = Habitat, y = freqHaploLi, fill = haplotype_Li)) +
+  geom_bar(stat='identity') + 
+  xlab("Habitat") + ylab("Haplotype frequency") + 
+  facet_grid(~City) +
+  scale_fill_manual(values = c("#00A08A", "#F2AD00", "#F98400", "#5BBCD6")) +
+  ng1 + theme(legend.position = "top",
+              legend.direction = "horizontal",
+              aspect.ratio=3.0, legend.text=element_text(size=10),
+              legend.title = element_text(size = 0), 
+              legend.key.size = unit(0.5, "cm"),
+              axis.text.x = element_text(angle = 45, hjust = 1))
+Li_Haplo_Freqs
+
+ggsave(filename = 'analysis/figures/supplemental/from_R/FigureS4_Li_haplotype_freqs.pdf', 
+       plot = Li_Haplo_Freqs, device = "pdf", 
+       width = 8, height = 5, dpi = 300)
+
+## FIGURES S5 - S20 (INDIVIDUAL CLINE BIPLOTS)
 
 # Create list with city dataframes as elements
 city_df_list <- datPops %>% split(.$City)
@@ -987,22 +1010,3 @@ purrr::walk(city_df_list, clineBiplot,
             response_var = "LiHWE", 
             outpath = outpath,
             model_order_df = clineModelOrder)
-
-#Plot of HCN frequencies with latitude
-plotHCN_by_lat <- ggplot(citySummaryData, aes(x = Latitude, y = freqHCN)) +
-  geom_point(colour = "black", size = 3.5) +
-  geom_smooth(method = "lm", se = FALSE, colour = "black", size = 2) + 
-  ylab("Frequency of HCN") + xlab("Latitude") +
-  ng1
-plotHCN_by_lat
-
-ggsave(filename = "analysis/figures/supplemental/figureS2_HCN_by_Lat.pdf", plot = plotHCN_by_lat, device = "pdf", 
-       width = 5, height = 5, dpi = 300)
-## TEST FIGURES
-
-haplotype_data %>%
-  group_by(City, Habitat) %>%
-  summarize(count = n())
-
-
-  

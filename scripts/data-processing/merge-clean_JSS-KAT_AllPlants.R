@@ -1,6 +1,6 @@
 
 # Load required packages
-library(dplyr)
+library(tidyverse)
 
 # Load in Master data with presence/absence of HCN for 12 cities sampled by JSS
 datJSS <- read.csv("data-raw/AllPlants_JSS-Cities.csv", na.strings = "NA") %>%

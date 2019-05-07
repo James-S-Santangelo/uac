@@ -1,6 +1,6 @@
 
 # Load required packages
-library(dplyr)
+library(tidyverse)
 
 # Load in data with presence/absence of HCN for every plant from every population
 datAllPlants <- read.csv("data-clean/AllCities_AllPlants.csv")
@@ -48,18 +48,4 @@ datPops <- datAllPlants %>%
 
 # Write Population dataset to disk
 write.csv(datPops, "data-clean/AllCities_AllPopulations.csv", row.names = FALSE)
-
-
-
-# Create dataset with only plants screened at individual loci
-test_alleleFreqHWE <- datAllPlants %>%
-  filter(Locus.Li != "NA" & Locus.Ac != "NA")
-
-# Proportion of incorectly called plants. 
-test_alleleFreqHWE %>%
-  mutate(category = ifelse(HCN_Result == 0 & Locus.Li == 1 & Locus.Ac == 1, "Neg_wrong",
-                           ifelse(HCN_Result == 1 & (Locus.Li == 0 | Locus.Ac == 0), "Pos_wrong", "good"))) %>%
-  group_by(category) %>%
-  summarize(Count = n()) %>%
-  mutate(prop_bad = Count / sum(Count))
 
