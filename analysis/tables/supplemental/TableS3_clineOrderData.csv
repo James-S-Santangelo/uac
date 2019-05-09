@@ -1,0 +1,17 @@
+City,freqHCN,AcHWE,LiHWE
+Atlanta,linear,linear,quadratic
+Baltimore,linear,linear,linear
+Boston,linear,"NA","NA"
+Charlotte,quadratic,linear,quadratic
+Cincinnati,linear,"NA","NA"
+Cleveland,linear,linear,linear
+Detroit,linear,"NA","NA"
+Jacksonville,quadratic,linear,quadratic
+Montreal,linear,"NA","NA"
+NewYork,linear,linear,linear
+Norfolk,linear,linear,linear
+Philadelphia,linear,"NA","NA"
+Pittsburgh,linear,"NA","NA"
+Tampa,linear,"NA","NA"
+Toronto,linear,linear,linear
+Washington D.C.,linear,linear,quadratic

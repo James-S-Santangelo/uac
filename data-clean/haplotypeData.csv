@@ -1,0 +1,246 @@
+City,Population,Plant,HCN_Result,ac1.3,ac2.2,ac5.3,li4.0,li7.0,li9.3,haplotype_Ac,haplotype_Li,haplotype_all,Distance,Habitat
+Atlanta,3,6,0,0,0,1,0,1,0,ac5.3,li6.6DD,ac5.3-li6.6DD,32.553709595884,Rural
+Atlanta,4,11,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,32.1278790066773,Rural
+Atlanta,8,6,0,0,0,0,0,1,0,unk,li6.6DD,unk-li6.6DD,28.9436899006237,Rural
+Atlanta,8,11,0,1,0,0,0,0,0,unk,li>11,unk-li>11,28.9436899006237,Rural
+Atlanta,8,15,0,1,0,1,0,1,1,unk,li6.6,unk-li6.6,28.9436899006237,Rural
+Atlanta,9,1,0,0,0,1,0,0,1,ac5.3,li9.1,ac5.3-li9.1,28.1846159223829,Rural
+Atlanta,9,4,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,28.1846159223829,Rural
+Atlanta,9,6,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,28.1846159223829,Rural
+Atlanta,9,8,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,28.1846159223829,Rural
+Atlanta,9,15,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,28.1846159223829,Rural
+Atlanta,10,1,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,27.4909975141153,Rural
+Atlanta,10,9,0,0,0,1,0,1,0,ac5.3,li6.6DD,ac5.3-li6.6DD,27.4909975141153,Rural
+Atlanta,10,11,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,27.4909975141153,Rural
+Atlanta,11,1,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,27.0747953700749,Rural
+Atlanta,11,5,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,27.0747953700749,Rural
+Atlanta,11,9,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,27.0747953700749,Rural
+Atlanta,12,1,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,26.327507688145,Rural
+Atlanta,12,11,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,26.327507688145,Rural
+Atlanta,35,2,0,0,1,1,0,0,1,ac2.2,li9.1,ac2.2-li9.1,1.93304547376783,Urban
+Atlanta,35,14,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,1.93304547376783,Urban
+Atlanta,35,15,0,0,0,0,0,0,0,unk,li>11,unk-li>11,1.93304547376783,Urban
+Atlanta,36,8,0,0,0,0,0,0,0,unk,li>11,unk-li>11,1.03584424955349,Urban
+Atlanta,37,1,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.255852977078893,Urban
+Atlanta,37,3,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,0.255852977078893,Urban
+Atlanta,37,4,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,0.255852977078893,Urban
+Atlanta,37,5,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,0.255852977078893,Urban
+Atlanta,37,9,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,0.255852977078893,Urban
+Atlanta,38,13,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,0.662044334722466,Urban
+Atlanta,39,4,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,1.39686646157069,Urban
+Atlanta,39,8,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,1.39686646157069,Urban
+Atlanta,40,1,0,0,0,1,0,1,0,ac5.3,li6.6DD,ac5.3-li6.6DD,2.0033597961647,Urban
+Atlanta,40,3,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,2.0033597961647,Urban
+Atlanta,40,4,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,2.0033597961647,Urban
+Atlanta,40,6,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,2.0033597961647,Urban
+Atlanta,40,9,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,2.0033597961647,Urban
+Atlanta,40,10,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,2.0033597961647,Urban
+Atlanta,40,13,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,2.0033597961647,Urban
+Atlanta,41,1,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,2.2475008592011,Urban
+Washington D.C.,1,2,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,48.3445989142276,Rural
+Washington D.C.,1,4,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,48.3445989142276,Rural
+Washington D.C.,1,10,0,0,0,1,1,0,0,ac5.3,unk,ac5.3-unk,48.3445989142276,Rural
+Washington D.C.,1,12,0,0,0,1,0,1,0,ac5.3,li6.6DD,ac5.3-li6.6DD,48.3445989142276,Rural
+Washington D.C.,1,13,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,48.3445989142276,Rural
+Washington D.C.,1,15,0,1,0,1,0,0,0,unk,li>11,unk-li>11,48.3445989142276,Rural
+Washington D.C.,2,6,0,0,0,0,0,0,0,unk,li>11,unk-li>11,47.6812884013929,Rural
+Washington D.C.,2,7,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,47.6812884013929,Rural
+Washington D.C.,2,15,0,0,0,1,0,0,1,ac5.3,li9.1,ac5.3-li9.1,47.6812884013929,Rural
+Washington D.C.,4,10,0,0,0,1,0,1,0,ac5.3,li6.6DD,ac5.3-li6.6DD,45.8229513923748,Rural
+Washington D.C.,6,2,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,44.0445668980141,Rural
+Washington D.C.,6,7,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,44.0445668980141,Rural
+Washington D.C.,6,10,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,44.0445668980141,Rural
+Washington D.C.,6,11,0,1,1,1,0,0,0,Ac,li>11,Ac-li>11,44.0445668980141,Rural
+Washington D.C.,6,14,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,44.0445668980141,Rural
+Washington D.C.,8,1,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,41.0974601066791,Rural
+Washington D.C.,8,7,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,41.0974601066791,Rural
+Washington D.C.,12,6,0,1,1,1,0,0,0,Ac,li>11,Ac-li>11,36.0235961890241,Rural
+Washington D.C.,12,9,0,1,0,1,0,1,1,unk,li6.6,unk-li6.6,36.0235961890241,Rural
+Washington D.C.,12,10,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,36.0235961890241,Rural
+Washington D.C.,37,1,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,0.851524468381754,Urban
+Washington D.C.,37,5,0,0,0,0,0,0,0,unk,li>11,unk-li>11,0.851524468381754,Urban
+Washington D.C.,37,9,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,0.851524468381754,Urban
+Washington D.C.,37,12,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.851524468381754,Urban
+Washington D.C.,37,14,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,0.851524468381754,Urban
+Washington D.C.,37,15,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,0.851524468381754,Urban
+Washington D.C.,38,1,0,0,0,1,0,NA,1,ac5.3,unk,ac5.3-unk,0.706580272943695,Urban
+Washington D.C.,38,2,0,0,1,1,0,NA,1,ac2.2,unk,ac2.2-unk,0.706580272943695,Urban
+Washington D.C.,38,3,0,0,1,1,0,NA,1,ac2.2,unk,ac2.2-unk,0.706580272943695,Urban
+Washington D.C.,38,5,0,0,0,1,0,NA,1,ac5.3,unk,ac5.3-unk,0.706580272943695,Urban
+Washington D.C.,38,7,0,0,1,1,0,NA,1,ac2.2,unk,ac2.2-unk,0.706580272943695,Urban
+Washington D.C.,38,8,0,0,0,0,0,NA,1,unk,unk,unk-unk,0.706580272943695,Urban
+Washington D.C.,38,11,0,0,1,1,0,NA,1,ac2.2,unk,ac2.2-unk,0.706580272943695,Urban
+Washington D.C.,39,2,0,0,1,1,0,NA,1,ac2.2,unk,ac2.2-unk,1.35720378454191,Urban
+Washington D.C.,39,5,0,0,0,0,0,NA,1,unk,unk,unk-unk,1.35720378454191,Urban
+Washington D.C.,39,9,0,0,1,1,0,NA,1,ac2.2,unk,ac2.2-unk,1.35720378454191,Urban
+Washington D.C.,39,11,0,0,1,1,0,NA,1,ac2.2,unk,ac2.2-unk,1.35720378454191,Urban
+Washington D.C.,40,2,0,0,0,1,0,NA,1,ac5.3,unk,ac5.3-unk,1.34294786856109,Urban
+Washington D.C.,40,5,0,0,1,1,0,NA,1,ac2.2,unk,ac2.2-unk,1.34294786856109,Urban
+Washington D.C.,40,7,0,0,1,1,0,NA,1,ac2.2,unk,ac2.2-unk,1.34294786856109,Urban
+Baltimore,13,3,0,0,1,1,0,NA,0,ac2.2,unk,ac2.2-unk,51.8242102922632,Rural
+Baltimore,13,6,0,0,0,0,0,NA,0,unk,unk,unk-unk,51.8242102922632,Rural
+Baltimore,14,11,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,51.2123767098646,Rural
+Baltimore,14,12,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,51.2123767098646,Rural
+Baltimore,14,14,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,51.2123767098646,Rural
+Baltimore,16,1,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,46.5067610394727,Rural
+Baltimore,16,2,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,46.5067610394727,Rural
+Baltimore,16,5,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,46.5067610394727,Rural
+Baltimore,16,11,0,0,0,0,0,0,0,unk,li>11,unk-li>11,46.5067610394727,Rural
+Baltimore,17,6,0,0,0,1,0,0,1,ac5.3,li9.1,ac5.3-li9.1,44.4595725504248,Rural
+Baltimore,17,9,0,0,0,1,0,0,1,ac5.3,li9.1,ac5.3-li9.1,44.4595725504248,Rural
+Baltimore,17,10,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,44.4595725504248,Rural
+Baltimore,17,14,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,44.4595725504248,Rural
+Baltimore,17,15,0,0,9,1,0,1,1,unk,li6.6,unk-li6.6,44.4595725504248,Rural
+Baltimore,18,12,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,42.6900494981811,Rural
+Baltimore,18,15,0,0,1,0,0,1,1,unk,li6.6,unk-li6.6,42.6900494981811,Rural
+Baltimore,21,5,0,NA,NA,1,NA,NA,NA,unk,unk,unk-unk,38.9937671491108,Rural
+Baltimore,21,12,0,NA,NA,1,NA,NA,NA,unk,unk,unk-unk,38.9937671491108,Rural
+Baltimore,22,1,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,37.8909976019959,Rural
+Baltimore,22,3,0,1,1,1,0,1,0,Ac,li6.6DD,Ac-li6.6DD,37.8909976019959,Rural
+Baltimore,2,2,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,0.691544150268506,Urban
+Baltimore,2,4,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,0.691544150268506,Urban
+Baltimore,2,9,0,0,1,1,1,1,1,ac2.2,Li,ac2.2-Li,0.691544150268506,Urban
+Baltimore,2,10,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.691544150268506,Urban
+Baltimore,2,13,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.691544150268506,Urban
+Baltimore,2,14,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.691544150268506,Urban
+Baltimore,4,4,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.794049111534702,Urban
+Baltimore,4,5,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.794049111534702,Urban
+Baltimore,4,7,0,0,0,0,0,0,0,unk,li>11,unk-li>11,0.794049111534702,Urban
+Baltimore,4,8,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,0.794049111534702,Urban
+Baltimore,4,13,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.794049111534702,Urban
+Baltimore,4,14,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,0.794049111534702,Urban
+Baltimore,4,15,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.794049111534702,Urban
+Baltimore,5,3,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.541863512503005,Urban
+Baltimore,5,4,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,0.541863512503005,Urban
+Baltimore,5,10,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,0.541863512503005,Urban
+Baltimore,6,8,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,1.32950247985673,Urban
+Baltimore,6,13,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,1.32950247985673,Urban
+Baltimore,7,3,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,1.50557803964201,Urban
+Baltimore,7,5,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,1.50557803964201,Urban
+Cleveland,36,1,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,40.0336857272384,Rural
+Cleveland,36,5,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,40.0336857272384,Rural
+Cleveland,37,1,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,41.2268823143606,Rural
+Cleveland,37,3,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,41.2268823143606,Rural
+Cleveland,37,5,0,0,0,1,1,1,1,ac5.3,Li,ac5.3-Li,41.2268823143606,Rural
+Cleveland,37,6,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,41.2268823143606,Rural
+Cleveland,37,7,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,41.2268823143606,Rural
+Cleveland,37,13,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,41.2268823143606,Rural
+Cleveland,37,14,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,41.2268823143606,Rural
+Cleveland,37,15,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,41.2268823143606,Rural
+Cleveland,38,6,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,42.3908729059912,Rural
+Cleveland,38,7,0,0,0,1,0,1,0,ac5.3,li6.6DD,ac5.3-li6.6DD,42.3908729059912,Rural
+Cleveland,38,8,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,42.3908729059912,Rural
+Cleveland,38,9,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,42.3908729059912,Rural
+Cleveland,38,11,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,42.3908729059912,Rural
+Cleveland,38,13,0,0,0,0,0,1,0,unk,li6.6DD,unk-li6.6DD,42.3908729059912,Rural
+Cleveland,38,15,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,42.3908729059912,Rural
+Cleveland,40,6,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,45.0636525277531,Rural
+Cleveland,40,10,0,0,0,1,0,1,0,ac5.3,li6.6DD,ac5.3-li6.6DD,45.0636525277531,Rural
+Cleveland,40,15,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,45.0636525277531,Rural
+Cleveland,1,1,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.891417253729103,Urban
+Cleveland,1,4,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.891417253729103,Urban
+Cleveland,1,6,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,0.891417253729103,Urban
+Cleveland,1,8,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.891417253729103,Urban
+Cleveland,1,10,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.891417253729103,Urban
+Cleveland,1,13,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,0.891417253729103,Urban
+Cleveland,2,3,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,0.476533895010274,Urban
+Cleveland,2,6,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,0.476533895010274,Urban
+Cleveland,2,9,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.476533895010274,Urban
+Cleveland,2,10,0,0,1,1,1,1,1,ac2.2,Li,ac2.2-Li,0.476533895010274,Urban
+Cleveland,3,1,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,1.11959695341569,Urban
+Cleveland,3,2,0,0,0,1,0,1,0,ac5.3,li6.6DD,ac5.3-li6.6DD,1.11959695341569,Urban
+Cleveland,3,5,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,1.11959695341569,Urban
+Cleveland,3,12,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,1.11959695341569,Urban
+Cleveland,3,14,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,1.11959695341569,Urban
+Cleveland,4,9,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,1.601979526693,Urban
+Cleveland,4,15,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,1.601979526693,Urban
+Cleveland,5,9,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,2.28876170925244,Urban
+Cleveland,6,2,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,3.28935210249448,Urban
+Cleveland,7,1,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,4.05891762268273,Urban
+Norfolk,1,6,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,36.2893004805217,Rural
+Norfolk,1,8,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,36.2893004805217,Rural
+Norfolk,3,12,0,0,1,1,1,1,1,ac2.2,Li,ac2.2-Li,33.9535825951166,Rural
+Norfolk,4,5,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,33.6274978331323,Rural
+Norfolk,4,6,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,33.6274978331323,Rural
+Norfolk,4,7,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,33.6274978331323,Rural
+Norfolk,4,13,0,1,1,1,0,1,0,Ac,li6.6DD,Ac-li6.6DD,33.6274978331323,Rural
+Norfolk,5,1,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,32.8475081610988,Rural
+Norfolk,5,7,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,32.8475081610988,Rural
+Norfolk,6,13,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,32.9841223638183,Rural
+Norfolk,8,9,0,0,1,1,0,0,1,ac2.2,li9.1,ac2.2-li9.1,31.5700424078012,Rural
+Norfolk,9,2,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,30.0813005175779,Rural
+Norfolk,9,12,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,30.0813005175779,Rural
+Norfolk,10,4,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,28.873420821132,Rural
+Norfolk,10,7,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,28.873420821132,Rural
+Norfolk,11,10,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,28.0544915955349,Rural
+Norfolk,13,2,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,25.3836623466927,Rural
+Norfolk,13,6,0,0,1,1,1,1,1,ac2.2,Li,ac2.2-Li,25.3836623466927,Rural
+Norfolk,13,11,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,25.3836623466927,Rural
+Norfolk,13,14,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,25.3836623466927,Rural
+Norfolk,35,3,0,1,1,1,0,1,0,Ac,li6.6DD,Ac-li6.6DD,0.175078139783024,Urban
+Norfolk,35,4,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,0.175078139783024,Urban
+Norfolk,35,6,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.175078139783024,Urban
+Norfolk,35,7,0,1,0,1,0,1,1,unk,li6.6,unk-li6.6,0.175078139783024,Urban
+Norfolk,35,9,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,0.175078139783024,Urban
+Norfolk,36,5,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,0.427622856428398,Urban
+Norfolk,36,9,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,0.427622856428398,Urban
+Norfolk,36,10,0,1,1,1,0,0,0,Ac,li>11,Ac-li>11,0.427622856428398,Urban
+Norfolk,36,12,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,0.427622856428398,Urban
+Norfolk,38,4,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.823939693196717,Urban
+Norfolk,38,10,0,0,0,0,0,0,1,unk,li9.1,unk-li9.1,0.823939693196717,Urban
+Norfolk,38,12,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,0.823939693196717,Urban
+Norfolk,38,13,0,NA,NA,1,NA,NA,NA,unk,unk,unk-unk,0.823939693196717,Urban
+Norfolk,38,14,0,NA,NA,1,NA,NA,NA,unk,unk,unk-unk,0.823939693196717,Urban
+Norfolk,39,3,0,1,1,1,0,1,0,Ac,li6.6DD,Ac-li6.6DD,0.469692379952087,Urban
+Norfolk,39,6,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,0.469692379952087,Urban
+Norfolk,39,9,0,0,1,0,0,0,0,unk,li>11,unk-li>11,0.469692379952087,Urban
+Norfolk,40,7,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,1.1155368863391,Urban
+Norfolk,40,9,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,1.1155368863391,Urban
+Norfolk,40,13,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,1.1155368863391,Urban
+NewYork,37,7,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,40.5266027276088,Rural
+NewYork,37,10,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,40.5266027276088,Rural
+NewYork,38,4,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,39.9827232791347,Rural
+NewYork,38,9,0,1,0,1,0,1,0,unk,li6.6DD,unk-li6.6DD,39.9827232791347,Rural
+NewYork,38,16,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,39.9827232791347,Rural
+NewYork,38,19,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,39.9827232791347,Rural
+NewYork,39,1,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,39.3098887395807,Rural
+NewYork,39,2,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,39.3098887395807,Rural
+NewYork,39,14,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,39.3098887395807,Rural
+NewYork,39,16,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,39.3098887395807,Rural
+NewYork,40,11,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,38.117437644702,Rural
+NewYork,41,1,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,37.2897571473098,Rural
+NewYork,41,14,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,37.2897571473098,Rural
+NewYork,42,2,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,36.2545261897736,Rural
+NewYork,44,2,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,40.3632024052661,Rural
+NewYork,44,7,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,40.3632024052661,Rural
+NewYork,46,6,0,1,1,1,1,1,0,Ac,unk,Ac-unk,42.3436328071662,Rural
+NewYork,47,12,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,43.3469629413433,Rural
+NewYork,47,14,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,43.3469629413433,Rural
+NewYork,48,13,0,0,1,1,1,1,0,ac2.2,unk,ac2.2-unk,43.9286713889297,Rural
+NewYork,28,6,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,7.04751642234848,Urban
+NewYork,29,4,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,5.53702691958241,Urban
+NewYork,29,17,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,5.53702691958241,Urban
+NewYork,29,18,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,5.53702691958241,Urban
+NewYork,30,6,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,5.01723805006211,Urban
+NewYork,30,8,0,0,1,1,0,0,1,ac2.2,li9.1,ac2.2-li9.1,5.01723805006211,Urban
+NewYork,30,11,0,0,1,1,0,0,0,ac2.2,li>11,ac2.2-li>11,5.01723805006211,Urban
+NewYork,30,13,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,5.01723805006211,Urban
+NewYork,30,15,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,5.01723805006211,Urban
+NewYork,30,20,0,1,1,1,0,0,0,Ac,li>11,Ac-li>11,5.01723805006211,Urban
+NewYork,32,1,0,0,0,1,0,1,0,ac5.3,li6.6DD,ac5.3-li6.6DD,3.72519497610314,Urban
+NewYork,32,2,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,3.72519497610314,Urban
+NewYork,32,13,0,0,1,1,0,1,0,ac2.2,li6.6DD,ac2.2-li6.6DD,3.72519497610314,Urban
+NewYork,33,11,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,2.89105173395865,Urban
+NewYork,34,3,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,1.95897338839529,Urban
+NewYork,34,4,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,1.95897338839529,Urban
+NewYork,34,10,0,1,1,1,0,0,1,Ac,li9.1,Ac-li9.1,1.95897338839529,Urban
+NewYork,34,14,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,1.95897338839529,Urban
+NewYork,35,4,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,1.1624389651877,Urban
+NewYork,36,5,0,0,0,1,0,0,0,ac5.3,li>11,ac5.3-li>11,2.68675700602227,Urban
+Jacksonville,1,5,0,0,1,1,0,1,1,ac2.2,li6.6,ac2.2-li6.6,0.84894504923946,Urban
+Jacksonville,1,6,0,0,0,1,0,1,0,ac5.3,li6.6DD,ac5.3-li6.6DD,0.84894504923946,Urban
+Jacksonville,3,6,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,1.35525269530572,Urban
+Jacksonville,3,7,0,0,0,0,0,0,0,unk,li>11,unk-li>11,1.35525269530572,Urban
+Jacksonville,3,10,0,0,1,1,1,1,1,ac2.2,Li,ac2.2-Li,1.35525269530572,Urban
+Jacksonville,3,15,0,0,0,1,0,1,1,ac5.3,li6.6,ac5.3-li6.6,1.35525269530572,Urban
+Jacksonville,4,13,0,1,1,1,0,1,1,Ac,li6.6,Ac-li6.6,1.80282157659421,Urban

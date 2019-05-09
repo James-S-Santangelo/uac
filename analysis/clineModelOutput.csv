@@ -1,0 +1,17 @@
+City,cyanSlopeLin,pvalCyanSlopeLin,cyanSlopeQuad,pvalSlopeQuad,AcSlopeLin,pvalAcSlopeLin,AcSlopeQuad,pvalAcSlopeQuad,LiSlopeLin,pvalLoSlopeLin,LiSlopeQuad,pvalLiSlopeQuad
+Atlanta,0.362,0,"NA","NA",0.2625,0.0018,"NA","NA",0.7538,0.0144,-0.6173,0.0441
+Baltimore,0.0312,0.7186,"NA","NA",0.065,0.547,"NA","NA",0.0307,0.6821,"NA","NA"
+Boston,0.1192,0.0495,"NA","NA","NA","NA","NA","NA","NA","NA","NA","NA"
+Charlotte,-0.8227,0.0137,0.9818,0.006,-0.0767,0.4448,"NA","NA",-0.5331,0.0393,0.5896,0.0319
+Cincinnati,0.0353,0.6215,"NA","NA","NA","NA","NA","NA","NA","NA","NA","NA"
+Cleveland,0.0926,0.0946,"NA","NA",0.0672,0.4552,"NA","NA",0.0192,0.6481,"NA","NA"
+Detroit,0.0523,0.5216,"NA","NA","NA","NA","NA","NA","NA","NA","NA","NA"
+Jacksonville,1.2999,2e-4,-1.0488,0.0018,0.2017,0.0062,"NA","NA",1.422,0.0032,-1.1527,0.0141
+Montreal,-0.0569,0.5698,"NA","NA","NA","NA","NA","NA","NA","NA","NA","NA"
+NewYork,0.1454,0.0118,"NA","NA",0.2044,0.0435,"NA","NA",0.0328,0.7267,"NA","NA"
+Norfolk,0.3373,9e-4,"NA","NA",0.358,3e-04,"NA","NA",0.0377,0.6488,"NA","NA"
+Philadelphia,-0.031,0.6228,"NA","NA","NA","NA","NA","NA","NA","NA","NA","NA"
+Pittsburgh,0.069,0.3281,"NA","NA","NA","NA","NA","NA","NA","NA","NA","NA"
+Tampa,-0.0294,0.1385,"NA","NA","NA","NA","NA","NA","NA","NA","NA","NA"
+Toronto,0.2834,0,"NA","NA",0.2181,0.0042,"NA","NA",0.2713,2e-04,"NA","NA"
+Washington D.C.,0.175,0.0212,"NA","NA",0.3256,0.0025,"NA","NA",-0.3363,0.0863,0.4211,0.0377

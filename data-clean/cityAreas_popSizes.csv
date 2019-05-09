@@ -1,0 +1,17 @@
+City,Area_miles,Area_km,Pop_size,,,
+Montreal,166.60,431.49,"1,704,694",,US Data,https://factfinder.census.gov/faces/nav/jsf/pages/community_facts.xhtml#
+Toronto,243.33,630.22,"2,731,571",,Canada Data,https://www12.statcan.gc.ca/census-recensement/2016/dp-pd/prof/details/page.cfm?Lang=E&Geo1=CSD&Code1=3520005&Geo2=PR&Code2=35&Data=Count&SearchType=Begins&SearchPR=01&B1=All
+Atlanta,134.00,347.06,"420,003",,,
+Baltimore,92.05,238.41,"620,961",,,
+Boston,89.63,232.14,"617,594",,,
+Charlotte,305.40,790.98,"731,424",,,
+Cincinnati,206.01,533.56,"296,943",,,
+Cleveland,82.47,213.60,"396,698",,,
+Detroit,142.89,370.08,"713,777",,,
+Jacksonville,874.64,"2,265.31","821,784",,,
+NewYork,468.48,"1,213.37","8,175,133",,,
+Norfolk,96.40,249.68,"242,803",,,
+Philadelphia,142.70,369.59,"1,526,006",,,
+Pittsburgh,58.34,151.10,"308,144",,,
+Tampa,175.22,453.82,"335,709",,,
+Washington,68.34,177.00,"601,723",,,

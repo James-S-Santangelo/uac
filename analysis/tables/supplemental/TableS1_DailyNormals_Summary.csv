@@ -1,0 +1,17 @@
+City,STATION_NAME,min_year,max_year,count
+Atlanta,Atlanta Hartsfield International Airport Ga Us,1980,2015,1612
+Baltimore,Baltimore Washington International Airport Md Us,1980,2015,2133
+Boston,Boston Ma Us,1980,2004,1364
+Charlotte,Charlotte Douglas Airport Nc Us,1980,2015,2133
+Cincinnati,Cincinnati Northern Kentucky International Airport Ky Us,1980,2015,2133
+Cleveland,Cleveland Hopkins International Airport Oh Us,1980,2015,2132
+Detroit,Detroit Metropolitan Airport Mi Us,1980,2015,2122
+Jacksonville,Jacksonville International Airport Fl Us,1980,2015,1538
+Montreal,Montreal Pierre Elliott Trudea Ca,1980,2015,2109
+NewYork,La Guardia Airport Ny Us,1980,2015,2133
+Norfolk,Norfolk International Airport Va Us,1980,2015,1120
+Philadelphia,Philadelphia International Airport Pa Us,1980,2015,2073
+Pittsburgh,Pittsburgh International Airport Pa Us,1980,2015,2132
+Tampa,Tampa International Airport Fl Us,1980,2015,2133
+Toronto,Toronto Lester B. Pearson Int Ca,1980,2013,2006
+Washington D.C.,Washington Dc Dulles International Airport Va Us,1980,2015,2132
