@@ -72,14 +72,15 @@ datLatLong <- merge(datLatLong, datCityCentres, by = "City", all.x = TRUE)
 source(file = "scripts/haversine.R")
 
 # Add distance to Lat Long dataset
-datLatLong = datLatLong %>%
+datLatLong <- datLatLong %>%
   mutate(Distance = haversine(Long.pop, Lat.pop, Long.City, Lat.City)) %>%
   select(City, Population, Transect, Distance) 
 
 # Merge Distance with AllPlants dataset
 datAllPlants <- merge(datAllPlants, datLatLong, 
         by = c("City", "Population", "Transect"), 
-        all.x = TRUE)
+        all.x = TRUE) %>% 
+  select(-contains("Dmg"))
 
 # Write merged AllPlant dataset to disk.
 write.csv(datAllPlants, "data-clean/AllCities_AllPlants.csv", na = "NA", row.names = FALSE)
