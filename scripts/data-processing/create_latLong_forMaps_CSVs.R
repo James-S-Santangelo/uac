@@ -1,3 +1,6 @@
+# Script to generate dataset with Latitudes and Longitudes for each city and population
+# with city centres. Used for creating maps (Figures S5 - S20)
+
 # Load required packages
 library(tidyverse)
 

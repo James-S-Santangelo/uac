@@ -1,4 +1,5 @@
-## FUNCTIONS
+# Script with functions to calculate the distance between two points on the earth's
+# surface using the Haversine formula.
 
 # Convert degrees to radians
 deg2rad <- function(deg) return(deg*pi/180)

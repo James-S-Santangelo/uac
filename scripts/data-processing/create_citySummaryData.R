@@ -1,3 +1,5 @@
+# Script to generate a summary of clines models and environmental variables for each city
+
 # Load required packages
 library(tidyverse)
 

@@ -1,3 +1,5 @@
+# Script to generate combined dataset with all climatic variables
+
 # Load required packages
 library(tidyverse)
 

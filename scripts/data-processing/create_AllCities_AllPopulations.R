@@ -1,3 +1,5 @@
+# Script to summarize individual-plant level phenotype data and generate population-means
+
 
 # Load required packages
 library(tidyverse)

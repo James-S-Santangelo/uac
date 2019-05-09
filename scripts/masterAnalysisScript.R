@@ -414,7 +414,10 @@ city_dataframes <- split(datPops, datPops$City)
 # Write cline results to disk and global environment
 writeClineResults(city_dataframes)
 
-# Logistic regression for each city
+# Logistic regression for each city to confirm patterns
+
+allPlants <- read_csv("data-clean/AllCities_AllPlants.csv")
+
 allPlants %>% 
   group_by(City) %>%
   do(mod = glm(HCN_Result ~ Distance, data = .)) %>%

@@ -1,3 +1,7 @@
+# Script to perform power analyses to examine the minimum number of plants per population,
+# and number of populations, to sample to identify urban-rural clines in HCN without loss of power. 
+
+
 #####Load required packages#####
 library(tidyverse)
 library(grid)

@@ -1,3 +1,5 @@
+# Script to merge the data collected by Thompson et al (2016) with the additional 12 cities
+# collected by James Santangelo
 
 # Load required packages
 library(tidyverse)

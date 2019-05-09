@@ -1,3 +1,5 @@
+# Script cleans the raw Haplotype data for use in analyses.
+
 library(tidyverse)
 
 # Load in haplotype data
