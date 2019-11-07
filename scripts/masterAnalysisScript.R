@@ -27,6 +27,7 @@ library(factoextra)
 library(vegan)
 library(MuMIn)
 library(car)
+library(patchwork)
 
 #### FUNCTIONS ####
 
@@ -403,6 +404,50 @@ clineBiplot <- function(df, response_var, outpath, model_order_df){
   }
 }
 
+
+plotLogReg <- function(df_allPlants, city, tag){
+  
+  df <- df_allPlants %>% filter(City == city)
+
+  mod <- glm(HCN_Result ~ std_distance, family = "binomial", data = df)
+  beta_val <- round(summary(mod)$coefficients[2], 3)
+  pval <- summary(mod)$coefficients[8] 
+  pval <- ifelse(pval < 0.001, "< 0.001", round(pval, 3))
+  # print(c(coef, pval))
+
+  plot <- ggplot(df, aes(x=Distance, y=HCN_Result)) + 
+    geom_point(alpha=.5) +
+    stat_smooth(method="glm", se=TRUE, fullrange=TRUE, 
+                method.args = list(family=binomial),
+                color = "black") + 
+    ylab("") +
+    xlab("") + 
+    labs(tag = tag) + 
+    annotate(geom = "text", label = city, 
+             x = (max(df$Distance) - min(df$Distance)) / 2, 
+             y = ifelse(city == "Jacksonville", 0.75, 0.85),
+             size = 5) + 
+    annotate(geom = "text", parse = TRUE, 
+             label = paste("italic(beta)==", beta_val),
+             x = ifelse(city == "Jacksonville", 40, 0),
+             y = ifelse(city == "Jacksonville", 0.5, 0.85),
+             size = 4,
+             hjust = ifelse(city == "Jacksonville", "right", "left")) +
+    annotate(geom = "text", parse = TRUE, 
+             label = ifelse(is.character(pval), 
+                            paste("italic(P)", pval),
+                            paste("italic(P)==", pval)),
+             x = ifelse(city == "Jacksonville", 40, 0), 
+             y = ifelse(city == "Jacksonville", 0.4, 0.75),
+             size = 4,
+             hjust = ifelse(city == "Jacksonville", "right", "left")) +
+    ng1 + theme(plot.tag = element_text(size = 15),
+                plot.tag.position = c(0.15, 0.83),
+                plot.margin = margin(-2, 0, -2, 0, "cm"))
+  
+  return(plot)
+}
+
 #### OUPUT FROM INDIVIDUAL CLINES ####
 
 # Load data with population-level data for all cities
@@ -416,15 +461,48 @@ writeClineResults(city_dataframes)
 
 # Logistic regression for each city to confirm patterns
 
-allPlants <- read_csv("data-clean/AllCities_AllPlants.csv")
+allPlants <- read_csv("data-clean/AllCities_AllPlants.csv") 
 
-allPlants %>% 
+# Table with coefficients from logistic regressions by city
+logReg_table <- allPlants %>% 
   group_by(City) %>%
-  do(mod = glm(HCN_Result ~ Distance, data = .)) %>%
+  do(mod = glm(HCN_Result ~ std_distance, family = "binomial", data = .)) %>%
   broom::tidy(., mod) %>%
-  filter(term == "Distance") %>%
-  mutate(p.value = round(p.value, 5)) %>% 
-  View()
+  filter(term == "std_distance") %>%
+  mutate(p.value = round(p.value, 3),
+         estimate = round(estimate, 3)) %>%
+  select(-term) 
+
+ATL_LogReg <- plotLogReg(allPlants, "Atlanta", tag = "(a)")
+BTL_LogReg <- plotLogReg(allPlants, "Baltimore", tag = "(b)")
+BOS_LogReg <- plotLogReg(allPlants, "Boston", tag = "(c)")
+CLT_LogReg <- plotLogReg(allPlants, "Charlotte", tag = "(d)")
+
+
+CIN_LogReg <- plotLogReg(allPlants, "Cincinnati", tag = "(a)")
+CLE_LogReg <- plotLogReg(allPlants, "Cleveland", tag = "(b)")
+DET_LogReg <- plotLogReg(allPlants, "Detroit", tag = "(c)")
+JAX_LogReg <- plotLogReg(allPlants, "Jacksonville", tag = "(d)")
+
+
+MTL_LogReg <- plotLogReg(allPlants, "Montreal", tag = "(a)")
+NY_LogReg <- plotLogReg(allPlants, "NewYork", tag = "(b)")
+NOR_LogReg <- plotLogReg(allPlants, "Norfolk", tag = "(c)")
+PHL_LogReg <- plotLogReg(allPlants, "Philadelphia", tag = "(d)")
+
+
+PIT_LogReg <- plotLogReg(allPlants, "Pittsburgh", tag = "(a)")
+# TMP_LogReg <- plotLogReg(allPlants, "Tampa", tag = "(n)")
+TOR_LogReg <- plotLogReg(allPlants, "Toronto", tag = "(b)")
+WDC_LogReg <- plotLogReg(allPlants, "Washington D.C.", tag = "(c)")
+
+logRegs1 <- ATL_LogReg + BTL_LogReg + BOS_LogReg + CLT_LogReg + plot_layout(ncol = 2)
+logRegs2 <- CIN_LogReg + CLE_LogReg + DET_LogReg + JAX_LogReg + plot_layout(ncol = 2)
+logRegs3 <- MTL_LogReg + NY_LogReg + NOR_LogReg + PHL_LogReg + plot_layout(ncol = 2)
+logRegs4 <- PIT_LogReg + TOR_LogReg + WDC_LogReg + plot_layout(ncol = 2)
+
+ggsave(filename = "analysis/figures/test.pdf", plot = logRegs2, device = "pdf", 
+       width = 8, height = 8, units = "in", dpi = 300) 
 
 #### ANALYSIS OF CLINES ACROSS ALL CITIES ####
 
@@ -439,7 +517,7 @@ Anova(clinesAllCities, type = 3)
 #### CORRELATIONS AMONG CLIMATIC VARIABLES ####
 
 # Load in city summary dataset
-citySummaryData <- read_csv("data-clean/citySummaryData.csv")
+citySummaryData <- read_csv("data-clean/citySummaryData.csv") 
 
 # Select weather variables
 weather_data <- citySummaryData %>%
