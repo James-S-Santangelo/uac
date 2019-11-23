@@ -45,6 +45,7 @@ getBestFitClineModelOrder <- function(response, df) {
   return(order)
 }
 
+
 #' Runs model based on order (linear or quadratic) that fits best
 #'
 #' Quadratic model is assumed to be better fit if it improves model AIC
@@ -63,22 +64,27 @@ runBestFitModel <- function(response, df){
   std_distance <- df %>% pull("std_distance")
   std_distance_squared <- df %>% pull("std_distance_squared")
   
-  order <- getBestFitClineModelOrder(response, df) # Get model order
+  # order <- getBestFitClineModelOrder(response, df) # Get model order
   
-  if(order == "linear"){
-    model <- lm(response_var ~ std_distance) # Only first order term
-    write_csv(tidy(model),
-              path = sprintf("analysis/inividual-cline-models/%s/%s-%s-cline-model.csv",
-                             response, city, response),
-              append = FALSE)
-  }else if(order == "quadratic"){
-    model <- lm(response_var ~ std_distance + std_distance_squared) # First and second order terms
-    write_csv(tidy(model),
-              path = sprintf("analysis/inividual-cline-models/%s/%s-%s-cline-model.csv",
-                             response, city, response),
-              append = FALSE)
+  if(all(is.na(response_var)) == TRUE){
+    return(NA)
+  }else{
+    order <- getBestFitClineModelOrder(response, df)
+    if(order == "linear"){
+      model <- lm(response_var ~ std_distance) # Only first order term
+      write_csv(tidy(model),
+                path = sprintf("analysis/inividual-cline-models/%s/%s-%s-cline-model.csv",
+                               response, city, response),
+                append = FALSE)
+    }else if(order == "quadratic"){
+      model <- lm(response_var ~ std_distance + std_distance_squared) # First and second order terms
+      write_csv(tidy(model),
+                path = sprintf("analysis/inividual-cline-models/%s/%s-%s-cline-model.csv",
+                               response, city, response),
+                append = FALSE)
+    }
+    return(model)
   }
-  return(model)
 }
 
 #' Generates biplot of frequency of HCN, Ac, or Li, against distance
