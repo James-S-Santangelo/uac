@@ -7,10 +7,7 @@ library(tidyverse)
 
 # Load dataset with slopes of clines
 slopes <- read_csv("analysis/clineModelOutput.csv") %>%
-  select(-pvalCyanSlopeLin, -pvalSlopeQuad, -pvalAcSlopeLin,
-         -pvalAcSlopeQuad, -pvalLoSlopeLin, -pvalLiSlopeQuad)
-
-
+  select(City, betaLin_freqHCN, betaQuad_freqHCN, betaLinOnly, betaLog)
 
 # Load climate data and take mean by city 
 climate_data <- read_csv("data-clean/ClimateData_AllPopulations.csv") %>%
@@ -35,19 +32,6 @@ gene_freqs <- datPops %>%
             AcHWE = mean(AcHWE, na.rm = TRUE), 
             LiHWE = mean(LiHWE, na.rm = TRUE))
 
-# Add slopes from linear model of HCN against standardized distance
-# Same as 'cyanSlopeLin' in slopes data for most cities. 
-# Different if best fit model was quadratic. Required to test
-# for predictors of clines strength
-slopes <- datPops %>%
-  group_by(City) %>%
-  do(mod = lm(freqHCN ~ std_distance, data = .)) %>%
-  broom::tidy(., mod) %>%
-  filter(term == "std_distance") %>%
-  select(estimate, p.value) %>%
-  rename(cyanSlopeForAnalysis = estimate, cyanPvalSlopeAnalysis = p.value) %>%
-  merge(., slopes, by = "City")
-
 # Load in daily normals (i.e. weather data)
 daily_normals <- read_csv("data-clean/DailyNormals_AllCities_Filtered.csv") %>%
   mutate(negNoSnow = ifelse(TMIN < 0 & SNWDcm == 0, 1, 0)) 
@@ -67,14 +51,14 @@ daily_normals_merged <- daily_normals %>%
             snowfall = mean(SNOWcm, na.rm = TRUE),
             # mstWea = max(TMAX, na.rm = TRUE), 
             mwtWea = min(TMIN, na.rm = TRUE)) %>%
-  left_join(., daysNegNoSnow)
+  left_join(., daysNegNoSnow, by = "City")
 
  #### MERGE DATASETS TO FINAL CITY SUMMARY DATASET ####
 
 citySummaryData <- left_join(slopes, gene_freqs) %>%
-  left_join(., lat_long) %>%
-  left_join(., climate_data) %>%
-  left_join(., daily_normals_merged)
+  left_join(., lat_long, by = "City") %>%
+  left_join(., climate_data, by = "City") %>%
+  left_join(., daily_normals_merged, by = "City")
   
 # Write dataset 
 write_csv(citySummaryData, "data-clean/citySummaryData.csv")
