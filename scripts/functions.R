@@ -15,18 +15,17 @@
 #' 
 #' @param response Response variable to use in cline models. One of "freqHCN",
 #' "AcHWE", or "LiHWE".
-#' @param data Dataset to use for running cline model.
-#' @return list with first element being the lm model object for the best fit model and
-#' the second being a string with the model order ("linear" or "quadratic").
-getBestFitClineModel <- function(response, data) {
+#' @param df Dataset to use for running cline model.
+#' @return Model order ("linear" or "quadratic") for best fit cline
+getBestFitClineModelOrder <- function(response, df) {
   
   # Pull variables for linear model from dataset
-  response <- data %>% pull(response) #[, response]
-  std_distance <- data %>% pull("std_distance")
-  std_distance_squared <- data %>% pull("std_distance_squared")
+  response_var <- df %>% pull(response) #[, response]
+  std_distance <- df %>% pull("std_distance")
+  std_distance_squared <- df %>% pull("std_distance_squared")
   
   # Define linear and quadratic models for analysis of HCN with distance
-  quadratic_model <-  lm(response ~ std_distance + std_distance_squared) # Specify quadratic model
+  quadratic_model <-  lm(response_var ~ std_distance + std_distance_squared) # Specify quadratic model
   linear_model <-  update(quadratic_model, ~ . - std_distance_squared) # Specify linear model
   
   AIC_quad <- AIC(quadratic_model) # Get AIC of quadratic model
@@ -34,72 +33,53 @@ getBestFitClineModel <- function(response, data) {
   
   if (abs(AIC_quad) - abs(AIC_lin) > 2) {
     # If quadratic model AIC is > 2 from linear model AIC
-    bestFitClineModel <- quadratic_model # Then best fit model is quadratic
+    # bestFitClineModel <- quadratic_model # Then best fit model is quadratic
     order <- "quadratic"
   } else {
     # Otherwise (i.e. quadratic model is not better fit)
-    bestFitClineModel <- linear_model # Then best fit model is linear
+    # bestFitClineModel <- linear_model # Then best fit model is linear
     order <- "linear"
   }
   
   # Return list with best fit model and model order as string
-  return(list(model_output = getBestFitClineModel,
-              model_order = order))
+  return(order)
 }
 
-test_cityLin <- read_csv("data-clean/AllCities_AllPopulations.csv") %>% 
-  filter(City == "Toronto")
-
-test_cityQuad <- read_csv("data-clean/AllCities_AllPopulations.csv") %>% 
-  filter(City == "Jacksonville")
-
-getBestFitClineModel("freqHCN", test_cityQuad)
-
-
-#' Retrieves the slopes and P-values for linear and quadratic (if present) terms from lm object
+#' Runs model based on order (linear or quadratic) that fits best
 #'
-#' @param best_model_output lm object representing best fit cline model
-#' @param best_model_order String representing order of best fit model
-#' @param clines_results Vector storing coefficients from model output
-#' @return clines_results: Vector storing coefficients from model output
-getClineModelOutputFromOrder <-
-  function(best_model_output,
-           best_model_order,
-           clines_results) {
-    
-    # Tidy model output
-    tidy_output <- broom::tidy(best_model_output)
-    
-    # Get model output based on model order
-    if (best_model_order == "quadratic") {
-      # print("quadratic")
-      coef_lin = round(tidy_output[tidy_output$term == "std_distance", "estimate"], 4)
-      # print(coef_lin)
-      pval_lin = round(tidy_output[tidy_output$term == "std_distance", "p.value"], 4)
-      coef_quad = round(tidy_output[tidy_output$term == "std_distance_squared", "estimate"], 4)
-      pval_quad = round(tidy_output[tidy_output$term == "std_distance_squared", "p.value"], 4)
-      results <- c(coef_lin,
-                   pval_lin,
-                   coef_quad,
-                   pval_quad)
-      clines_results <-
-        append(clines_results, results, after = length(clines_results))
-    } else if (best_model_order == "linear") {
-      # print("linear")
-      coef_lin = round(tidy_output[tidy_output$term == "std_distance", "estimate"], 4)
-      # print(coef_lin)
-      pval_lin = round(tidy_output[tidy_output$term == "std_distance", "p.value"], 4)
-      coef_quad = "NA" # NA since no quadratic term in model
-      pval_quad = "NA" # NA since no quadratic term in model
-      results <- c(coef_lin,
-                   pval_lin,
-                   coef_quad,
-                   pval_quad)
-      clines_results <-
-        append(clines_results, results, after = length(clines_results))
-    }
-    return(clines_results)
+#' Quadratic model is assumed to be better fit if it improves model AIC
+#' by more than 2 points.
+#' 
+#' @param response Response variable to use in cline models. One of "freqHCN",
+#' "AcHWE", or "LiHWE".
+#' @param df Dataset to use for running cline model.
+#' @return 'lm' model object for best fit model
+runBestFitModel <- function(response, df){
+  
+  city = as.character(unique(df$City))
+  
+  # Pull variables for linear model from dataset
+  response_var <- df %>% pull(response)
+  std_distance <- df %>% pull("std_distance")
+  std_distance_squared <- df %>% pull("std_distance_squared")
+  
+  order <- getBestFitClineModelOrder(response, df) # Get model order
+  
+  if(order == "linear"){
+    model <- lm(response_var ~ std_distance) # Only first order term
+    write_csv(tidy(model),
+              path = sprintf("analysis/inividual-cline-models/%s/%s-%s-cline-model.csv",
+                             response, city, response),
+              append = FALSE)
+  }else if(order == "quadratic"){
+    model <- lm(response_var ~ std_distance + std_distance_squared) # First and second order terms
+    write_csv(tidy(model),
+              path = sprintf("analysis/inividual-cline-models/%s/%s-%s-cline-model.csv",
+                             response, city, response),
+              append = FALSE)
   }
+  return(model)
+}
 
 #' Writes cline model output for HCN, Ac, and Li to table
 #'
