@@ -55,9 +55,9 @@ getBestFitClineModelOrder <- function(response, df) {
 #' @param df Dataset to use for running cline model.
 #' @return 'lm' model object for best fit model
 runBestFitModel <- function(response, df){
-  
-  city = as.character(unique(df$City))
-  
+
+  city <- as.character(unique(df$City))
+
   # Pull variables for linear model from dataset
   response_var <- df %>% pull(response)
   std_distance <- df %>% pull("std_distance")
@@ -81,247 +81,6 @@ runBestFitModel <- function(response, df){
   return(model)
 }
 
-#' Writes cline model output for HCN, Ac, and Li to table
-#'
-#' @param dataframe_list A list containing individual dataframes with
-#' the frequency of HCN, Ac (if present), and Li (if present), and
-#' standardized distance to the urban centre and distance squared
-#' (for quadratic cline model)
-#' @return None: Writes dataframe to disk and assigns to global environment
-writeClineResults <- function(dataframe_list) {
-  
-  # Initialize dataset that will hold model outputs
-  modelOutputData <- data.frame(
-    City = character(),
-    cyanSlopeLin = numeric(),
-    pvalCyanSlopeLin = numeric(),
-    cyanSlopeQuad = numeric(),
-    pvalSlopeQuad = numeric(),
-    AcSlopeLin = numeric(),
-    pvalAcSlopeLin = numeric(),
-    AcSlopeQuad = numeric(),
-    pvalAcSlopeQuad = numeric(),
-    LiSlopeLin = numeric(),
-    pvalLoSlopeLin = numeric(),
-    LiSlopeQuad = numeric(),
-    pvalLiSlopeQuad = numeric(),
-    stringsAsFactors = FALSE
-  )
-  
-  clineOrderData <- data.frame(
-    City = character(),
-    freqHCN = character(),
-    AcHWE = character(),
-    LiHWE = character(),
-    stringsAsFactors = FALSE
-  )
-  
-  # Iterate over list containing dataframes
-  for (i in 1:length(dataframe_list)) {
-    # Retrieve dataframe from list
-    dataframe = dataframe_list[[i]]
-    
-    # Extract city as character
-    city = as.character(unique(dataframe$City))
-    
-    # Initialize empty vectors that will be grown and appendeded to written dataframes
-    clines_results <- c()
-    order_results <- c()
-    
-    ## HCN ##
-    
-    # Identify best fit model, return model and string with model order
-    best_model_HCN <-
-      getBestFitClineModel("freqHCN", dataframe)
-    best_model_output_HCN <- best_model_HCN[["model_output"]]
-    best_model_order_HCN <- best_model_HCN[["model_order"]]
-    
-    # Append output for HCN cline to cline results vector.
-    clines_results <-
-      getClineModelOutputFromOrder(best_model_output_HCN,
-                                   best_model_order_HCN,
-                                   clines_results)
-    # print(clines_results)
-    
-    # Append model order to order results
-    order_results <-
-      append(order_results,
-             best_model_order_HCN,
-             after = length(order_results))
-    
-    # Write best fit HCN model to disk
-    write_csv(
-      tidy(best_model_output_HCN),
-      path = sprintf(
-        "analysis/inividual-cline-models/HCN/%s-HCN-cline-model.csv",
-        city
-      ),
-      append = FALSE
-    )
-    
-    ## Ac and Li, IF PRESENT ##
-    
-    # If no values for inferred Ac and Li HWE allele frequencies
-    if (any(!is.na(dataframe[dataframe$City == city, c("AcHWE", "LiHWE")])) == FALSE) {
-      clines_results <-
-        append(
-          clines_results,
-          c("NA", "NA", "NA", "NA", "NA", "NA", "NA", "NA"),
-          after = length(clines_results)
-        )
-      order_results <-
-        append(order_results, c("NA", "NA"), after = length(order_results))
-    } else {
-      ## AC ##
-      
-      # Identify best fit model, return model and string with model order
-      best_model_Ac <-
-        getBestFitClineModel("AcHWE", dataframe)
-      best_model_output_Ac <- best_model_Ac[["model_output"]]
-      best_model_order_Ac <- best_model_Ac[["model_order"]]
-      
-      clines_results <-
-        getClineModelOutputFromOrder(best_model_output_Ac,
-                                     best_model_order_Ac,
-                                     clines_results)
-      order_results <-
-        append(order_results,
-               best_model_order_Ac,
-               after = length(order_results))
-      
-      # Write best fit Ac model to disk
-      write_csv(
-        tidy(best_model_output_Ac),
-        path = sprintf(
-          "analysis/inividual-cline-models/Ac/%s-Ac-cline-model.csv",
-          city
-        ),
-        append = FALSE
-      )
-      
-      ## LI ##
-      
-      # Identify best fit model, return model and string with model order
-      best_model_Li <-
-        getBestFitClineModel("LiHWE", dataframe)
-      best_model_output_Li <- best_model_Li[["model_output"]]
-      best_model_order_Li <- best_model_Li[["model_order"]]
-      
-      clines_results <-
-        getClineModelOutputFromOrder(best_model_output_Li,
-                                     best_model_order_Li,
-                                     clines_results)
-      # print(clines_results)
-      order_results <-
-        append(order_results,
-               best_model_order_Li,
-               after = length(order_results))
-      
-      # Write best fit Li model to disk
-      write_csv(
-        tidy(best_model_output_Li),
-        path = sprintf(
-          "analysis/inividual-cline-models/Li/%s-Li-cline-model.csv",
-          city
-        ),
-        append = FALSE
-      )
-    }
-    
-    # Append results vector to dataframe
-    modelOutputData[i, ] <- c(city, clines_results)
-    clineOrderData[i, ] <-  c(city, order_results)
-  }
-  # Assign dataframe to global environment and write to disk
-  assign("clineModelOutput", modelOutputData, envir = .GlobalEnv)
-  write_csv(
-    modelOutputData,
-    "analysis/clineModelOutput.csv",
-    na = "NA",
-    append = FALSE
-  )
-  
-  assign("clineModelOrder", clineOrderData, envir = .GlobalEnv)
-  write_csv(clineOrderData,
-            "analysis/tables/supplemental/TableS3_clineOrderData.csv",
-            na = "NA",
-            append = FALSE)
-}
-
-#' Writes cline model output of linear model (first-order only)for HCN, Ac, and Li to table
-#'
-#' @param dataframe_list A list containing individual dataframes with
-#' the frequency of HCN, Ac (if present), and Li (if present), and
-#' standardized distance to the urban centre and distance squared
-#' (for quadratic cline model)
-#' @return modelOutputData A dataframe with slopes and P-values of first-order linear models
-linearClineModelOnly <- function(dataframe_list){
-  
-  # Initialize dataset that will hold model outputs
-  modelOutputData <- data.frame(
-    City = character(),
-    betaHCN = numeric(),
-    pvalHCN = numeric(),
-    betaAc = numeric(),
-    pvalAc = numeric(),
-    betaLi = numeric(),
-    pvalLi = numeric(),
-    stringsAsFactors = FALSE
-  )
-  
-  for (i in 1:length(dataframe_list)) {
-    
-    # Retrieve dataframe from list
-    dataframe = dataframe_list[[i]]
-    
-    # Extract city as character
-    city = as.character(unique(dataframe$City))
-    
-    # Initialize vector to hold results
-    cline_results <- c()
-    
-    # Run linear model
-    clineModel <- lm(freqHCN ~ std_distance, data = dataframe)
-    
-    #Extract relavent coeficient
-    betaHCN <- round(summary(clineModel)$coefficients["std_distance", "Estimate"], 4)
-    pvalHCN <- round(summary(clineModel)$coefficients["std_distance", "Pr(>|t|)"], 4)
-    
-    cline_results <- append(cline_results,
-                            c(betaHCN, pvalHCN),
-                            after = length(cline_results))
-    
-    ## Ac and Li, IF PRESENT ##
-    
-    # If no values for inferred Ac and Li HWE allele frequencies
-    if (any(!is.na(dataframe[dataframe$City == city, c("AcHWE", "LiHWE")])) == FALSE) {
-      cline_results <- append(cline_results,
-                              c("NA", "NA", "NA", "NA"),
-                              after = length(cline_results)
-      )
-    }else{
-      
-      # AC
-      
-      clineModelAc <- lm(AcHWE ~ std_distance, data = dataframe)
-      betaAc <- round(summary(clineModelAc)$coefficients["std_distance", "Estimate"], 4)
-      pvalAc <- round(summary(clineModelAc)$coefficients["std_distance", "Pr(>|t|)"], 4)
-      
-      clineModelLi <- lm(LiHWE ~ std_distance, data = dataframe)
-      betaLi <- round(summary(clineModelLi)$coefficients["std_distance", "Estimate"], 4)
-      pvalLi <- round(summary(clineModelLi)$coefficients["std_distance", "Pr(>|t|)"], 4)
-      
-      cline_results <- append(cline_results,
-                              c(betaAc, pvalAc, betaLi, pvalLi),
-                              after = length(cline_results))
-    }
-    # print(city)
-    # print(cline_results)
-    modelOutputData[i, ] <- c(city, cline_results)
-  }  
-  return(modelOutputData)
-}
-
 #' Generates biplot of frequency of HCN, Ac, or Li, against distance
 #'
 #' @param df Dataframe with population mean allele or phenotype frequencies and distance
@@ -334,9 +93,12 @@ linearClineModelOnly <- function(dataframe_list){
 clineBiplot <- function(df, response_var, outpath, model_order_df){
   
   # Get city name
-  city_name <- df$City[1]
-  # print(city_name)
-  if(model_order_df[model_order_df$City == city_name, response_var] == "linear"){
+  city_name <- as.character(unique(df$City))
+
+  # Get model order
+  order <- getBestFitClineModelOrder(response, df)
+  
+  if(order == "linear"){
     
     plot <- df %>%
       ggplot(., aes_string(x = "std_distance", y = response_var)) +
@@ -353,7 +115,7 @@ clineBiplot <- function(df, response_var, outpath, model_order_df){
     ggsave(filename = path, plot = plot, device = "pdf", 
            width = 5, height = 5, dpi = 300)
     
-  }else if(model_order_df[model_order_df$City == city_name, response_var] == "quadratic"){
+  }else if(order == "quadratic"){
     
     plot <- df %>%
       ggplot(., aes_string(x = "std_distance", y = response_var)) +
