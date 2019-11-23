@@ -26,26 +26,35 @@ getBestFitClineModel <- function(response, data) {
   std_distance_squared <- data %>% pull("std_distance_squared")
   
   # Define linear and quadratic models for analysis of HCN with distance
-  quadratic_model = lm(response ~ std_distance + std_distance_squared) # Specify quadratic model
-  linear_model = update(quadratic_model, ~ . - std_distance_squared) # Specify linear model
+  quadratic_model <-  lm(response ~ std_distance + std_distance_squared) # Specify quadratic model
+  linear_model <-  update(quadratic_model, ~ . - std_distance_squared) # Specify linear model
   
-  AIC_quad = AIC(quadratic_model) # Get AIC of quadratic model
-  AIC_lin = AIC(linear_model) # Get AIC of linear model
+  AIC_quad <- AIC(quadratic_model) # Get AIC of quadratic model
+  AIC_lin <- AIC(linear_model) # Get AIC of linear model
   
   if (abs(AIC_quad) - abs(AIC_lin) > 2) {
     # If quadratic model AIC is > 2 from linear model AIC
-    getBestFitClineModel = quadratic_model # Then best fit model is quadratic
-    order = "quadratic"
+    bestFitClineModel <- quadratic_model # Then best fit model is quadratic
+    order <- "quadratic"
   } else {
     # Otherwise (i.e. quadratic model is not better fit)
-    getBestFitClineModel = linear_model # Then best fit model is linear
-    order = "linear"
+    bestFitClineModel <- linear_model # Then best fit model is linear
+    order <- "linear"
   }
   
   # Return list with best fit model and model order as string
   return(list(model_output = getBestFitClineModel,
               model_order = order))
 }
+
+test_cityLin <- read_csv("data-clean/AllCities_AllPopulations.csv") %>% 
+  filter(City == "Toronto")
+
+test_cityQuad <- read_csv("data-clean/AllCities_AllPopulations.csv") %>% 
+  filter(City == "Jacksonville")
+
+getBestFitClineModel("freqHCN", test_cityQuad)
+
 
 #' Retrieves the slopes and P-values for linear and quadratic (if present) terms from lm object
 #'
