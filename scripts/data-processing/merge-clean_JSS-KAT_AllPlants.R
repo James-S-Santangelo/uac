@@ -50,7 +50,7 @@ datAllPlants <- rbind(datJSS, datKATPlants)
 datNY_genes <- read.csv("data-raw/AllPlants_NY_IndGenes_Jibran.csv") %>%
   select(City, Population, Plant, Transect, HCN_Result, Locus.Li, Locus.Ac) %>% # Select required columns
   mutate(Transect = "NA") %>%
-  mutate(City = recode(City, "New York" = "NewYork"))
+  mutate(City = "NewYork")
 datNY_genes <- datAllPlants %>%
   filter(City == "NewYork") %>%
   select(-Locus.Li, -Locus.Ac) %>%
@@ -80,7 +80,12 @@ datLatLong <- datLatLong %>%
 datAllPlants <- merge(datAllPlants, datLatLong, 
         by = c("City", "Population", "Transect"), 
         all.x = TRUE) %>% 
-  select(-contains("Dmg"))
+  select(-contains("Dmg")) %>% 
+  mutate(Population = as.character(case_when(City =="Boston" & Population == "4A" ~ "44",
+                                             City =="Boston" & Population == "4B" ~ "45",
+                                             City =="NewYork" & Population == "11-I" ~ "11",
+                                             City =="NewYork" & Population == "11-II" ~ "12",
+                                             TRUE ~ Population)))
 
 # Write merged AllPlant dataset to disk.
 write.csv(datAllPlants, "data-clean/AllCities_AllPlants.csv", na = "NA", row.names = FALSE)

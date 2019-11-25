@@ -23,7 +23,7 @@ datPops <- datAllPlants %>%
   
   # Calculate phenotype/allele frequencies
   group_by(City, Transect, Population, Distance, std_distance) %>%
-  summarize(n_HCN = sum(!is.na(HCN_Result)), 
+  summarise(n_HCN = sum(!is.na(HCN_Result)), 
             sumHCN = sum(HCN_Result, na.rm = T), 
             freqHCN = (sumHCN/n_HCN),
             
@@ -46,7 +46,9 @@ datPops <- datAllPlants %>%
   # Add squared distance terms for quadratic regressions
   mutate(Distance_squared = Distance^2, 
          std_distance_squared = std_distance^2) %>%
-  na_if("NaN")
+  na_if("NaN") %>% 
+  ungroup() %>% 
+  mutate(Population = as.character(Population))
 
 # Write Population dataset to disk
 write.csv(datPops, "data-clean/AllCities_AllPopulations.csv", row.names = FALSE)
