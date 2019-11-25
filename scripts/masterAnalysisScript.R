@@ -29,33 +29,6 @@ library(car)
 library(patchwork)
 source('scripts/functions.R')
 
-######################################
-#### OUPUT FROM INDIVIDUAL CLINES ####
-######################################
-
-# Load data with population-level data for all cities
-datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
-
-# Split cities into different dataframes stored as list
-city_dataframes <- split(datPops, datPops$City)
-
-# Write cline results to disk and global environment
-writeClineResults(city_dataframes)
-
-# Logistic regression for each city to confirm patterns
-
-allPlants <- read_csv("data-clean/AllCities_AllPlants.csv") 
-
-# Table with coefficients from logistic regressions by city
-logReg_table <- allPlants %>% 
-  group_by(City) %>%
-  do(mod = glm(HCN_Result ~ std_distance, family = "binomial", data = .)) %>%
-  broom::tidy(., mod) %>%
-  filter(term == "std_distance") %>%
-  mutate(p.value = round(p.value, 3),
-         estimate = round(estimate, 3)) %>%
-  select(-term) 
-
 ATL_LogReg <- plotLogReg(allPlants, "Atlanta", tag = "(a)")
 BTL_LogReg <- plotLogReg(allPlants, "Baltimore", tag = "(b)")
 BOS_LogReg <- plotLogReg(allPlants, "Boston", tag = "(c)")
@@ -87,9 +60,14 @@ logRegs4 <- PIT_LogReg + TOR_LogReg + WDC_LogReg + plot_layout(ncol = 2)
 ggsave(filename = "analysis/figures/test.pdf", plot = logRegs2, device = "pdf", 
        width = 8, height = 8, units = "in", dpi = 300) 
 
+##############################################
 #### ANALYSIS OF CLINES ACROSS ALL CITIES ####
+##############################################
 
-## HCN ##
+## POPULATION-MEAN HCN FREQUENCIES ###
+
+# Load in data with population-mean HCN frequencies
+datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
 
 # Anova for overall effect of distance, city, and whether the strenth of clines
 # varies across cities (i.e., distance x city interaction)
@@ -97,7 +75,26 @@ clinesAllCities <- lm(freqHCN ~ std_distance*City, data = datPops)
 summary(clinesAllCities)
 Anova(clinesAllCities, type = 3)
 
+## INDIVIDUAL PLANT PHENOTYPE DATA ##
+
+# Read in individual plant-level data. Append std_distance
+datPlants <- read_csv("data-clean/AllCities_AllPlants.csv") %>% 
+  left_join(., datPops %>%select(City, Population, std_distance), by = c("City", "Population"))
+
+# Perform logistic regression
+logClinesAllCities <- glm(HCN_Result ~ std_distance*City, family = "binomial", data = datPlants)
+summary(logClinesAllCities)
+anova(logClinesAllCities, test = "LRT")
+
+intercept <- coef(logClinesAllCities)["(Intercept)"]
+distance_effect <- coef(logClinesAllCities)["std_distance"]
+
+probCyan_urban <- exp(intercept + distance_effect * 0) / (1 + (exp(intercept + distance_effect * 0)))
+probCyan_rural <- exp(intercept + distance_effect * 1) / (1 + (exp(intercept + distance_effect * 1)))
+
+###############################################
 #### CORRELATIONS AMONG CLIMATIC VARIABLES ####
+###############################################
 
 # Load in city summary dataset
 citySummaryData <- read_csv("data-clean/citySummaryData.csv") 
@@ -120,7 +117,9 @@ corr_mat[upper.tri(corr_mat)] <- round(corr_mat_object$P[upper.tri(corr_mat_obje
 corr_mat <- as.data.frame(corr_mat) %>%
   rownames_to_column()
 
+##################################################
 #### ANALYSIS PREDICTING MEAN HCN FREQUENCIES ####
+##################################################
 
 # Get range of HCN frequencies
 citySummaryData %>%
@@ -140,8 +139,6 @@ summary(lm(freqHCN ~ smd, data = citySummaryData)) # KEEP
 summary(lm(freqHCN ~ snow_depth, data = citySummaryData)) # REMOVE
 summary(lm(freqHCN ~ snowfall, data = citySummaryData)) # KEEP
 summary(lm(freqHCN ~ daysNegNoSnow, data = citySummaryData)) # KEEP
-summary(lm(freqHCN ~ snowfall*mwtBio, data = citySummaryData))
-
 
 # Predictors kept if P <= 0.1 from above models
 envPredictorsHCN <- citySummaryData %>%
@@ -209,25 +206,27 @@ models_HCN <- get.models(HCNfreqMod_dredge, subset = delta < 2)
 HCN_modAvg <- model.avg(models_HCN)
 summary(HCN_modAvg)
 
-#### ANALYSIS OF FACTORS PREDICTING CLINE STRENGTH ####
+#########################################################################
+#### ANALYSIS OF FACTORS PREDICTING CLINE STRENGTH: POPULATION-MEANS ####
+#########################################################################
 
 # Generate reduced dataset that excludes Tampa, which is fixed for HCN
 citySummaryDataForAnalysis <- citySummaryData %>%
   filter(City != "Tampa")
 
 #Run Models for each environmental variable predicting the strength of clines
-summary(lm(cyanSlopeForAnalysis ~ Latitude, data = citySummaryDataForAnalysis)) # KEEP
-summary(lm(cyanSlopeForAnalysis ~ Longitude, data = citySummaryDataForAnalysis)) # REMOVE
-summary(lm(cyanSlopeForAnalysis ~ annualAI, data = citySummaryDataForAnalysis)) # REMOVE
-summary(lm(cyanSlopeForAnalysis ~ monthlyPET, data = citySummaryDataForAnalysis)) # REMOVE
-summary(lm(cyanSlopeForAnalysis ~ annualPET, data = citySummaryDataForAnalysis)) # REMOVE
-summary(lm(cyanSlopeForAnalysis ~ monthlyPrecip, data = citySummaryDataForAnalysis)) # REMOVE
-summary(lm(cyanSlopeForAnalysis ~ mwtBio, data = citySummaryDataForAnalysis)) # KEEP
-summary(lm(cyanSlopeForAnalysis ~ mstBio, data = citySummaryDataForAnalysis)) # MARGINAL. KEEP.
-summary(lm(cyanSlopeForAnalysis ~ smd, data = citySummaryDataForAnalysis)) # REMOVE
-summary(lm(cyanSlopeForAnalysis ~ snow_depth, data = citySummaryDataForAnalysis)) # MARGINAL. KEEP.
-summary(lm(cyanSlopeForAnalysis ~ snowfall, data = citySummaryDataForAnalysis)) # KEEP
-summary(lm(cyanSlopeForAnalysis ~ daysNegNoSnow, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(betaLinOnly ~ Latitude, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(betaLinOnly ~ Longitude, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(betaLinOnly ~ annualAI, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(betaLinOnly ~ monthlyPET, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(betaLinOnly ~ annualPET, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(betaLinOnly ~ monthlyPrecip, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(betaLinOnly ~ mwtBio, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(betaLinOnly ~ mstBio, data = citySummaryDataForAnalysis)) # MARGINAL. KEEP.
+summary(lm(betaLinOnly ~ smd, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(betaLinOnly ~ snow_depth, data = citySummaryDataForAnalysis)) # MARGINAL. KEEP.
+summary(lm(betaLinOnly ~ snowfall, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(betaLinOnly ~ daysNegNoSnow, data = citySummaryDataForAnalysis)) # REMOVE
 
 # Pull out columns with remaining environmental predictors.
 # Predictors kept if P <= 0.1 from above models
@@ -262,8 +261,62 @@ citySummaryDataForAnalysis <- envPCAslope_inds$coord  %>% # PCA scores for citie
   rownames_to_column("City") %>%
   merge(., citySummaryDataForAnalysis, by = "City")
 
-SlopeMod <- lm(cyanSlopeForAnalysis ~ PC1_Slope, data = citySummaryDataForAnalysis)
+SlopeMod <- lm(betaLinOnly ~ PC1_Slope, data = citySummaryDataForAnalysis)
 summary(SlopeMod)
+
+######################################################################
+#### ANALYSIS OF FACTORS PREDICTING CLINE STRENGTH: LOGISTIC REGS ####
+######################################################################
+
+#Run Models for each environmental variable predicting the strength of clines
+summary(lm(betaLog ~ Latitude, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(betaLog ~ Longitude, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(betaLog ~ annualAI, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(betaLog ~ monthlyPET, data = citySummaryDataForAnalysis)) # REMOVE
+summary(lm(betaLog ~ annualPET, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(betaLog ~ monthlyPrecip, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(betaLog ~ mwtBio, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(betaLog ~ mstBio, data = citySummaryDataForAnalysis)) # MARGINAL. KEEP.
+summary(lm(betaLog ~ smd, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(betaLog ~ snow_depth, data = citySummaryDataForAnalysis)) # MARGINAL. KEEP.
+summary(lm(betaLog ~ snowfall, data = citySummaryDataForAnalysis)) # KEEP
+summary(lm(betaLog ~ daysNegNoSnow, data = citySummaryDataForAnalysis)) # REMOVE
+
+# Pull out columns with remaining environmental predictors.
+# Predictors kept if P <= 0.1 from above models
+envPredictorsSlopeLog <- citySummaryDataForAnalysis %>%
+  column_to_rownames('City') %>%
+  select(annualPET, monthlyPrecip, mwtBio, mstBio, snow_depth, snowfall)
+
+# Perform PCA of remaining environmental variables 
+envPCAslopeLog <- prcomp(envPredictorsSlopeLog, center = TRUE, scale = TRUE)
+
+envPCAslope_eigenLog <- get_eigenvalue(envPCAslopeLog)
+envPCAslope_eigenLog # Percent variation and cummulative % of each PC
+
+envPCAslope_varsLog <- get_pca_var(envPCAslopeLog)
+envPCAslope_varsLog$coord  # Variable loadings
+envPCAslope_varsLog$contrib  # Variable contributions to the PCs
+
+envPCAslope_indsLog <- get_pca_ind(envPCAslopeLog)
+envPCAslope_indsLog$coord  # City loadings
+envPCAslope_indsLog$contrib  # City contributions to the PCs
+
+# Assess how many PCs to keep based on broken stick method
+# Keep PCs if 'Inertia' is above broken stick line
+screeplot(envPCAslopeLog, bstick = TRUE)
+
+# Pull loadings out for each city and merge PC1 (92.8% variation explained) with 
+# analysis dataset
+citySummaryDataForAnalysis <- envPCAslope_indsLog$coord  %>% # PCA scores for cities. Can be extracted and used in regression
+  as.data.frame() %>%
+  select(Dim.1) %>%
+  rename(PC1_Slope = Dim.1) %>%
+  rownames_to_column("City") %>%
+  merge(., citySummaryDataForAnalysis, by = "City")
+
+SlopeModLog <- lm(betaLog ~ PC1_Slope, data = citySummaryDataForAnalysis)
+summary(SlopeModLog)
 
 #### ANALYSIS OF HAPLOTYPES BY HABITAT TYPE ####
 
@@ -515,6 +568,40 @@ HCN_by_city
 ggsave(filename = "analysis/figures/main-text/from_R/Figure2_HCN-by-distance.pdf", 
        plot = HCN_by_city, device = 'pdf', units = 'in',
        width = 12, height = 8, dpi = 600)
+
+# HCN by city logistic
+HCN_by_cityLog <- datPlants %>%
+  group_by(City) %>%
+  do(mod = glm(HCN_Result ~ std_distance, family = "binomial", data = .)) %>%
+  tidy(., mod) %>%
+  mutate(intercept = estimate[term == "(Intercept)"]) %>%
+  filter(term == "std_distance") %>%
+  mutate(predicted = intercept + (estimate * 1.0),
+         odds = exp(predicted),
+         prob = odds / (1 + odds)) %>%
+  select(City, p.value, predicted, odds, prob) %>%
+  merge(., datPlants, by = "City", all.y = TRUE) %>%
+  mutate(significant = ifelse(p.value < 0.05, "Yes", "No")) %>%
+  ggplot(., aes(x = std_distance, y = HCN_Result)) +  
+  geom_line(stat = "smooth", method="glm", method.args = list(family = "binomial"),
+            aes(linetype = significant,
+                group = City), 
+            alpha = 0.7, size = 1) +
+  geom_line(stat = "smooth", method="glm", method.args = list(family = "binomial"),
+            colour = "black", size = 2.5) +
+  # scale_colour_manual(values = colors) +
+  xlab("Standardized distance") + ylab("Probability of being HCN+") + 
+  scale_linetype_manual(values=c("dashed", "solid")) +
+  scale_y_continuous(breaks = seq(from = 0, to = 1, by = 0.25)) +
+  scale_x_continuous(breaks = seq(from = 0, to = 1.1, by = 0.25)) +
+  coord_cartesian(ylim = c(0, 1.025), xlim = c(0, 1), clip = 'off') +
+  geom_text(aes(label = City, x = 1.005, y = prob), hjust = 0) + 
+  ng1 +
+  theme(legend.position = "top", legend.direction = "horizontal",
+        legend.key.height = unit(0.5, "cm")) +
+  guides(color = guide_legend(override.aes = list(size = 2)))
+# geom_dl(aes(label = City), method = list(dl.trans(x = x + 0.2), "last.points", cex = 0.8))
+HCN_by_cityLog
 
 
 ## FIGURE 3 ##
