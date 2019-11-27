@@ -75,8 +75,11 @@ for(res in possibleResponses){
   
 }
 
+# Left join all dataframes with model orders
 allModelOutputs <- reduce(tbl_out, left_join, by = "City")
 
+# Write model order table to disk
+write_csv(allModelOutputs, "analysis/tables/supplemental/TableS3_clineOrderData.csv")
 
 ## TABLE S4
 
