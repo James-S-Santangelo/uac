@@ -52,7 +52,31 @@ corr_mat <- read_csv("analysis/tables/supplemental/TableS2_weatherCorrMat.csv")
 
 ## TABLE S3
 
-# Written to disk by `writeClineResults` function
+# Source functions
+source("scripts/functions.R")
+
+# Load population-mean dataset
+datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
+
+# Get the best fit cline model for each city and locus
+# Possible values for the response variables
+possibleResponses <- c("freqHCN", "AcHWE", "LiHWE")
+
+tbl_out <- c() # vector to hold resulting dataframes
+
+# Loop over response variables
+for(res in possibleResponses){
+
+  tbl_out[[res]] <- datPops %>% 
+    split(.$City) %>%  # Separate list for each city
+    map_dfr(., ~tidy(getBestFitClineModelOrder(res, .)), .id = "City") %>% 
+    mutate(response = res) %>% 
+    spread(key = response, value = x)
+  
+}
+
+allModelOutputs <- reduce(tbl_out, left_join, by = "City")
+
 
 ## TABLE S4
 
