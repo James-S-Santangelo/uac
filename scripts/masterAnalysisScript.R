@@ -91,6 +91,14 @@ distance_effect <- coef(logClinesAllCities)["std_distance"]
 
 probCyan_urban <- exp(intercept + distance_effect * 0) / (1 + (exp(intercept + distance_effect * 0)))
 probCyan_rural <- exp(intercept + distance_effect * 1) / (1 + (exp(intercept + distance_effect * 1)))
+(probCyan_rural - probCyan_urban) / probCyan_urban # Relative increase in probability of being cyanogenic from rural --> urban
+
+
+# Same model as above but specified using different syntax
+logClinesAllCitiesFreqs <- glm(freqHCN ~ std_distance*City, family = "binomial", data = datPops, weights = n_HCN)
+summary(logClinesAllCitiesFreqs)
+anova(logClinesAllCitiesFreqs, test = "LRT")
+
 
 ###############################################
 #### CORRELATIONS AMONG CLIMATIC VARIABLES ####
@@ -206,9 +214,11 @@ models_HCN <- get.models(HCNfreqMod_dredge, subset = delta < 2)
 HCN_modAvg <- model.avg(models_HCN)
 summary(HCN_modAvg)
 
-#########################################################################
-#### ANALYSIS OF FACTORS PREDICTING CLINE STRENGTH: POPULATION-MEANS ####
-#########################################################################
+#######################################################
+#### ANALYSIS OF FACTORS PREDICTING CLINE STRENGTH ####
+#######################################################
+
+## POPULATION-MEAN DATA ##
 
 # Generate reduced dataset that excludes Tampa, which is fixed for HCN
 citySummaryDataForAnalysis <- citySummaryData %>%
@@ -264,9 +274,7 @@ citySummaryDataForAnalysis <- envPCAslope_inds$coord  %>% # PCA scores for citie
 SlopeMod <- lm(betaLinOnly ~ PC1_Slope, data = citySummaryDataForAnalysis)
 summary(SlopeMod)
 
-######################################################################
-#### ANALYSIS OF FACTORS PREDICTING CLINE STRENGTH: LOGISTIC REGS ####
-######################################################################
+## LOGISTIC REGRESSION DATA ##
 
 #Run Models for each environmental variable predicting the strength of clines
 summary(lm(betaLog ~ Latitude, data = citySummaryDataForAnalysis)) # KEEP
