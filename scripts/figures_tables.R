@@ -48,7 +48,7 @@ write_csv(weather_summ, "analysis/tables/supplemental/TableS1_DailyNormals_Summa
 
 # Written in "CORRELATIONS AMONG CLIMATIC VARIABLES" section of masterAnalysisScript.R
 # It can be loaded below
-corr_mat <- read_csv("analysis/tables/supplemental/TableS2_weatherCorrMat.csv")
+tableS2_corr_mat <- read_csv("analysis/tables/supplemental/TableS2_weatherCorrMat.csv")
 
 ## TABLE S3
 
@@ -83,14 +83,14 @@ write_csv(allModelOutputs, "analysis/tables/supplemental/TableS3_clineOrderData.
 
 ## TABLE S4
 
-write_csv(HCN_dredge_models, path = "analysis/tables/supplemental/TableS4_HCN_dredge_output.csv", 
-          col_names = TRUE)
+# Written in "ANALYSIS PREDICTING MEAN HCN FREQUENCIES" section of masterAnalysisScript.R
+# It can be loaded below
+tableS4_HCN_dredge_models <- read_csv("analysis/tables/supplemental/TableS4_HCN_dredge_output.csv")
 
 ## TABLE S5
 
-tableS5 <- as.data.frame(rbind(
-  c("Full"),
-  summary(HCN_modAvg)$coefmat.full)) %>%
-  rownames_to_column()
+# Written in "ANALYSIS PREDICTING MEAN HCN FREQUENCIES" section of masterAnalysisScript.R
+# It can be loaded below
+tableS5_fullCoeffs <- read_csv("analysis/tables/supplemental/TableS5_freqHCN_FullModelAvg.csv")
 
-write_csv(tableS5, "analysis/tables/supplemental/TableS5_freqHCN_FullModelAvg.csv")
+

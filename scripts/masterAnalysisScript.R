@@ -128,6 +128,15 @@ corr_mat <- as.data.frame(corr_mat) %>%
 # Write pairwise correlation matrix to disk
 write_csv(corr_mat, "analysis/tables/supplemental/TableS2_weatherCorrMat.csv")
 
+# Write full model coefficients from dredge output to disk
+tableS5 <- as.data.frame(rbind(
+  c("Full"),
+  summary(HCN_modAvg)$coefmat.full)) %>%
+  rownames_to_column()
+
+write_csv(tableS5, "analysis/tables/supplemental/TableS5_freqHCN_FullModelAvg.csv")
+
+
 ##################################################
 #### ANALYSIS PREDICTING MEAN HCN FREQUENCIES ####
 ##################################################
@@ -216,6 +225,11 @@ HCN_dredge_models <- as.data.frame(HCNfreqMod_dredge)
 models_HCN <- get.models(HCNfreqMod_dredge, subset = delta < 2)
 HCN_modAvg <- model.avg(models_HCN)
 summary(HCN_modAvg)
+
+# Write HCN dredge models to disk
+write_csv(HCN_dredge_models, path = "analysis/tables/supplemental/TableS4_HCN_dredge_output.csv", 
+          col_names = TRUE)
+
 
 #######################################################
 #### ANALYSIS OF FACTORS PREDICTING CLINE STRENGTH ####
@@ -457,61 +471,6 @@ summary(LiLocusMod_Simp, type = 3)
 simpsDivLi %>%
   group_by(Habitat) %>%
   summarise(meanSimp = mean(simpson))
-
-#### TABLES ####
-
-## TABLE 1 
-
-# Linear cline models only. Part of table 1
-linearClines <- linearClineModelOnly(city_dataframes)
-
-# Extract number of populations and plants per city. Merge with linear clines model output above
-table1 <- read.csv("data-clean/AllCities_AllPlants.csv") %>%
-  group_by(City) %>%
-  summarise(numPops = n_distinct(Population),
-            numPlants = n()) %>%
-  merge(., linearClines, by = "City")
-
-# Write table 1 to disk
-write_csv(table1, "analysis/tables/main-text/Table1_cityClineSummary.csv")
-
-## TABLE S1
-
-weather_data <- read_csv("data-clean/DailyNormals_AllCities_Filtered.csv")
-
-# Summarize number of observations for each city
-weather_summ <- weather_data %>% 
-  group_by(City, STATION_NAME) %>%
-  summarise(min_year = min(Year),
-            max_year = max(Year),
-            count = n()) %>%
-  mutate(STATION_NAME = str_to_title(STATION_NAME))
-
-# Write summarized data to disk
-write_csv(weather_summ, "analysis/tables/supplemental/TableS1_DailyNormals_Summary.csv")
-
-## TABLE S2
-
-write_csv(corr_mat, path = "analysis/tables/supplemental/TableS2_weatherCorrMat.csv", 
-          col_names = TRUE)
-
-## TABLE S3
-
-# Written to disk by `writeClineResults` function
-
-## TABLE S4
-
-write_csv(HCN_dredge_models, path = "analysis/tables/supplemental/TableS4_HCN_dredge_output.csv", 
-          col_names = TRUE)
-
-## TABLE S5
-
-tableS5 <- as.data.frame(rbind(
-  c("Full"),
-  summary(HCN_modAvg)$coefmat.full)) %>%
-  rownames_to_column()
-
-write_csv(tableS5, "analysis/tables/supplemental/TableS5_freqHCN_FullModelAvg.csv")
 
 #### FIGURES ####
 
