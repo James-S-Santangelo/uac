@@ -297,9 +297,9 @@ citySummaryDataForAnalysis <- envPCAslope_indsLog$coord  %>% # PCA scores for ci
 SlopeModLog <- lm(betaLog ~ PC1_Slope, data = citySummaryDataForAnalysis)
 summary(SlopeModLog)
 
+################################################
 #### ANALYSIS OF HAPLOTYPES BY HABITAT TYPE ####
-
-## AC LOCUS ##
+################################################
 
 # Number of plants per population and city
 haplotype_data %>% 
@@ -308,6 +308,8 @@ haplotype_data %>%
   ungroup() %>% 
   group_by(City, Habitat) %>% 
   summarise(sum = sum(count))
+
+## Ac LOCUS ##
 
 # Counts and proportion of different haplotypes at Ac Locus
 haplo_counts_Ac <- haplotype_data %>%
@@ -330,40 +332,18 @@ haplo_validation_Ac <- haplo_counts_Ac %>%
   group_by(validation) %>%
   summarise(total_prop = sum(prop))
 
-# Relative frequency of haplotypes at Ac Locus
-freqHaploAc <- haplotype_data %>%
-  group_by(City, Habitat, haplotype_Ac) %>%
-  filter(haplotype_Ac != "unk" & haplotype_Ac != "Ac") %>%
-  summarise(nAc = n()) %>%
-  mutate(freqHaploAc = nAc / sum(nAc)) %>%
-  ungroup() %>%
-  mutate(haplotype_Ac = as.factor(haplotype_Ac),
-         haplotype_Ac = fct_reorder(haplotype_Ac, freqHaploAc)) %>%
-  complete(City, Habitat, haplotype_Ac, fill = list(freqHaploAc = 0))
+# Number of "ac" haplotypes by city and habitat
+richnessHaplotAc <- haplotype_data %>% 
+  filter(haplotype_Ac != "unk" & haplotype_Ac != "Ac") %>% 
+  group_by(City, Habitat) %>% 
+  distinct_at(., "haplotype_Ac") %>% 
+  summarise(richness = n())
 
-# Dataframe with simpson's diversity for haplotypes
-simpsDivAc <- haplotype_data %>%
-  group_by(City, Habitat, haplotype_Ac) %>%
-  filter(haplotype_Ac != "unk" & haplotype_Ac != "Ac") %>%
-  summarise(n = n(),
-            nMin1 = n - 1, 
-            n_nMin1 = n * nMin1) %>%
-  ungroup() %>%
-  group_by(City, Habitat) %>%
-  summarise(N = sum(n),
-            sum_n_nMin1 = sum(n_nMin1),
-            simpson = 1 - (sum_n_nMin1 / (N* (N - 1))))
+# Model testing for variation in "ac" haplotype richness by habitat
+AcLocusMod_Rich <- aov(richness ~ Habitat, data = richnessHaplotAc)
+summary(AcLocusMod_Rich)
 
-# Model testing for variation in Ac haplotype simpson's diversity by haplotype and habitat type
-AcLocusMod_Simp <- lm(simpson ~ Habitat, data = simpsDivAc)
-summary(AcLocusMod_Simp)
-
-# Gethaplotype richness in each habitat
-simpsDivAc %>%
-  group_by(Habitat) %>%
-  summarise(meanSimp = mean(richness))
-
-## LI LOCUS ##
+## Li LOCUS ##
 
 # Counts and proportion of different haplotypes at Li Locus
 haplo_counts_Li <- haplotype_data %>%
@@ -386,42 +366,16 @@ haplo_validation_Li <- haplo_counts_Li %>%
   group_by(validation) %>%
   summarise(total_prop = sum(prop))
 
-# Relative frequency of haplotypes at Li Locus
-freqHaploLi <- haplotype_data %>%
-  group_by(City, Habitat, haplotype_Li) %>%
-  filter(haplotype_Li != "unk" & haplotype_Li != "Li") %>%
-  summarise(nLi = n()) %>%
-  mutate(freqHaploLi = nLi / sum(nLi)) %>%
-  ungroup() %>%
-  mutate(haplotype_Li = as.factor(haplotype_Li),
-         haplotype_Li = fct_reorder(haplotype_Li, freqHaploLi)) %>%
-  complete(City, Habitat, haplotype_Li, fill = list(freqHaploLi = 0))
+# Number of "li" haplotypes by city and habitat
+richnessHaplotLi <- haplotype_data %>% 
+  filter(haplotype_Li != "unk" & haplotype_Li != "Li") %>% 
+  group_by(City, Habitat) %>% 
+  distinct_at(., "haplotype_Li") %>% 
+  summarise(richness = n())
 
-# Dataframe with simpson's diversity for haplotypes
-simpsDivLi <- haplotype_data %>%
-  group_by(City, Habitat, haplotype_Li) %>%
-  filter(haplotype_Li != "unk" & haplotype_Li != "Li") %>%
-  summarise(n = n(),
-            nMin1 = n - 1, 
-            n_nMin1 = n * nMin1) %>%
-  ungroup() %>%
-  group_by(City, Habitat) %>%
-  summarise(N = sum(n),
-            sum_n_nMin1 = sum(n_nMin1),
-            simpson = 1 - (sum_n_nMin1 / (N* (N - 1))))
-
-# Model testing for variation in Li haplotype relative frequency by haplotype and habitat type
-LiLocusMod <- lm(freqHaploLi ~ Habitat*haplotype_Li, data = freqHaploLi)
-Anova(LiLocusMod, type = 3)
-
-# Model testing for variation in Ac haplotype relative frequency by haplotype and habitat type
-LiLocusMod_Simp <- lm(simpson ~ Habitat, data = simpsDivLi)
-summary(LiLocusMod_Simp, type = 3)
-
-# Get Simpson's index in each habitat
-simpsDivLi %>%
-  group_by(Habitat) %>%
-  summarise(meanSimp = mean(simpson))
+# Model testing for variation in "ac" haplotype richness by habitat
+LiLocusMod_Rich <- aov(richness ~ Habitat, data = richnessHaplotLi)
+summary(LiLocusMod_Rich)
 
 #### FIGURES ####
 
