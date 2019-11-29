@@ -7,9 +7,6 @@
 #
 # Generates tables and figures for maanuscript
 
-# Load required packages
-library(tidyverse)
-
 ################
 #### TABLES ####
 ################
@@ -21,7 +18,7 @@ linearClines <- read_csv("analysis/clineModelOutput.csv") %>%
   select(City, betaLinOnly, betaLin_AcHWE, betaLin_LiHWE)
 
 # Extract number of populations and plants per city. Merge with linear clines model output above
-table1 <- read.csv("data-clean/AllCities_AllPlants.csv") %>%
+table1 <- datPlants %>%
   group_by(City) %>%
   summarise(numPops = n_distinct(Population),
             numPlants = n()) %>%
@@ -47,17 +44,10 @@ write_csv(weather_summ, "analysis/tables/supplemental/TableS1_DailyNormals_Summa
 
 ## TABLE S2
 
-# Written in "CORRELATIONS AMONG CLIMATIC VARIABLES" section of masterAnalysisScript.R
-# It can be loaded below
-tableS2_corr_mat <- read_csv("analysis/tables/supplemental/TableS2_weatherCorrMat.csv")
+# Write pairwise correlation matrix to disk
+write_csv(corr_mat, "analysis/tables/supplemental/TableS2_weatherCorrMat.csv")
 
 ## TABLE S3
-
-# Source functions
-source("scripts/functions.R")
-
-# Load population-mean dataset
-datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
 
 # Get the best fit cline model for each city and locus
 # Possible values for the response variables
@@ -84,15 +74,19 @@ write_csv(allModelOutputs, "analysis/tables/supplemental/TableS3_clineOrderData.
 
 ## TABLE S4
 
-# Written in "ANALYSIS PREDICTING MEAN HCN FREQUENCIES" section of masterAnalysisScript.R
-# It can be loaded below
-tableS4_HCN_dredge_models <- read_csv("analysis/tables/supplemental/TableS4_HCN_dredge_output.csv")
+# Write HCN dredge models to disk
+write_csv(HCN_dredge_models, path = "analysis/tables/supplemental/TableS4_HCN_dredge_output.csv", 
+          col_names = TRUE)
 
 ## TABLE S5
 
-# Written in "ANALYSIS PREDICTING MEAN HCN FREQUENCIES" section of masterAnalysisScript.R
-# It can be loaded below
-tableS5_fullCoeffs <- read_csv("analysis/tables/supplemental/TableS5_freqHCN_FullModelAvg.csv")
+# Write full model coefficients from dredge output to disk
+tableS5 <- as.data.frame(rbind(
+  c("Full"),
+  summary(HCN_modAvg)$coefmat.full)) %>%
+  rownames_to_column()
+
+write_csv(tableS5, "analysis/tables/supplemental/TableS5_freqHCN_FullModelAvg.csv")
 
 #### FIGURES ####
 
@@ -169,8 +163,6 @@ ggsave(filename = "analysis/figures/main-text/from_R/Figure2_HCN-by-distance.pdf
 
 ## FIGURE 3 ##
 
-citySummaryData <- read_csv("data-clean/citySummaryData.csv")
-  
 # Add abbreviations
 citySummaryData <- citySummaryData %>%
   mutate(abbr = case_when(City == "Jacksonville" ~ "Jax",
@@ -362,3 +354,35 @@ HCN_by_cityLog <- datPlants %>%
   guides(color = guide_legend(override.aes = list(size = 2)))
 # geom_dl(aes(label = City), method = list(dl.trans(x = x + 0.2), "last.points", cex = 0.8))
 HCN_by_cityLog
+
+
+ATL_LogReg <- plotLogReg(allPlants, "Atlanta", tag = "(a)")
+BTL_LogReg <- plotLogReg(allPlants, "Baltimore", tag = "(b)")
+BOS_LogReg <- plotLogReg(allPlants, "Boston", tag = "(c)")
+CLT_LogReg <- plotLogReg(allPlants, "Charlotte", tag = "(d)")
+
+
+CIN_LogReg <- plotLogReg(allPlants, "Cincinnati", tag = "(a)")
+CLE_LogReg <- plotLogReg(allPlants, "Cleveland", tag = "(b)")
+DET_LogReg <- plotLogReg(allPlants, "Detroit", tag = "(c)")
+JAX_LogReg <- plotLogReg(allPlants, "Jacksonville", tag = "(d)")
+
+
+MTL_LogReg <- plotLogReg(allPlants, "Montreal", tag = "(a)")
+NY_LogReg <- plotLogReg(allPlants, "NewYork", tag = "(b)")
+NOR_LogReg <- plotLogReg(allPlants, "Norfolk", tag = "(c)")
+PHL_LogReg <- plotLogReg(allPlants, "Philadelphia", tag = "(d)")
+
+
+PIT_LogReg <- plotLogReg(allPlants, "Pittsburgh", tag = "(a)")
+# TMP_LogReg <- plotLogReg(allPlants, "Tampa", tag = "(n)")
+TOR_LogReg <- plotLogReg(allPlants, "Toronto", tag = "(b)")
+WDC_LogReg <- plotLogReg(allPlants, "Washington D.C.", tag = "(c)")
+
+logRegs1 <- ATL_LogReg + BTL_LogReg + BOS_LogReg + CLT_LogReg + plot_layout(ncol = 2)
+logRegs2 <- CIN_LogReg + CLE_LogReg + DET_LogReg + JAX_LogReg + plot_layout(ncol = 2)
+logRegs3 <- MTL_LogReg + NY_LogReg + NOR_LogReg + PHL_LogReg + plot_layout(ncol = 2)
+logRegs4 <- PIT_LogReg + TOR_LogReg + WDC_LogReg + plot_layout(ncol = 2)
+
+ggsave(filename = "analysis/figures/test.pdf", plot = logRegs2, device = "pdf", 
+       width = 8, height = 8, units = "in", dpi = 300) 

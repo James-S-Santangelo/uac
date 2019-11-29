@@ -7,8 +7,9 @@
 #
 # Script to carry out all analyses reported in manuscript
 
-
-### SETUP ###
+###############
+#### SETUP ####
+###############
 
 # Change default contrasts to enable type III SS
 options(contrasts = c("contr.sum", "contr.poly"))
@@ -18,7 +19,8 @@ options(contrasts = c("contr.sum", "contr.poly"))
 rm(list=ls())
 .rs.restartR()
 
-# Load required packages
+## LOAD PACKAGES ##
+
 library(tidyverse)
 library(broom)
 library(Hmisc)
@@ -29,45 +31,27 @@ library(car)
 library(patchwork)
 source('scripts/functions.R')
 
-ATL_LogReg <- plotLogReg(allPlants, "Atlanta", tag = "(a)")
-BTL_LogReg <- plotLogReg(allPlants, "Baltimore", tag = "(b)")
-BOS_LogReg <- plotLogReg(allPlants, "Boston", tag = "(c)")
-CLT_LogReg <- plotLogReg(allPlants, "Charlotte", tag = "(d)")
+## LOAD DATASETS FOR ANALYSES ##
 
+# Population-mean HCN frequencies
+datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
 
-CIN_LogReg <- plotLogReg(allPlants, "Cincinnati", tag = "(a)")
-CLE_LogReg <- plotLogReg(allPlants, "Cleveland", tag = "(b)")
-DET_LogReg <- plotLogReg(allPlants, "Detroit", tag = "(c)")
-JAX_LogReg <- plotLogReg(allPlants, "Jacksonville", tag = "(d)")
+# Individual plant-level data. Append std_distance
+datPlants <- read_csv("data-clean/AllCities_AllPlants.csv") %>% 
+  left_join(., datPops %>%select(City, Population, std_distance), by = c("City", "Population"))
 
+# Data with environmental and model summaries by city
+citySummaryData <- read_csv("data-clean/citySummaryData.csv") 
 
-MTL_LogReg <- plotLogReg(allPlants, "Montreal", tag = "(a)")
-NY_LogReg <- plotLogReg(allPlants, "NewYork", tag = "(b)")
-NOR_LogReg <- plotLogReg(allPlants, "Norfolk", tag = "(c)")
-PHL_LogReg <- plotLogReg(allPlants, "Philadelphia", tag = "(d)")
+# Load in data
+haplotype_data <- read_csv("data-clean/haplotypeData.csv")
 
-
-PIT_LogReg <- plotLogReg(allPlants, "Pittsburgh", tag = "(a)")
-# TMP_LogReg <- plotLogReg(allPlants, "Tampa", tag = "(n)")
-TOR_LogReg <- plotLogReg(allPlants, "Toronto", tag = "(b)")
-WDC_LogReg <- plotLogReg(allPlants, "Washington D.C.", tag = "(c)")
-
-logRegs1 <- ATL_LogReg + BTL_LogReg + BOS_LogReg + CLT_LogReg + plot_layout(ncol = 2)
-logRegs2 <- CIN_LogReg + CLE_LogReg + DET_LogReg + JAX_LogReg + plot_layout(ncol = 2)
-logRegs3 <- MTL_LogReg + NY_LogReg + NOR_LogReg + PHL_LogReg + plot_layout(ncol = 2)
-logRegs4 <- PIT_LogReg + TOR_LogReg + WDC_LogReg + plot_layout(ncol = 2)
-
-ggsave(filename = "analysis/figures/test.pdf", plot = logRegs2, device = "pdf", 
-       width = 8, height = 8, units = "in", dpi = 300) 
 
 ##############################################
 #### ANALYSIS OF CLINES ACROSS ALL CITIES ####
 ##############################################
 
 ## POPULATION-MEAN HCN FREQUENCIES ###
-
-# Load in data with population-mean HCN frequencies
-datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
 
 # Anova for overall effect of distance, city, and whether the strenth of clines
 # varies across cities (i.e., distance x city interaction)
@@ -77,14 +61,10 @@ Anova(clinesAllCities, type = 3)
 
 ## INDIVIDUAL PLANT PHENOTYPE DATA ##
 
-# Read in individual plant-level data. Append std_distance
-datPlants <- read_csv("data-clean/AllCities_AllPlants.csv") %>% 
-  left_join(., datPops %>%select(City, Population, std_distance), by = c("City", "Population"))
-
 # Perform logistic regression
-logClinesAllCities <- glm(HCN_Result ~ std_distance*City, family = "binomial", data = datPlants)
-summary(logClinesAllCities)
-anova(logClinesAllCities, test = "LRT")
+logClinesAllCitiesFreqs <- glm(freqHCN ~ std_distance*City, family = "binomial", data = datPops, weights = n_HCN)
+summary(logClinesAllCitiesFreqs)
+anova(logClinesAllCitiesFreqs, test = "LRT")
 
 intercept <- coef(logClinesAllCities)["(Intercept)"]
 distance_effect <- coef(logClinesAllCities)["std_distance"]
@@ -94,18 +74,9 @@ probCyan_rural <- exp(intercept + distance_effect * 1) / (1 + (exp(intercept + d
 (probCyan_rural - probCyan_urban) / probCyan_urban # Relative increase in probability of being cyanogenic from rural --> urban
 
 
-# Same model as above but specified using different syntax
-logClinesAllCitiesFreqs <- glm(freqHCN ~ std_distance*City, family = "binomial", data = datPops, weights = n_HCN)
-summary(logClinesAllCitiesFreqs)
-anova(logClinesAllCitiesFreqs, test = "LRT")
-
-
 ###############################################
 #### CORRELATIONS AMONG CLIMATIC VARIABLES ####
 ###############################################
-
-# Load in city summary dataset
-citySummaryData <- read_csv("data-clean/citySummaryData.csv") 
 
 # Select weather variables
 weather_data <- citySummaryData %>%
@@ -124,18 +95,6 @@ corr_mat[upper.tri(corr_mat)] <- round(corr_mat_object$P[upper.tri(corr_mat_obje
 # Write correlation matrix to disk
 corr_mat <- as.data.frame(corr_mat) %>%
   rownames_to_column()
-
-# Write pairwise correlation matrix to disk
-write_csv(corr_mat, "analysis/tables/supplemental/TableS2_weatherCorrMat.csv")
-
-# Write full model coefficients from dredge output to disk
-tableS5 <- as.data.frame(rbind(
-  c("Full"),
-  summary(HCN_modAvg)$coefmat.full)) %>%
-  rownames_to_column()
-
-write_csv(tableS5, "analysis/tables/supplemental/TableS5_freqHCN_FullModelAvg.csv")
-
 
 ##################################################
 #### ANALYSIS PREDICTING MEAN HCN FREQUENCIES ####
@@ -225,11 +184,6 @@ HCN_dredge_models <- as.data.frame(HCNfreqMod_dredge)
 models_HCN <- get.models(HCNfreqMod_dredge, subset = delta < 2)
 HCN_modAvg <- model.avg(models_HCN)
 summary(HCN_modAvg)
-
-# Write HCN dredge models to disk
-write_csv(HCN_dredge_models, path = "analysis/tables/supplemental/TableS4_HCN_dredge_output.csv", 
-          col_names = TRUE)
-
 
 #######################################################
 #### ANALYSIS OF FACTORS PREDICTING CLINE STRENGTH ####
@@ -345,9 +299,6 @@ summary(SlopeModLog)
 
 #### ANALYSIS OF HAPLOTYPES BY HABITAT TYPE ####
 
-# Load in data
-haplotype_data <- read_csv("data-clean/haplotypeData.csv")
-
 ## AC LOCUS ##
 
 # Number of plants per population and city
@@ -407,10 +358,10 @@ simpsDivAc <- haplotype_data %>%
 AcLocusMod_Simp <- lm(simpson ~ Habitat, data = simpsDivAc)
 summary(AcLocusMod_Simp)
 
-# Get Simpson's index in each habitat
+# Gethaplotype richness in each habitat
 simpsDivAc %>%
   group_by(Habitat) %>%
-  summarise(meanSimp = mean(simpson))
+  summarise(meanSimp = mean(richness))
 
 ## LI LOCUS ##
 
