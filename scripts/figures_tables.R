@@ -7,9 +7,9 @@
 #
 # Generates tables and figures for maanuscript
 
-################
-#### TABLES ####
-################
+###########################
+#### TABLES: MAIN TEXT ####
+###########################
 
 ## TABLE 1 
 
@@ -26,6 +26,10 @@ table1 <- datPlants %>%
 
 # Write table 1 to disk
 write_csv(table1, "analysis/tables/main-text/Table1_cityClineSummary.csv")
+
+###############################
+#### TABLES: SUPPLEMENTARY ####
+###############################
 
 ## TABLE S1
 
@@ -88,7 +92,9 @@ tableS5 <- as.data.frame(rbind(
 
 write_csv(tableS5, "analysis/tables/supplemental/TableS5_freqHCN_FullModelAvg.csv")
 
-#### FIGURES ####
+############################
+#### FIGURES: MAIN TEXT ####
+############################
 
 #Theme used to plot figures throughout script.
 ng1 = theme(
@@ -222,8 +228,8 @@ citySummaryDataForAnalysis <- citySummaryDataForAnalysis %>%
   left_join(., citySummaryData %>% select(City, abbr), by = "City")
 
 # Figure 4. Slope against PC1
-Slope_by_PC1 <- citySummaryDataForAnalysis %>%
-  ggplot(., aes(x = PC1_Slope, y = cyanSlopeForAnalysis)) +
+Slope_by_PC1Lin <- citySummaryDataForAnalysis %>%
+  ggplot(., aes(x = PC1_SlopeLin, y = betaLinOnly)) +
   # geom_point(size = 2.5) +
   geom_smooth(method = "lm", size = 1.5, colour = "black", 
               se = FALSE) +
@@ -231,11 +237,15 @@ Slope_by_PC1 <- citySummaryDataForAnalysis %>%
   xlab("PC1 (92.8%)") + ylab("Slope of HCN cline") +
   geom_text(aes(label = abbr), vjust = 0, hjust = 0) + 
   ng1
-Slope_by_PC1
+Slope_by_PC1Lin
 
 ggsave(filename = "analysis/figures/main-text/from_R/Figure4_Slope-by-PC1.pdf", 
-       plot = Slope_by_PC1, device = 'pdf', units = 'in',
+       plot = Slope_by_PC1Lin, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
+
+################################
+#### FIGURES: SUPPLEMENTARY ####
+################################
 
 ## FIGURE S1
 
@@ -254,44 +264,6 @@ plotHCN_by_lat
 ggsave(filename = "analysis/figures/supplemental/from_R/FigureS2_HCN_by_Lat.pdf", 
        plot = plotHCN_by_lat, device = "pdf", 
        width = 5, height = 5, dpi = 300)
-
-## FIGURE S3
-
-Ac_Haplo_Freqs <- ggplot(freqHaploAc, aes(x = Habitat, y = freqHaploAc, fill = haplotype_Ac)) +
-  geom_bar(stat='identity') + 
-  xlab("Habitat") + ylab("Haplotype frequency") + 
-  facet_grid(~City) +
-  scale_fill_manual(values = c("#F98400", "#5BBCD6")) +
-  ng1 + theme(legend.position = "top",
-              legend.direction = "horizontal",
-              aspect.ratio=3.0, legend.text=element_text(size=10),
-              legend.title = element_text(size = 0), 
-              legend.key.size = unit(0.5, "cm"),
-              axis.text.x = element_text(angle = 45, hjust = 1))
-Ac_Haplo_Freqs
-
-ggsave(filename = 'analysis/figures/supplemental/from_R/FigureS3_Ac_haplotype_freqs.pdf', 
-       plot = Ac_Haplo_Freqs, device = "pdf", 
-       width = 8, height = 5, dpi = 300)
-
-## FIGURE S4
-
-Li_Haplo_Freqs <- ggplot(freqHaploLi, aes(x = Habitat, y = freqHaploLi, fill = haplotype_Li)) +
-  geom_bar(stat='identity') + 
-  xlab("Habitat") + ylab("Haplotype frequency") + 
-  facet_grid(~City) +
-  scale_fill_manual(values = c("#00A08A", "#F2AD00", "#F98400", "#5BBCD6")) +
-  ng1 + theme(legend.position = "top",
-              legend.direction = "horizontal",
-              aspect.ratio=3.0, legend.text=element_text(size=10),
-              legend.title = element_text(size = 0), 
-              legend.key.size = unit(0.5, "cm"),
-              axis.text.x = element_text(angle = 45, hjust = 1))
-Li_Haplo_Freqs
-
-ggsave(filename = 'analysis/figures/supplemental/from_R/FigureS4_Li_haplotype_freqs.pdf', 
-       plot = Li_Haplo_Freqs, device = "pdf", 
-       width = 8, height = 5, dpi = 300)
 
 ## FIGURES S5 - S20 (INDIVIDUAL CLINE BIPLOTS)
 
@@ -355,34 +327,55 @@ HCN_by_cityLog <- datPlants %>%
 # geom_dl(aes(label = City), method = list(dl.trans(x = x + 0.2), "last.points", cex = 0.8))
 HCN_by_cityLog
 
+## FIGURE SXX ##
 
-ATL_LogReg <- plotLogReg(allPlants, "Atlanta", tag = "(a)")
-BTL_LogReg <- plotLogReg(allPlants, "Baltimore", tag = "(b)")
-BOS_LogReg <- plotLogReg(allPlants, "Boston", tag = "(c)")
-CLT_LogReg <- plotLogReg(allPlants, "Charlotte", tag = "(d)")
+# 4 supplementary multi-paneled figures with sigmoidal clines
+# for each city
 
-
-CIN_LogReg <- plotLogReg(allPlants, "Cincinnati", tag = "(a)")
-CLE_LogReg <- plotLogReg(allPlants, "Cleveland", tag = "(b)")
-DET_LogReg <- plotLogReg(allPlants, "Detroit", tag = "(c)")
-JAX_LogReg <- plotLogReg(allPlants, "Jacksonville", tag = "(d)")
-
-
-MTL_LogReg <- plotLogReg(allPlants, "Montreal", tag = "(a)")
-NY_LogReg <- plotLogReg(allPlants, "NewYork", tag = "(b)")
-NOR_LogReg <- plotLogReg(allPlants, "Norfolk", tag = "(c)")
-PHL_LogReg <- plotLogReg(allPlants, "Philadelphia", tag = "(d)")
-
-
-PIT_LogReg <- plotLogReg(allPlants, "Pittsburgh", tag = "(a)")
-# TMP_LogReg <- plotLogReg(allPlants, "Tampa", tag = "(n)")
-TOR_LogReg <- plotLogReg(allPlants, "Toronto", tag = "(b)")
-WDC_LogReg <- plotLogReg(allPlants, "Washington D.C.", tag = "(c)")
+# Figure SX
+ATL_LogReg <- plotLogReg(datPlants, "Atlanta", tag = "(a)")
+BTL_LogReg <- plotLogReg(datPlants, "Baltimore", tag = "(b)")
+BOS_LogReg <- plotLogReg(datPlants, "Boston", tag = "(c)")
+CLT_LogReg <- plotLogReg(datPlants, "Charlotte", tag = "(d)")
 
 logRegs1 <- ATL_LogReg + BTL_LogReg + BOS_LogReg + CLT_LogReg + plot_layout(ncol = 2)
+
+ggsave(filename = "analysis/figures/supplemental/figureSX_logRegs_ATL-CLT.pdf", 
+       plot = logRegs1, device = "pdf", 
+       width = 8, height = 8, units = "in", dpi = 300) 
+
+# Figure SX
+CIN_LogReg <- plotLogReg(datPlants, "Cincinnati", tag = "(a)")
+CLE_LogReg <- plotLogReg(datPlants, "Cleveland", tag = "(b)")
+DET_LogReg <- plotLogReg(datPlants, "Detroit", tag = "(c)")
+JAX_LogReg <- plotLogReg(datPlants, "Jacksonville", tag = "(d)")
+
 logRegs2 <- CIN_LogReg + CLE_LogReg + DET_LogReg + JAX_LogReg + plot_layout(ncol = 2)
+
+ggsave(filename = "analysis/figures/supplemental/figureSX_logRegs_CIN-JAX.pdf", 
+       plot = logRegs2, device = "pdf", 
+       width = 8, height = 8, units = "in", dpi = 300) 
+
+# Figure SX
+MTL_LogReg <- plotLogReg(datPlants, "Montreal", tag = "(a)")
+NY_LogReg <- plotLogReg(datPlants, "NewYork", tag = "(b)")
+NOR_LogReg <- plotLogReg(datPlants, "Norfolk", tag = "(c)")
+PHL_LogReg <- plotLogReg(datPlants, "Philadelphia", tag = "(d)")
+
 logRegs3 <- MTL_LogReg + NY_LogReg + NOR_LogReg + PHL_LogReg + plot_layout(ncol = 2)
+
+ggsave(filename = "analysis/figures/supplemental/figureSX_logRegs_MTL-PHL.pdf", 
+       plot = logRegs3, device = "pdf", 
+       width = 8, height = 8, units = "in", dpi = 300) 
+
+# Figure SX
+PIT_LogReg <- plotLogReg(datPlants, "Pittsburgh", tag = "(a)")
+# TMP_LogReg <- plotLogReg(datPlants, "Tampa", tag = "(n)")
+TOR_LogReg <- plotLogReg(datPlants, "Toronto", tag = "(b)")
+WDC_LogReg <- plotLogReg(datPlants, "Washington D.C.", tag = "(c)")
+
 logRegs4 <- PIT_LogReg + TOR_LogReg + WDC_LogReg + plot_layout(ncol = 2)
 
-ggsave(filename = "analysis/figures/test.pdf", plot = logRegs2, device = "pdf", 
+ggsave(filename = "analysis/figures/supplemental/figureSX_logRegs_PIT-WDC.pdf", 
+       plot = logRegs4, device = "pdf", 
        width = 8, height = 8, units = "in", dpi = 300) 

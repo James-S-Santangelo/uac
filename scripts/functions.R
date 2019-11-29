@@ -108,7 +108,7 @@ clineBiplot <- function(df, response_var, outpath, model_order_df){
   city_name <- as.character(unique(df$City))
 
   # Get model order
-  order <- getBestFitClineModelOrder(response, df)
+  order <- getBestFitClineModelOrder(response_var, df)
   
   if(order == "linear"){
     
