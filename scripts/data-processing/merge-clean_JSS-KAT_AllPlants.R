@@ -11,7 +11,7 @@
 # Load in Master data with presence/absence of HCN for 12 cities sampled by JSS
 datJSS <- read.csv("data-raw/AllPlants_JSS-Cities.csv", na.strings = "NA") %>%
   select(-Comments.Ac.Li, -Comments.HCN, -Pop.density, -Check.HCN, -Distance) %>% # Select required columns
-  mutate(Transect = "NA") # Add transect column as NA for later merging with Ken's data
+  mutate(Transect = NA) # Add transect column as NA for later merging with Ken's data
 
 # Load in KAT's Population data to extract Lat and Long
 datKATPops <- read.csv("data-raw/AllPops_KAT-Cities.csv", na.strings = "NA") %>%
@@ -24,7 +24,7 @@ datKATPlants <- read.csv("data-raw/AllPlants_KAT-Cities.csv", na.strings = "NA")
   select(CITY, Pop_Num, Plant_Num, Transect, HCN_Result, LINAMARIN_RESULT, LINAMARASE_RESULT) %>% # Select required columns
   rename(City = CITY, Population = Pop_Num, Plant = Plant_Num, Locus.Ac = LINAMARIN_RESULT, Locus.Li = LINAMARASE_RESULT) %>% # Rename columns so they're consistent with my data
   mutate(Dmg.1 = "NA", Dmg.2 = "NA", Dmg.Avg = "NA") %>%
-  mutate(Transect = ifelse(City == "B" | City == "M" | City == "Y", "NA", as.character(Transect))) %>%
+  mutate(Transect = ifelse(City == "B" | City == "M" | City == "Y", NA, as.character(Transect))) %>%
   mutate(Locus.Ac = ifelse(City != "T", "NA", Locus.Ac),
          Locus.Li = ifelse(City != "T", "NA", Locus.Li)) %>%
   group_by(City, Population) %>%
@@ -78,11 +78,11 @@ source(file = "scripts/haversine.R")
 # Add distance to Lat Long dataset
 datLatLong <- datLatLong %>%
   mutate(Distance = haversine(Long.pop, Lat.pop, Long.City, Lat.City)) %>%
-  select(City, Population, Transect, Distance) 
+  select(City, Population, Distance) 
 
 # Merge Distance with AllPlants dataset
 datAllPlants <- merge(datAllPlants, datLatLong, 
-        by = c("City", "Population", "Transect"), 
+        by = c("City", "Population"), 
         all.x = TRUE) %>% 
   select(-contains("Dmg")) %>% 
   mutate(Population = as.character(case_when(City =="Boston" & Population == "4A" ~ "44",

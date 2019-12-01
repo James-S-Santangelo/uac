@@ -9,9 +9,15 @@
 # with city centres. Used for creating maps.
 
 # Load datasets
-datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
+datPops <- read_csv("data-clean/AllCities_AllPopulations.csv") %>% 
+  mutate(Population = as.character(Population))
 latLongs <- read_csv("data-raw/Lat-Longs_AllCities_AllPops.csv") %>%
-  select(-Transect)
+  select(-Transect) %>% 
+  mutate(Population = as.character(case_when(City =="Boston" & Population == "4A" ~ "44",
+                                             City =="Boston" & Population == "4B" ~ "45",
+                                             City =="NewYork" & Population == "11-I" ~ "11",
+                                             City =="NewYork" & Population == "11-II" ~ "12",
+                                             TRUE ~ Population)))
 city_centres <- read_csv("data-raw/Lat-longs_City-centres.csv") %>%
   select(-Comments)
 
@@ -23,7 +29,7 @@ latLongs_forMap <- function(df, city_centres, latLongs){
   df_out <- datPops %>%
     filter(City == city_name) %>%
     select(City, Transect, Population, freqHCN) %>%
-    left_join(latLongs %>% filter(City == city_name)) %>%
+    left_join(., latLongs %>% filter(City == city_name), by = c("City", "Population")) %>%
     rbind(c(centre$City, "NA","City Centre", "NA", centre$Latitude, centre$Longitude))
   
   return(df_out)

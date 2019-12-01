@@ -73,7 +73,7 @@ runBestFitModel <- function(response, df){
   # order <- getBestFitClineModelOrder(response, df) # Get model order
   
   if(all(is.na(response_var)) == TRUE){
-    return(NA)
+    model = "NA"
   }else{
     order <- getBestFitClineModelOrder(response, df)
     if(order == "linear"){

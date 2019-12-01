@@ -16,20 +16,8 @@ options(contrasts = c("contr.sum", "contr.poly"))
 # options(contrasts = c("contr.treatment", "contr.poly")) # Default
 
 # Clear environement, if necessary
-rm(list=ls())
-.rs.restartR()
-
-## LOAD PACKAGES ##
-
-library(tidyverse)
-library(broom)
-library(Hmisc)
-library(factoextra)
-library(vegan)
-library(MuMIn)
-library(car)
-library(patchwork)
-source('scripts/functions.R')
+# rm(list=ls())
+# .rs.restartR()
 
 ## LOAD DATASETS FOR ANALYSES ##
 

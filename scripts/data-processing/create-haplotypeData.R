@@ -17,14 +17,14 @@ haplo_modified <- haplo %>%
   rename("HCN_Result" = "FA_HCN _identity") %>%
   separate(.,plant_sample, into=c("City","pop_plant"),sep = "(?<=[A-Z][A-Z])", remove = TRUE) %>%
   separate(., pop_plant, into = c("Population", "Plant"), sep = "[.]", remove = TRUE) %>%
-  mutate(City = recode(City,
-                       "AT" = "Atlanta",
-                       "WA" = "Washington D.C.",
-                       "BA" = "Baltimore",
-                       "CL" = "Cleveland",
-                       "NF" = "Norfolk",
-                       "NY" = "NewYork",
-                       "JA" = "Jacksonville")) %>%
+  mutate(City = as.character(fct_recode(City,
+                              "Atlanta" = "AT",
+                              "Washington D.C." = "WA",
+                              "Baltimore" = "BA",
+                              "Cleveland" = "CL",
+                              "Norfolk" = "NF",
+                              "NewYork" = "NY",
+                              "Jacksonville" = "JA"))) %>%
   
   # Assign haplotypes for Ac locus
   mutate(haplotype_Ac = case_when(
@@ -50,6 +50,7 @@ haplo_modified <- haplo %>%
 
 # Load dataset to retrieve distances
 population_distances <- read_csv("data-clean/AllCities_AllPopulations.csv") %>%
+  mutate(Population = as.character(Population)) %>%
   select(City, Population, Distance)
 
 # Add distances and habitat type to haplotype data
@@ -60,3 +61,4 @@ haplo_modified <- haplo_modified %>%
 
 # Write clean haplotype data to disk
 write_csv(haplo_modified, "data-clean/haplotypeData.csv")
+

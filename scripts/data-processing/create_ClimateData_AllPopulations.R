@@ -65,10 +65,10 @@ bioclim <- read_csv("data-raw/enviro-data/extractBioClim.csv")
 #### MERGE AND WRITE DATASETS ####
 
 # Merge datasets
-allClimateData <- left_join(annual_AI, annual_pet) %>%
-  left_join(., monthly_pet) %>%
-  left_join(., monthly_precip) %>%
-  left_join(., bioclim) %>%
+allClimateData <- left_join(annual_AI, annual_pet, by = c("City", "Population", "Transect", "Lat.pop", "Long.pop")) %>%
+  left_join(., monthly_pet, by = c("City", "Population", "Transect", "Lat.pop", "Long.pop")) %>%
+  left_join(., monthly_precip, by = c("City", "Population", "Transect", "Lat.pop", "Long.pop")) %>%
+  left_join(., bioclim, by = c("City", "Population", "Transect", "Lat.pop", "Long.pop")) %>%
   mutate(meanSMD = meanMonthlyPrecip - meanMonthlyPET)
 
 # Write climate data to disk

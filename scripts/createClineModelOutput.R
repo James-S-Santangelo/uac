@@ -11,7 +11,8 @@
 # to each city. Ass logistic regression coefficients.
 
 # Load in population data
-datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
+datPops <- read_csv("data-clean/AllCities_AllPopulations.csv") %>% 
+  mutate(Population = as.character(Population))
 
 ###################################################
 #### STEP 1: SLOPES, ETC., FROM BEST FIT MODEL ####
@@ -80,8 +81,8 @@ linSlopesOnly <- datPops %>%
 # and P-value. 
 
 # Load data for all plants 
-datPlants <- read_csv("data-clean/AllCities_AllPlants.csv") %>% 
-  mutate(Population = as.character(Population)) %>% 
+datPlants <- read_csv("data-clean/AllCities_AllPlants.csv",
+                      col_types = "ccncddnnnd") %>% 
   left_join(., datPops %>% select(City, Population, std_distance), by = c("City", "Population"))
 
 # Logistic regression for each city

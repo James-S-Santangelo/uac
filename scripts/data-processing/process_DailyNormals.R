@@ -14,7 +14,6 @@
 # Load in daily summaries
 weather_data <- read_csv("data-raw/enviro-data/DailyNormals_AllCities_Unfiltered.csv", 
                          col_names = TRUE, na = c("CA", "NA", ""))
-glimpse(weather_data)
 
 # Filter data
 weather_data_filtered <- weather_data %>%
@@ -39,9 +38,8 @@ weather_data_filtered <- weather_data %>%
   # Convert to lowercase with captalized first letter
   mutate(City = tolower(City), 
          City = sub("(.)", "\\U\\1", City, perl=TRUE),
-         City = recode(City, "New york" = "NewYork"),
-         City = recode(City, "Washington" = "Washington D.C."))
+         City = fct_recode(City, "NewYork" = "New york"),
+         City = fct_recode(City, "Washington D.C." = "Washington"))
 
 # Write filtered data to disk
 write_csv(weather_data_filtered, "data-clean/DailyNormals_AllCities_Filtered.csv")
-

@@ -60,7 +60,7 @@ daily_normals_merged <- daily_normals %>%
 
  #### MERGE DATASETS TO FINAL CITY SUMMARY DATASET ####
 
-citySummaryData <- left_join(slopes, gene_freqs) %>%
+citySummaryData <- left_join(slopes, gene_freqs, by = "City") %>%
   left_join(., lat_long, by = "City") %>%
   left_join(., climate_data, by = "City") %>%
   left_join(., daily_normals_merged, by = "City")
