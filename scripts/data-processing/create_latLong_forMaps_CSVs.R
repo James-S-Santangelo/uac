@@ -1,5 +1,5 @@
-# Predicting the strength of urban-rural clines in a 
-# Mendelian polymorphism along a latitudinal gradient 
+# Predicting the strength of urban-rural clines in a
+# Mendelian polymorphism along a latitudinal gradient
 #
 # Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan
 # Jibran Syed, Rob W. Ness, Marc T. J. Johnson
@@ -9,10 +9,10 @@
 # with city centres. Used for creating maps.
 
 # Load datasets
-datPops <- read_csv("data-clean/AllCities_AllPopulations.csv") %>% 
+datPops <- read_csv("data-clean/AllCities_AllPopulations.csv") %>%
   mutate(Population = as.character(Population))
 latLongs <- read_csv("data-raw/Lat-Longs_AllCities_AllPops.csv") %>%
-  select(-Transect) %>% 
+  select(-Transect) %>%
   mutate(Population = as.character(case_when(City =="Boston" & Population == "4A" ~ "44",
                                              City =="Boston" & Population == "4B" ~ "45",
                                              City =="NewYork" & Population == "11-I" ~ "11",
@@ -21,26 +21,12 @@ latLongs <- read_csv("data-raw/Lat-Longs_AllCities_AllPops.csv") %>%
 city_centres <- read_csv("data-raw/Lat-longs_City-centres.csv") %>%
   select(-Comments)
 
-latLongs_forMap <- function(df, city_centres, latLongs){
-  
-  city_name <- df$City[1]
-
-  centre <- city_centres %>% filter(City == city_name)
-  df_out <- datPops %>%
-    filter(City == city_name) %>%
-    select(City, Transect, Population, freqHCN) %>%
-    left_join(., latLongs %>% filter(City == city_name), by = c("City", "Population")) %>%
-    rbind(c(centre$City, "NA","City Centre", "NA", centre$Latitude, centre$Longitude))
-  
-  return(df_out)
-}
-
 # Create list with city dataframes as elements
 city_df_list <- datPops %>% split(.$City)
 
 # Generate single dataframe with populations and City centres
-allPops_withCentres <- purrr::map_dfr(city_df_list, latLongs_forMap, 
-               city_centres = city_centres, 
+allPops_withCentres <- purrr::map_dfr(city_df_list, latLongs_forMap,
+               city_centres = city_centres,
                latLongs = latLongs)
 write_csv(allPops_withCentres, "GIS/city_maps/latLongs_CSVs/allPops_withCentres.csv")
 
