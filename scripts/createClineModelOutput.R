@@ -10,10 +10,6 @@
 # Also add the betas from a linear model only (i.e., regardless of fit)
 # to each city. Ass logistic regression coefficients.
 
-# Load pacakges and source functions
-library(tidyverse)
-source("scripts/functions.R")
-
 # Load in population data
 datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
 

@@ -1,8 +1,12 @@
+# Predicting the strength of urban-rural clines in a 
+# Mendelian polymorphism along a latitudinal gradient 
+#
+# Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan
+# Jibran Syed, Rob W. Ness, Marc T. J. Johnson
+#
+#
 # Script to merge the data collected by Thompson et al (2016) with the additional 12 cities
-# collected by James Santangelo
-
-# Load required packages
-library(tidyverse)
+# collected by James Santangelo. Merges individual plant-level phenotype data. 
 
 # Load in Master data with presence/absence of HCN for 12 cities sampled by JSS
 datJSS <- read.csv("data-raw/AllPlants_JSS-Cities.csv", na.strings = "NA") %>%

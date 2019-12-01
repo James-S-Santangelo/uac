@@ -1,7 +1,12 @@
-# Script to generate a summary of clines models and environmental variables for each city
-
-# Load required packages
-library(tidyverse)
+# Predicting the strength of urban-rural clines in a 
+# Mendelian polymorphism along a latitudinal gradient 
+#
+# Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan
+# Jibran Syed, Rob W. Ness, Marc T. J. Johnson
+#
+#
+# Script to generate a summary of clines models and environmental variables for
+# each city
 
 #### LOAD IN DATASETS ####
 

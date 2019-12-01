@@ -1,13 +1,18 @@
-
-# Here is will filter the daily temerature and snow normals for use in predicting the strength of clines
-# The daily normals were downloaded on September 6th, 2016 from the National Centers for Environmental
-# Information, which are part of NOAA (https://www.ncdc.noaa.gov/cdo-web/datatools/selectlocation).
-
-# Load in required packages
-library(tidyverse)
+# Predicting the strength of urban-rural clines in a 
+# Mendelian polymorphism along a latitudinal gradient 
+#
+# Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan
+# Jibran Syed, Rob W. Ness, Marc T. J. Johnson
+#
+#
+# Here is will filter the daily temerature and snow normals for use in
+# predicting the strength of clines The daily normals were downloaded on
+# September 6th, 2016 from the National Centers for Environmental Information,
+# which are part of NOAA
+# (https://www.ncdc.noaa.gov/cdo-web/datatools/selectlocation).
 
 # Load in daily summaries
-weather_data <- read_csv("data-raw/DailyNormals_AllCities_Unfiltered.csv", 
+weather_data <- read_csv("data-raw/enviro-data/DailyNormals_AllCities_Unfiltered.csv", 
                          col_names = TRUE, na = c("CA", "NA", ""))
 glimpse(weather_data)
 

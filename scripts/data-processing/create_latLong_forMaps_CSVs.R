@@ -1,9 +1,14 @@
+# Predicting the strength of urban-rural clines in a 
+# Mendelian polymorphism along a latitudinal gradient 
+#
+# Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan
+# Jibran Syed, Rob W. Ness, Marc T. J. Johnson
+#
+#
 # Script to generate dataset with Latitudes and Longitudes for each city and population
-# with city centres. Used for creating maps (Figures S5 - S20)
+# with city centres. Used for creating maps.
 
-# Load required packages
-library(tidyverse)
-
+# Load datasets
 datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
 latLongs <- read_csv("data-raw/Lat-Longs_AllCities_AllPops.csv") %>%
   select(-Transect)

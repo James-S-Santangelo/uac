@@ -1,8 +1,12 @@
-# Script to summarize individual-plant level phenotype data and generate population-means
-
-
-# Load required packages
-library(tidyverse)
+# Predicting the strength of urban-rural clines in a 
+# Mendelian polymorphism along a latitudinal gradient 
+#
+# Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan
+# Jibran Syed, Rob W. Ness, Marc T. J. Johnson
+#
+#
+# Script to summarize individual-plant level phenotype data and generate
+# population-means
 
 # Load in data with presence/absence of HCN for every plant from every population
 datAllPlants <- read.csv("data-clean/AllCities_AllPlants.csv")

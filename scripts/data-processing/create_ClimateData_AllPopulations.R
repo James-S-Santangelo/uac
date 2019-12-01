@@ -1,18 +1,22 @@
+# Predicting the strength of urban-rural clines in a 
+# Mendelian polymorphism along a latitudinal gradient 
+#
+# Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan
+# Jibran Syed, Rob W. Ness, Marc T. J. Johnson
+#
+#
 # Script to generate combined dataset with all climatic variables
-
-# Load required packages
-library(tidyverse)
 
 #### LOAD CLIMATE DATASETS ####
 
 # Aridity index
 annual_AI <-
-  read_csv("GIS/extract-climate-data/AI_annual/extractAnnualAridityIndex.csv") %>%
+  read_csv("data-raw/enviro-data/extractAnnualAridityIndex.csv") %>%
   mutate(AI_actual = AridityInd * 0.0001) # Multiply AI values according to CGIAR README file.
 
 # Monthly precpipitation
 monthly_precip <-
-  read_csv("GIS/extract-climate-data/WorldClim_Precip/extractedPrecipValues.csv") %>%
+  read_csv("data-raw/enviro-data/extractedPrecipValues.csv") %>%
   rename(
     sept_precip = September,
     aug_precip = August_Pre,
@@ -34,7 +38,7 @@ monthly_precip <-
 
 # Monthly PET
 monthly_pet <-
-  read_csv("GIS/extract-climate-data/Global_PET/extractMonthlyPET.csv") %>%
+  read_csv("data-raw/enviro-data/extractMonthlyPET.csv") %>%
   rename(
     sept_pet = Septempter,
     aug_pet = August_PET,
@@ -53,10 +57,10 @@ monthly_pet <-
   ))
 
 # Annual PET
-annual_pet <- read_csv("GIS/extract-climate-data/Global_PET/extractAnnualPET.csv")
+annual_pet <- read_csv("data-raw/enviro-data/extractAnnualPET.csv")
 
 # Bioclimatic variables
-bioclim <- read_csv("GIS/extract-climate-data/BioClim/extractBioClim.csv")
+bioclim <- read_csv("data-raw/enviro-data/extractBioClim.csv")
 
 #### MERGE AND WRITE DATASETS ####
 

@@ -1,6 +1,11 @@
+# Predicting the strength of urban-rural clines in a 
+# Mendelian polymorphism along a latitudinal gradient 
+#
+# Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan
+# Jibran Syed, Rob W. Ness, Marc T. J. Johnson
+#
+#
 # Script cleans the raw Haplotype data for use in analyses.
-
-library(tidyverse)
 
 # Load in haplotype data
 haplo <- read_csv("data-raw/Haplotype-data.csv")
