@@ -506,6 +506,12 @@ Version: 1.1-21
 Hash: cc0a79e26e2e2099220e4eb21480795a
 Requires: Rcpp, RcppEigen, minqa, nloptr
 
+Package: lmerTest
+Source: CRAN
+Version: 3.1-0
+Hash: bf545313c00bec1fbba140c470b0f41c
+Requires: ggplot2, lme4, numDeriv
+
 Package: lubridate
 Source: CRAN
 Version: 1.7.4
@@ -577,6 +583,11 @@ Package: nloptr
 Source: CRAN
 Version: 1.2.1
 Hash: c2b0475b9a177d3331957e366a7059a0
+
+Package: numDeriv
+Source: CRAN
+Version: 2016.8-1.1
+Hash: 4655a089f4d8b80268adaf83d6cd5fb2
 
 Package: openssl
 Source: CRAN
