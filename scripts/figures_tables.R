@@ -161,7 +161,7 @@ HCN_by_city <- datPops %>%
 HCN_by_city
 
 # Save file to disk
-ggsave(filename = "analysis/figures/main-text/from_R/Figure2_HCN-by-distance.pdf", 
+ggsave(filename = "analysis/figures/main-text/Figure2_HCN-by-distance.pdf", 
        plot = HCN_by_city, device = 'pdf', units = 'in',
        width = 12, height = 8, dpi = 600)
 
@@ -201,7 +201,7 @@ HCN_by_DaysNeg <- citySummaryData %>%
   ng1
 HCN_by_DaysNeg
 
-ggsave(filename = "analysis/figures/main-text/from_R/Figure3a_HCN-by-NumDaysNegNoSnow.pdf", 
+ggsave(filename = "analysis/figures/main-text/Figure3a_HCN-by-NumDaysNegNoSnow.pdf", 
        plot = HCN_by_DaysNeg, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
@@ -217,7 +217,7 @@ HCN_by_PC1 <- citySummaryData %>%
   ng1
 HCN_by_PC1
 
-ggsave(filename = "analysis/figures/main-text/from_R/Figure3b_HCN-by-PC1.pdf", 
+ggsave(filename = "analysis/figures/main-text/Figure3b_HCN-by-PC1.pdf", 
        plot = HCN_by_PC1, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
@@ -239,7 +239,7 @@ Slope_by_PC1Lin <- citySummaryDataForAnalysis %>%
   ng1
 Slope_by_PC1Lin
 
-ggsave(filename = "analysis/figures/main-text/from_R/Figure4_Slope-by-PC1.pdf", 
+ggsave(filename = "analysis/figures/main-text/Figure4_Slope-by-PC1.pdf", 
        plot = Slope_by_PC1Lin, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
@@ -261,7 +261,7 @@ plotHCN_by_lat <- ggplot(citySummaryData, aes(x = Latitude, y = freqHCN)) +
   ng1
 plotHCN_by_lat
 
-ggsave(filename = "analysis/figures/supplemental/from_R/FigureS2_HCN_by_Lat.pdf", 
+ggsave(filename = "analysis/figures/supplemental/FigureS2_HCN_by_Lat.pdf", 
        plot = plotHCN_by_lat, device = "pdf", 
        width = 5, height = 5, dpi = 300)
 
