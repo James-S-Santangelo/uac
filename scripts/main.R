@@ -80,7 +80,7 @@ source("scripts/powerAnalyses.R")
 source("scripts/analysisScript.R")
 
 ############################################
-### STEP 3: GENERATE TABLES AND FIGURES ####
+### STEP 4: GENERATE TABLES AND FIGURES ####
 ############################################
 
 source("scripts/figures_tables.R")
