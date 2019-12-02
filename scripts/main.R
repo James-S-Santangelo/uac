@@ -25,6 +25,9 @@ source('scripts/functions.R')
 
 ## CREATE DIRECTORIES ##
 
+# Will create all directories into which processed data,
+# figures, and tables will be placed. 
+
 paths <- c("analysis/figures/individualCline_biplots/Ac/",
            "analysis/figures/individualCline_biplots/HCN/",
            "analysis/figures/individualCline_biplots/Li/",
