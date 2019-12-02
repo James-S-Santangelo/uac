@@ -23,6 +23,23 @@ library(car)
 library(patchwork)
 source('scripts/functions.R')
 
+## CREATE DIRECTORIES ##
+
+paths <- c("analysis/figures/individualCline_biplots/Ac/",
+           "analysis/figures/individualCline_biplots/HCN/",
+           "analysis/figures/individualCline_biplots/Li/",
+           "analysis/figures/main-text/",
+           "analysis/figures/supplemental/",
+           "analysis/figures/supplemental/",
+           "data-clean/",
+           "analysis/tables/main-text/",
+           "analysis/tables/supplemental/",
+           "analysis/inividual-cline-models/AcHWE/",
+           "analysis/inividual-cline-models/LiHWE/",
+           "analysis/inividual-cline-models/freqHCN/")
+
+purrr::walk(paths, dir.create, recursive = T, showWarnings = T)
+
 ##################################
 #### STEP 1: PROCESS RAW DATA ####
 ##################################
