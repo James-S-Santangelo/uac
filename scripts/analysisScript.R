@@ -22,10 +22,12 @@ options(contrasts = c("contr.sum", "contr.poly"))
 ## LOAD DATASETS FOR ANALYSES ##
 
 # Population-mean HCN frequencies
-datPops <- read_csv("data-clean/AllCities_AllPopulations.csv")
+datPops <- read_csv("data-clean/AllCities_AllPopulations.csv") %>% 
+  mutate(Population = as.character(Population))
 
 # Individual plant-level data. Append std_distance
-datPlants <- read_csv("data-clean/AllCities_AllPlants.csv") %>% 
+datPlants <- read_csv("data-clean/AllCities_AllPlants.csv",
+                      col_types = "ccncddnnnd") %>% 
   left_join(., datPops %>%select(City, Population, std_distance), by = c("City", "Population"))
 
 # Data with environmental and model summaries by city
@@ -54,8 +56,8 @@ logClinesAllCitiesFreqs <- glm(freqHCN ~ std_distance*City, family = "binomial",
 summary(logClinesAllCitiesFreqs)
 anova(logClinesAllCitiesFreqs, test = "LRT")
 
-intercept <- coef(logClinesAllCities)["(Intercept)"]
-distance_effect <- coef(logClinesAllCities)["std_distance"]
+intercept <- coef(logClinesAllCitiesFreqs)["(Intercept)"]
+distance_effect <- coef(logClinesAllCitiesFreqs)["std_distance"]
 
 probCyan_urban <- exp(intercept + distance_effect * 0) / (1 + (exp(intercept + distance_effect * 0)))
 probCyan_rural <- exp(intercept + distance_effect * 1) / (1 + (exp(intercept + distance_effect * 1)))

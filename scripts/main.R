@@ -70,4 +70,23 @@ source("scripts/data-processing/create_latLong_forMaps_CSVs.R")
 # Will run power analyses. Output only used for plotting
 source("scripts/powerAnalyses.R")
 
+###################################
+#### STEP 3: RUN MAIN ANALYSES ####
+###################################
+
+# Run all main analyses in the manuscript. 
+# Will create dataframes and objects used for
+# creating most figures and tables.
+source("scripts/analysisScript.R")
+
+############################################
+### STEP 3: GENERATE TABLES AND FIGURES ####
+############################################
+
+
+
+
+
+
+
 
