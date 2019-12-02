@@ -28,5 +28,5 @@ city_df_list <- datPops %>% split(.$City)
 allPops_withCentres <- purrr::map_dfr(city_df_list, latLongs_forMap,
                city_centres = city_centres,
                latLongs = latLongs)
-write_csv(allPops_withCentres, "GIS/city_maps/latLongs_CSVs/allPops_withCentres.csv")
+write_csv(allPops_withCentres, "data-clean/allPops_withCentres.csv")
 
