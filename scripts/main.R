@@ -63,9 +63,11 @@ source("scripts/data-processing/create-haplotypeData.R")
 
 source("scripts/data-processing/create_latLong_forMaps_CSVs.R")
 
+####################################
+#### STEP 2: RUN POWER ANALYSES ####
+####################################
 
-
-
-
+# Will run power analyses. Output only used for plotting
+source("scripts/powerAnalyses.R")
 
 

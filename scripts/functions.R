@@ -225,3 +225,43 @@ latLongs_forMap <- function(df, city_centres, latLongs){
 
   return(df_out)
 }
+
+# Sample plants and return slope
+FunSlope <- function(dat, size){
+  Plants_by_pop <- dat %>% 
+    group_by(City, Population) %>% 
+    # distinct(Plant) %>% 
+    sample_n(size = size, replace = T) %>%
+    select(City, Plant, HCN_Result, Distance, Population)
+  
+  datFreq <- Plants_by_pop %>%
+    group_by(City, Population, Distance) %>%
+    summarise(n = n(),
+              n_hcn = sum(HCN_Result),
+              freqHCN = n_hcn / n)
+  
+  model <- lm(freqHCN ~ Distance, data = datFreq)
+  model_summary <- summary(model)
+  slope <- model_summary$coefficients[2]
+  return(slope)
+}
+
+# Sample populations, return slope
+FunSlopePop<-function(dat, size){
+  Pop_sample <- dat %>% group_by(City) %>% 
+    sample_n(size = size, replace = T) %>%
+    select(City, freqHCN, Distance, Transect, Population)
+  
+  
+  model <- lm(freqHCN ~ Distance, data = Pop_sample)
+  model_summary <- summary(model)
+  slope <- model_summary$coefficients[2]
+  return(slope)
+}
+
+calcProb <- function(num_vector, obs_val, nreps){
+  
+  prob <- (sum(abs(num_vector) >= (obs_val))) / nreps
+  return(prob)
+  
+}

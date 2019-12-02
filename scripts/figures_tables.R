@@ -5,7 +5,7 @@
 # Jibran Syed, Rob W. Ness, Marc T. J. Johnson
 #
 #
-# Generates tables and figures for maanuscript
+# Generates tables and figures for manuscript
 
 ###########################
 #### TABLES: MAIN TEXT ####
@@ -379,3 +379,25 @@ logRegs4 <- PIT_LogReg + TOR_LogReg + WDC_LogReg + plot_layout(ncol = 2)
 ggsave(filename = "analysis/figures/supplemental/figureSX_logRegs_PIT-WDC.pdf", 
        plot = logRegs4, device = "pdf", 
        width = 8, height = 8, units = "in", dpi = 300) 
+
+## FIGURE SXX ##
+
+plotBosSlopePlants <- SlopeBosPlants %>% 
+  select_if(is.numeric) %>% 
+  purrr::map_dfr(~data.frame(prob = calcProb(., obs_BosSlope, nreps))) %>% 
+  mutate(num_plants = 20:10) %>% 
+  ggplot(., aes(x = num_plants, y = prob)) +
+  geom_point(size = 2, colour = "black") +
+  coord_cartesian(ylim = c(0.495, 0.505)) +
+  scale_x_reverse(breaks = seq(from = 10, to = 20, by = 2)) +
+  # scale_y_continuous(breaks = seq(from = 0.9, to = 0.98, by = 0.02)) +
+  geom_vline(xintercept = 15, linetype = "dashed") +
+  geom_hline(yintercept = 0.95, linetype = "dashed") +
+  xlab("Number of plants") + ylab("P(slope \u2265 observed Boston slope)") +
+  ng1
+plotBosSlopePlants
+
+# Save plot to disk
+ggsave("analysis/figures/supplemental/samplingPlants_slopeBoston.pdf",
+       plot = plotBosSlopePlants, dpi = 300, width = 6, height = 6, units = "in",
+       device = cairo_pdf)
