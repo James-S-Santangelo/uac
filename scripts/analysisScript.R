@@ -12,7 +12,7 @@
 ###############
 
 # Change default contrasts to enable type III SS
-options(contrasts = c("contr.sum", "contr.poly"))
+options(contrasts = c("contr.sum", "contr.sum"))
 # options(contrasts = c("contr.treatment", "contr.poly")) # Default
 
 # Clear environement, if necessary
@@ -51,14 +51,17 @@ Anova(clinesAllCities, type = 3)
 
 ## INDIVIDUAL PLANT PHENOTYPE DATA ##
 
-# Perform logistic regression
+# Perform logistic regression. P-values from type III SS. 
 logClinesAllCitiesFreqs <- glm(freqHCN ~ std_distance*City, family = "binomial", data = datPops, weights = n_HCN)
 summary(logClinesAllCitiesFreqs)
-anova(logClinesAllCitiesFreqs, test = "LRT")
+Anova(logClinesAllCitiesFreqs, type = 3)
 
-intercept <- coef(logClinesAllCitiesFreqs)["(Intercept)"]
-distance_effect <- coef(logClinesAllCitiesFreqs)["std_distance"]
+# To get predicted probabilities, averaged across all cities
+logClinesAllCitiesFreqs_distOnly <- glm(freqHCN ~ std_distance, family = "binomial", data = datPops, weights = n_HCN)
+intercept <- coef(logClinesAllCitiesFreqs_distOnly)["(Intercept)"]
+distance_effect <- coef(logClinesAllCitiesFreqs_distOnly)["std_distance"]
 
+# Predicted probabilities.
 probCyan_urban <- exp(intercept + distance_effect * 0) / (1 + (exp(intercept + distance_effect * 0)))
 probCyan_rural <- exp(intercept + distance_effect * 1) / (1 + (exp(intercept + distance_effect * 1)))
 (probCyan_rural - probCyan_urban) / probCyan_urban # Relative increase in probability of being cyanogenic from rural --> urban
