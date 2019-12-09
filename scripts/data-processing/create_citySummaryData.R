@@ -12,7 +12,7 @@
 
 # Load dataset with slopes of clines
 slopes <- read_csv("analysis/clineModelOutput.csv") %>%
-  select(City, betaLin_freqHCN, betaQuad_freqHCN, betaLinOnly, betaLog)
+  select(City, betaLin_freqHCN, betaQuad_freqHCN, betaLinOnly, betaLog, stdErrLog, zLog, pvalLog)
 
 # Load climate data and take mean by city 
 climate_data <- read_csv("data-clean/ClimateData_AllPopulations.csv") %>%

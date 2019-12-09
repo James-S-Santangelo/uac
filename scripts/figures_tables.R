@@ -25,13 +25,13 @@ table1 <- datPlants %>%
   merge(., linearClines, by = "City")
 
 # Write table 1 to disk
-write_csv(table1, "analysis/tables/main-text/Table1_cityClineSummary.csv")
+write_csv(table1, "analysis/tables/main-text/table1_cityClineSummary.csv")
 
 ###############################
 #### TABLES: SUPPLEMENTARY ####
 ###############################
 
-## TABLE S1
+## TABLE S1 ##
 
 weather_data <- read_csv("data-clean/DailyNormals_AllCities_Filtered.csv")
 
@@ -44,14 +44,14 @@ weather_summ <- weather_data %>%
   mutate(STATION_NAME = str_to_title(STATION_NAME))
 
 # Write summarized data to disk
-write_csv(weather_summ, "analysis/tables/supplemental/TableS1_DailyNormals_Summary.csv")
+write_csv(weather_summ, "analysis/tables/supplemental/tableS1_DailyNormals_Summary.csv")
 
-## TABLE S2
+## TABLE S2 ##
 
 # Write pairwise correlation matrix to disk
-write_csv(corr_mat, "analysis/tables/supplemental/TableS2_weatherCorrMat.csv")
+write_csv(corr_mat, "analysis/tables/supplemental/tableS2_weatherCorrMat.csv")
 
-## TABLE S3
+## TABLE S3 ##
 
 # Get the best fit cline model for each city and locus
 # Possible values for the response variables
@@ -74,23 +74,31 @@ for(res in possibleResponses){
 allModelOutputs <- reduce(tbl_out, left_join, by = "City")
 
 # Write model order table to disk
-write_csv(allModelOutputs, "analysis/tables/supplemental/TableS3_clineOrderData.csv")
+write_csv(allModelOutputs, "analysis/tables/supplemental/tableS3_clineOrderData.csv")
 
-## TABLE S4
+## TABLE S4 ##
 
-# Write HCN dredge models to disk
-write_csv(HCN_dredge_models, path = "analysis/tables/supplemental/TableS4_HCN_dredge_output.csv", 
+tableS4 <- citySummaryData %>% 
+  select(City, betaLog, stdErrLog, zLog, pvalLog)
+
+write_csv(tableS4, path = "analysis/tables/supplemental/tableS4_logisticRegs.csv", 
           col_names = TRUE)
 
-## TABLE S5
+## TABLE S5 ##
+
+# Write HCN dredge models to disk
+write_csv(HCN_dredge_models, path = "analysis/tables/supplemental/tableS5_HCN_dredge_output.csv", 
+          col_names = TRUE)
+
+## TABLE S6 ##
 
 # Write full model coefficients from dredge output to disk
-tableS5 <- as.data.frame(rbind(
+tableS6 <- as.data.frame(rbind(
   c("Full"),
   summary(HCN_modAvg)$coefmat.full)) %>%
   rownames_to_column()
 
-write_csv(tableS5, "analysis/tables/supplemental/TableS5_freqHCN_FullModelAvg.csv")
+write_csv(tableS6, "analysis/tables/supplemental/tableS6_freqHCN_FullModelAvg.csv")
 
 ############################
 #### FIGURES: MAIN TEXT ####
@@ -161,11 +169,9 @@ HCN_by_city <- datPops %>%
 HCN_by_city
 
 # Save file to disk
-ggsave(filename = "analysis/figures/main-text/Figure2_HCN-by-distance.pdf", 
+ggsave(filename = "analysis/figures/main-text/figure2_HCN-by-distance.pdf", 
        plot = HCN_by_city, device = 'pdf', units = 'in',
        width = 12, height = 8, dpi = 600)
-
-
 
 ## FIGURE 3 ##
 
@@ -201,7 +207,7 @@ HCN_by_DaysNeg <- citySummaryData %>%
   ng1
 HCN_by_DaysNeg
 
-ggsave(filename = "analysis/figures/main-text/Figure3a_HCN-by-NumDaysNegNoSnow.pdf", 
+ggsave(filename = "analysis/figures/main-text/figure3a_HCN-by-NumDaysNegNoSnow.pdf", 
        plot = HCN_by_DaysNeg, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
@@ -217,7 +223,7 @@ HCN_by_PC1 <- citySummaryData %>%
   ng1
 HCN_by_PC1
 
-ggsave(filename = "analysis/figures/main-text/Figure3b_HCN-by-PC1.pdf", 
+ggsave(filename = "analysis/figures/main-text/figure3b_HCN-by-PC1.pdf", 
        plot = HCN_by_PC1, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
@@ -239,7 +245,7 @@ Slope_by_PC1Lin <- citySummaryDataForAnalysis %>%
   ng1
 Slope_by_PC1Lin
 
-ggsave(filename = "analysis/figures/main-text/Figure4_Slope-by-PC1.pdf", 
+ggsave(filename = "analysis/figures/main-text/figure4_Slope-by-PC1.pdf", 
        plot = Slope_by_PC1Lin, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
@@ -247,51 +253,31 @@ ggsave(filename = "analysis/figures/main-text/Figure4_Slope-by-PC1.pdf",
 #### FIGURES: SUPPLEMENTARY ####
 ################################
 
-## FIGURE S1
+## FIGURE S1 ##
 
-# Figure S1 is generated with scripts/powerAnalysis.R
-
-## FIGURE S2
-
-#Plot of HCN frequencies with latitude
-plotHCN_by_lat <- ggplot(citySummaryData, aes(x = Latitude, y = freqHCN)) +
-  geom_point(colour = "black", size = 3.5) +
-  geom_smooth(method = "lm", se = FALSE, colour = "black", size = 2) + 
-  ylab("Frequency of HCN") + xlab("Latitude") +
+# From power analyses. Change P(detecting slope > Boston) for different sampling
+# strategies
+plotBosSlopePlants <- SlopeBosPlants %>% 
+  select_if(is.numeric) %>% 
+  purrr::map_dfr(~data.frame(prob = calcProb(., obs_BosSlope, nreps))) %>% 
+  mutate(num_plants = 20:10) %>% 
+  ggplot(., aes(x = num_plants, y = prob)) +
+  geom_point(size = 2, colour = "black") +
+  coord_cartesian(ylim = c(0.495, 0.505)) +
+  scale_x_reverse(breaks = seq(from = 10, to = 20, by = 2)) +
+  # scale_y_continuous(breaks = seq(from = 0.9, to = 0.98, by = 0.02)) +
+  geom_vline(xintercept = 15, linetype = "dashed") +
+  geom_hline(yintercept = 0.95, linetype = "dashed") +
+  xlab("Number of plants") + ylab("P(slope \u2265 observed Boston slope)") +
   ng1
-plotHCN_by_lat
+plotBosSlopePlants
 
-ggsave(filename = "analysis/figures/supplemental/FigureS2_HCN_by_Lat.pdf", 
-       plot = plotHCN_by_lat, device = "pdf", 
-       width = 5, height = 5, dpi = 300)
+# Save plot to disk
+ggsave("analysis/figures/supplemental/figureS1_samplingPlants_slopeBoston.pdf",
+       plot = plotBosSlopePlants, dpi = 300, width = 6, height = 6, units = "in",
+       device = cairo_pdf)
 
-## FIGURES S5 - S20 (INDIVIDUAL CLINE BIPLOTS)
-
-# Create list with city dataframes as elements
-city_df_list <- datPops %>% split(.$City)
-
-# Create biplot for all cities with HCN as response
-outpath <- "analysis/figures/individualCline_biplots/HCN/"
-purrr::walk(city_df_list, clineBiplot, 
-            response_var = "freqHCN", 
-            outpath = outpath,
-            model_order_df = clineModelOrder)
-
-# Create biplot for all cities with Ac as response
-outpath <- "analysis/figures/individualCline_biplots/Ac/"
-purrr::walk(city_df_list, clineBiplot, 
-            response_var = "AcHWE", 
-            outpath = outpath,
-            model_order_df = clineModelOrder)
-
-# Create biplot for all cities with Li as response
-outpath <- "analysis/figures/individualCline_biplots/Li/"
-purrr::walk(city_df_list, clineBiplot, 
-            response_var = "LiHWE", 
-            outpath = outpath,
-            model_order_df = clineModelOrder)
-
-## FIGURE SXX ##
+## FIGURE S2 ##
 
 # HCN by city logistic
 HCN_by_cityLog <- datPlants %>%
@@ -327,12 +313,16 @@ HCN_by_cityLog <- datPlants %>%
 # geom_dl(aes(label = City), method = list(dl.trans(x = x + 0.2), "last.points", cex = 0.8))
 HCN_by_cityLog
 
-## FIGURE SXX ##
+ggsave("analysis/figures/supplemental/figureS2_HCN_by_cityLog.pdf",
+       plot = HCN_by_cityLog, dpi = 300, width = 12, height = 8, units = "in",
+       device = "pdf")
+
+## FIGURE S3 - S6
 
 # 4 supplementary multi-paneled figures with sigmoidal clines
 # for each city
 
-# Figure SX
+# Figure S3
 ATL_LogReg <- plotLogReg(datPlants, "Atlanta", tag = "(a)")
 BTL_LogReg <- plotLogReg(datPlants, "Baltimore", tag = "(b)")
 BOS_LogReg <- plotLogReg(datPlants, "Boston", tag = "(c)")
@@ -340,11 +330,11 @@ CLT_LogReg <- plotLogReg(datPlants, "Charlotte", tag = "(d)")
 
 logRegs1 <- ATL_LogReg + BTL_LogReg + BOS_LogReg + CLT_LogReg + plot_layout(ncol = 2)
 
-ggsave(filename = "analysis/figures/supplemental/figureSX_logRegs_ATL-CLT.pdf", 
+ggsave(filename = "analysis/figures/supplemental/figureS3_logRegs_ATL-CLT.pdf", 
        plot = logRegs1, device = "pdf", 
        width = 8, height = 8, units = "in", dpi = 300) 
 
-# Figure SX
+# Figure S4
 CIN_LogReg <- plotLogReg(datPlants, "Cincinnati", tag = "(a)")
 CLE_LogReg <- plotLogReg(datPlants, "Cleveland", tag = "(b)")
 DET_LogReg <- plotLogReg(datPlants, "Detroit", tag = "(c)")
@@ -352,11 +342,11 @@ JAX_LogReg <- plotLogReg(datPlants, "Jacksonville", tag = "(d)")
 
 logRegs2 <- CIN_LogReg + CLE_LogReg + DET_LogReg + JAX_LogReg + plot_layout(ncol = 2)
 
-ggsave(filename = "analysis/figures/supplemental/figureSX_logRegs_CIN-JAX.pdf", 
+ggsave(filename = "analysis/figures/supplemental/figureS4_logRegs_CIN-JAX.pdf", 
        plot = logRegs2, device = "pdf", 
        width = 8, height = 8, units = "in", dpi = 300) 
 
-# Figure SX
+# Figure S5
 MTL_LogReg <- plotLogReg(datPlants, "Montreal", tag = "(a)")
 NY_LogReg <- plotLogReg(datPlants, "NewYork", tag = "(b)")
 NOR_LogReg <- plotLogReg(datPlants, "Norfolk", tag = "(c)")
@@ -364,11 +354,11 @@ PHL_LogReg <- plotLogReg(datPlants, "Philadelphia", tag = "(d)")
 
 logRegs3 <- MTL_LogReg + NY_LogReg + NOR_LogReg + PHL_LogReg + plot_layout(ncol = 2)
 
-ggsave(filename = "analysis/figures/supplemental/figureSX_logRegs_MTL-PHL.pdf", 
+ggsave(filename = "analysis/figures/supplemental/figureS5_logRegs_MTL-PHL.pdf", 
        plot = logRegs3, device = "pdf", 
        width = 8, height = 8, units = "in", dpi = 300) 
 
-# Figure SX
+# Figure S6
 PIT_LogReg <- plotLogReg(datPlants, "Pittsburgh", tag = "(a)")
 # TMP_LogReg <- plotLogReg(datPlants, "Tampa", tag = "(n)")
 TOR_LogReg <- plotLogReg(datPlants, "Toronto", tag = "(b)")
@@ -376,28 +366,73 @@ WDC_LogReg <- plotLogReg(datPlants, "Washington D.C.", tag = "(c)")
 
 logRegs4 <- PIT_LogReg + TOR_LogReg + WDC_LogReg + plot_layout(ncol = 2)
 
-ggsave(filename = "analysis/figures/supplemental/figureSX_logRegs_PIT-WDC.pdf", 
+ggsave(filename = "analysis/figures/supplemental/figureS6_logRegs_PIT-WDC.pdf", 
        plot = logRegs4, device = "pdf", 
-       width = 8, height = 8, units = "in", dpi = 300) 
+       width = 8, height = 8, units = "in", dpi = 300)
+
+## FIGURE S7 ##
+
+# Figure S7. Log-odds against PC1slopeLog
+betaLog_by_PC1slopeLog <- citySummaryDataForAnalysis %>%
+  ggplot(., aes(x = PC1_SlopeLog, y = betaLog)) +
+  # geom_point(size = 2.5) +
+  geom_smooth(method = "lm", size = 1.5, colour = "black", 
+              se = FALSE) +
+  # scale_x_continuous(breaks = seq(from = 0, to = 35, by = 5)) +
+  xlab("PC1 (92.8%)") + ylab("Log-odds of HCN cline") +
+  geom_text(aes(label = abbr), vjust = 0, hjust = 0) + 
+  ng1
+betaLog_by_PC1slopeLog
+
+ggsave(filename = "analysis/figures/supplemental/figureS7_betaLog_by_PC1slopeLog.pdf", 
+       plot = betaLog_by_PC1slopeLog, device = 'pdf', units = 'in',
+       width = 5, height = 5, dpi = 600)
+
+## FIGURE S8 ##
+
+#Plot of HCN frequencies with latitude
+plotHCN_by_lat <- ggplot(citySummaryData, aes(x = Latitude, y = freqHCN)) +
+  geom_point(colour = "black", size = 3.5) +
+  geom_smooth(method = "lm", se = FALSE, colour = "black", size = 2) + 
+  ylab("Frequency of HCN") + xlab("Latitude") +
+  ng1
+plotHCN_by_lat
+
+ggsave(filename = "analysis/figures/supplemental/figureS8_HCN_by_Lat.pdf", 
+       plot = plotHCN_by_lat, device = "pdf", 
+       width = 5, height = 5, dpi = 300)
+
+## FIGURES S9 - S24 (INDIVIDUAL CLINE BIPLOTS)
+
+# Create list with city dataframes as elements
+city_df_list <- datPops %>% split(.$City)
+
+# Create biplot for all cities with HCN as response
+outpath <- "analysis/figures/individualCline_biplots/HCN/"
+purrr::walk(city_df_list, clineBiplot, 
+            response_var = "freqHCN", 
+            outpath = outpath,
+            model_order_df = clineModelOrder)
+
+# Create biplot for all cities with Ac as response
+outpath <- "analysis/figures/individualCline_biplots/Ac/"
+purrr::walk(city_df_list, clineBiplot, 
+            response_var = "AcHWE", 
+            outpath = outpath,
+            model_order_df = clineModelOrder)
+
+# Create biplot for all cities with Li as response
+outpath <- "analysis/figures/individualCline_biplots/Li/"
+purrr::walk(city_df_list, clineBiplot, 
+            response_var = "LiHWE", 
+            outpath = outpath,
+            model_order_df = clineModelOrder)
 
 ## FIGURE SXX ##
 
-plotBosSlopePlants <- SlopeBosPlants %>% 
-  select_if(is.numeric) %>% 
-  purrr::map_dfr(~data.frame(prob = calcProb(., obs_BosSlope, nreps))) %>% 
-  mutate(num_plants = 20:10) %>% 
-  ggplot(., aes(x = num_plants, y = prob)) +
-  geom_point(size = 2, colour = "black") +
-  coord_cartesian(ylim = c(0.495, 0.505)) +
-  scale_x_reverse(breaks = seq(from = 10, to = 20, by = 2)) +
-  # scale_y_continuous(breaks = seq(from = 0.9, to = 0.98, by = 0.02)) +
-  geom_vline(xintercept = 15, linetype = "dashed") +
-  geom_hline(yintercept = 0.95, linetype = "dashed") +
-  xlab("Number of plants") + ylab("P(slope \u2265 observed Boston slope)") +
-  ng1
-plotBosSlopePlants
 
-# Save plot to disk
-ggsave("analysis/figures/supplemental/samplingPlants_slopeBoston.pdf",
-       plot = plotBosSlopePlants, dpi = 300, width = 6, height = 6, units = "in",
-       device = cairo_pdf)
+
+## FIGURE SXX ##
+
+ 
+
