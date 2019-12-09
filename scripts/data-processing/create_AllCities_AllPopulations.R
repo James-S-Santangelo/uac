@@ -10,7 +10,7 @@
 
 # Load in data with presence/absence of HCN for every plant from every population
 datAllPlants <- read_csv("data-clean/AllCities_AllPlants.csv",
-                         col_types = "ccncddnnnd")
+                         col_types = "ccncddnnnnd")
 
 # Summarise HCN, Ac and Li frequency from each population from each city.
 datPops <- datAllPlants %>%

@@ -82,7 +82,7 @@ linSlopesOnly <- datPops %>%
 
 # Load data for all plants 
 datPlants <- read_csv("data-clean/AllCities_AllPlants.csv",
-                      col_types = "ccncddnnnd") %>% 
+                      col_types = "ccncddnnnnd") %>% 
   left_join(., datPops %>% select(City, Population, std_distance), by = c("City", "Population"))
 
 # Logistic regression for each city
