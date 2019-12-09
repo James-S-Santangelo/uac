@@ -379,7 +379,7 @@ betaLog_by_PC1slopeLog <- citySummaryDataForAnalysis %>%
   geom_smooth(method = "lm", size = 1.5, colour = "black", 
               se = FALSE) +
   # scale_x_continuous(breaks = seq(from = 0, to = 35, by = 5)) +
-  xlab("PC1 (92.8%)") + ylab("Log-odds of HCN cline") +
+  xlab("PC1 (87.4%)") + ylab("Log-odds of HCN cline") +
   geom_text(aes(label = abbr), vjust = 0, hjust = 0) + 
   ng1
 betaLog_by_PC1slopeLog
@@ -427,12 +427,4 @@ purrr::walk(city_df_list, clineBiplot,
             response_var = "LiHWE", 
             outpath = outpath,
             model_order_df = clineModelOrder)
-
-## FIGURE SXX ##
-
-
-
-## FIGURE SXX ##
-
- 
 
