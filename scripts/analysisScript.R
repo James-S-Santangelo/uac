@@ -27,7 +27,7 @@ datPops <- read_csv("data-clean/AllCities_AllPopulations.csv") %>%
 
 # Individual plant-level data. Append std_distance
 datPlants <- read_csv("data-clean/AllCities_AllPlants.csv",
-                      col_types = "ccncddnnnd") %>% 
+                      col_types = "ccncddnnnnd") %>% 
   left_join(., datPops %>%select(City, Population, std_distance), by = c("City", "Population"))
 
 # Data with environmental and model summaries by city
@@ -375,3 +375,29 @@ summary(LiLocusMod_Rich)
 
 # Mean
 richnessHaplotLi %>% group_by(Habitat) %>% summarise(mean = mean(richness))
+
+###########################
+#### HERBIVORY ANLYSES ####
+###########################
+
+# Analysis of changes in population-mean herbivory with distance for 4 cities
+herbMods <- datPlants %>% 
+  filter(!(is.na(Dmg.Avg))) %>% 
+  group_by(City, Population, Distance, std_distance) %>% 
+  summarise(meanHerb = mean(Dmg.Avg)) %>% 
+  ungroup() %>% 
+  group_by(City) %>% 
+  do(mod = lm(meanHerb ~ Distance, data = .)) %>% 
+  tidy(., mod) %>% 
+  filter(term != "(Intercept)") %>% 
+  mutate_if(is.numeric, round, 3)
+
+# Analysis of changes in Average herbivory among only acyanogenic plants
+herbMods2 <- datPlants %>% 
+  filter(!(is.na(Dmg.Avg)) &
+           HCN_Result == 0) %>% 
+  group_by(City) %>% 
+  do(mod = lm(Dmg.Avg ~ Distance, data = .)) %>% 
+  tidy(., mod) %>% 
+  filter(term != "(Intercept)") %>% 
+  mutate_if(is.numeric, round, 3)

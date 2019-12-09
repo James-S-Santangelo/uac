@@ -81,7 +81,7 @@ datLatLong <- datLatLong %>%
 datAllPlants <- merge(datAllPlants, datLatLong,
         by = c("City", "Population"),
         all.x = TRUE) %>%
-  select(-contains("Dmg")) %>%
+  select(-Dmg.1, -Dmg.2) %>%
   mutate(Population = as.character(case_when(City =="Boston" & Population == "4A" ~ "44",
                                              City =="Boston" & Population == "4B" ~ "45",
                                              City =="NewYork" & Population == "11-I" ~ "11",
