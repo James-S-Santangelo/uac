@@ -333,8 +333,11 @@ richnessHaplotAc <- haplotype_data %>%
   summarise(richness = n())
 
 # Model testing for variation in "ac" haplotype richness by habitat
-AcLocusMod_Rich <- aov(richness ~ Habitat, data = richnessHaplotAc)
+AcLocusMod_Rich <- lm(richness ~ Habitat, data = richnessHaplotAc)
 summary(AcLocusMod_Rich)
+
+# Mean
+richnessHaplotAc %>% group_by(Habitat) %>% summarise(mean = mean(richness))
 
 ## Li LOCUS ##
 
@@ -366,7 +369,9 @@ richnessHaplotLi <- haplotype_data %>%
   distinct_at(., "haplotype_Li") %>% 
   summarise(richness = n())
 
-# Model testing for variation in "ac" haplotype richness by habitat
-LiLocusMod_Rich <- aov(richness ~ Habitat, data = richnessHaplotLi)
+# Model testing for variation in "li" haplotype richness by habitat
+LiLocusMod_Rich <- lm(richness ~ Habitat, data = richnessHaplotLi)
 summary(LiLocusMod_Rich)
 
+# Mean
+richnessHaplotLi %>% group_by(Habitat) %>% summarise(mean = mean(richness))
