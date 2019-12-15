@@ -308,7 +308,7 @@ logRegs1 <- ATL_LogReg + BTL_LogReg + BOS_LogReg + CLT_LogReg + plot_layout(ncol
 
 ggsave(filename = "analysis/figures/supplemental/figureS2_logRegs_ATL-CLT.pdf", 
        plot = logRegs1, device = "pdf", 
-       width = 8, height = 8, units = "in", dpi = 300) 
+       width = 9, height = 9, units = "in", dpi = 300) 
 
 # Figure S3
 CIN_LogReg <- plotLogReg(datPlants, "Cincinnati", tag = "(a)")
@@ -320,7 +320,7 @@ logRegs2 <- CIN_LogReg + CLE_LogReg + DET_LogReg + JAX_LogReg + plot_layout(ncol
 
 ggsave(filename = "analysis/figures/supplemental/figureS3_logRegs_CIN-JAX.pdf", 
        plot = logRegs2, device = "pdf", 
-       width = 8, height = 8, units = "in", dpi = 300) 
+       width = 9, height = 9, units = "in", dpi = 300) 
 
 # Figure S4
 MTL_LogReg <- plotLogReg(datPlants, "Montreal", tag = "(a)")
@@ -332,7 +332,7 @@ logRegs3 <- MTL_LogReg + NY_LogReg + NOR_LogReg + PHL_LogReg + plot_layout(ncol 
 
 ggsave(filename = "analysis/figures/supplemental/figureS4_logRegs_MTL-PHL.pdf", 
        plot = logRegs3, device = "pdf", 
-       width = 8, height = 8, units = "in", dpi = 300) 
+       width = 9, height = 9, units = "in", dpi = 300) 
 
 # Figure S5
 PIT_LogReg <- plotLogReg(datPlants, "Pittsburgh", tag = "(a)")
@@ -344,7 +344,7 @@ logRegs4 <- PIT_LogReg + TOR_LogReg + WDC_LogReg + plot_layout(ncol = 2)
 
 ggsave(filename = "analysis/figures/supplemental/figureS5_logRegs_PIT-WDC.pdf", 
        plot = logRegs4, device = "pdf", 
-       width = 8, height = 8, units = "in", dpi = 300)
+       width = 9, height = 9, units = "in", dpi = 300)
 
 ## FIGURE S6 ##
 

@@ -160,16 +160,19 @@ plotLogReg <- function(df_allPlants, city, tag){
     stat_smooth(method="glm", se=TRUE, fullrange=TRUE,
                 method.args = list(family=binomial),
                 color = "black") +
-    ylab("") +
-    xlab("") +
+    ylab("Presence/absence of HCN") +
+    xlab("Standardized distance 
+to urban center") +
     labs(tag = tag) +
+    coord_cartesian(xlim = c(0, 1.05)) +
+    scale_x_continuous(breaks = seq(from = 0, to = 1, by = 0.25)) +
     annotate(geom = "text", label = city,
              x = (max(df$std_distance) - min(df$std_distance)) / 2,
              y = ifelse(city == "Jacksonville", 0.75, 0.85),
              size = 5) +
     annotate(geom = "text", parse = TRUE,
              label = paste("italic(beta)==", beta_val),
-             x = ifelse(city == "Jacksonville", 40, 0),
+             x = ifelse(city == "Jacksonville", 1, 0),
              y = ifelse(city == "Jacksonville", 0.5, 0.85),
              size = 4,
              hjust = ifelse(city == "Jacksonville", "right", "left")) +
@@ -177,13 +180,15 @@ plotLogReg <- function(df_allPlants, city, tag){
              label = ifelse(is.character(pval),
                             paste("italic(P)", pval),
                             paste("italic(P)==", pval)),
-             x = ifelse(city == "Jacksonville", 40, 0),
+             x = ifelse(city == "Jacksonville", 1, 0),
              y = ifelse(city == "Jacksonville", 0.4, 0.75),
              size = 4,
              hjust = ifelse(city == "Jacksonville", "right", "left")) +
     ng1 + theme(plot.tag = element_text(size = 15),
                 plot.tag.position = c(0.15, 0.83),
-                plot.margin = margin(-2, 0, -2, 0, "cm"))
+                plot.margin = margin(-2, 0.5, -2, 0, "cm"),
+                axis.title.y = element_text(vjust = 2, size = 15),
+                axis.title.x = element_text(vjust = 0.1, size = 15))
 
   return(plot)
 }
