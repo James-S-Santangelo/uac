@@ -155,7 +155,7 @@ plotLogReg <- function(df_allPlants, city, tag){
   pval <- ifelse(pval < 0.001, "< 0.001", round(pval, 3))
   # print(c(coef, pval))
 
-  plot <- ggplot(df, aes(x=Distance, y=HCN_Result)) +
+  plot <- ggplot(df, aes(x=std_distance, y=HCN_Result)) +
     geom_point(alpha=.5) +
     stat_smooth(method="glm", se=TRUE, fullrange=TRUE,
                 method.args = list(family=binomial),
@@ -164,7 +164,7 @@ plotLogReg <- function(df_allPlants, city, tag){
     xlab("") +
     labs(tag = tag) +
     annotate(geom = "text", label = city,
-             x = (max(df$Distance) - min(df$Distance)) / 2,
+             x = (max(df$std_distance) - min(df$std_distance)) / 2,
              y = ifelse(city == "Jacksonville", 0.75, 0.85),
              size = 5) +
     annotate(geom = "text", parse = TRUE,
