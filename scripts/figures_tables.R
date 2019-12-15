@@ -281,7 +281,8 @@ HCN_by_cityLog <- datPlants %>%
   scale_y_continuous(breaks = seq(from = 0, to = 1, by = 0.25)) +
   scale_x_continuous(breaks = seq(from = 0, to = 1.1, by = 0.25)) +
   coord_cartesian(ylim = c(0, 1.025), xlim = c(0, 1), clip = 'off') +
-  geom_text(aes(label = City, x = 1.005, y = prob), hjust = 0) + 
+  geom_text(data = . %>% select(City, prob) %>% distinct(), 
+            aes(label = City, x = 1.005, y = prob), hjust = 0) + 
   ng1 +
   theme(legend.position = "top", legend.direction = "horizontal",
         legend.key.height = unit(0.5, "cm")) +
