@@ -9,13 +9,13 @@
 # population, and number of populations, to sample to identify urban-rural
 # clines in HCN without loss of power.
 
-set.seed(42)
+set.seed(1)
 
 # Load in data for Ken's cities
 # Coltypes required to convert population to character
 # due to presence of letters for some populations after first 1000 rows.
 KT_plants <- read_csv("data-clean/AllCities_AllPlants.csv",
-                      col_types = "ccncddnnnd") %>% 
+                      col_types = "ccncddnnndd") %>% 
   filter(City %in% c("Toronto", "NewYork", "Boston", "Montreal"))
 
 # Load in population level data
@@ -35,7 +35,7 @@ KT_plants_Bos <- KT_plants %>% filter(City == "Boston")
 
 ### SAMPLING PLANTS ###
 
-nreps <- 10
+nreps <- 5000
 
 # Slopes for Boston
 S1B <- replicate(nreps, FunSlope(KT_plants_Bos, size = 20))
@@ -54,4 +54,17 @@ S11B <- replicate(nreps, FunSlope(KT_plants_Bos, size = 10))
 SlopeBosPlants <- cbind(S1B, S2B, S3B, S4B, S5B, S6B, S7B, S8B, S9B, S10B, S11B)
 SlopeBosPlants <- as.data.frame(SlopeBosPlants)
 
+# Dataframe with probability of observing cline as strong as Boston
+# for different numbers of sampled plants.
+probability_Slopes <- SlopeBosPlants %>% 
+  select_if(is.numeric) %>% 
+  purrr::map_dfr(~data.frame(prob = calcProb(., obs_BosSlope, nreps))) %>% 
+  mutate(num_plants = 20:10)
 
+# Probability of observing cline as strong as Boston with 20 plants
+prob_20plants <- probability_Slopes %>% filter(num_plants == 20) %>% pull(prob)
+
+# Probability of observing cline as strong as Boston with 20 plants
+prob_15plants <- probability_Slopes %>% filter(num_plants == 15) %>% pull(prob)
+
+(1 - prob_15plants) / prob_20plants

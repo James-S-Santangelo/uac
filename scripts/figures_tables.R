@@ -255,30 +255,6 @@ ggsave(filename = "analysis/figures/main-text/figure4_Slope-by-PC1.pdf",
 
 ## FIGURE S1 ##
 
-# From power analyses. Change P(detecting slope > Boston) for different sampling
-# strategies
-plotBosSlopePlants <- SlopeBosPlants %>% 
-  select_if(is.numeric) %>% 
-  purrr::map_dfr(~data.frame(prob = calcProb(., obs_BosSlope, nreps))) %>% 
-  mutate(num_plants = 20:10) %>% 
-  ggplot(., aes(x = num_plants, y = prob)) +
-  geom_point(size = 2, colour = "black") +
-  coord_cartesian(ylim = c(0.495, 0.505)) +
-  scale_x_reverse(breaks = seq(from = 10, to = 20, by = 2)) +
-  # scale_y_continuous(breaks = seq(from = 0.9, to = 0.98, by = 0.02)) +
-  geom_vline(xintercept = 15, linetype = "dashed") +
-  geom_hline(yintercept = 0.95, linetype = "dashed") +
-  xlab("Number of plants") + ylab("P(slope \u2265 observed Boston slope)") +
-  ng1
-plotBosSlopePlants
-
-# Save plot to disk
-ggsave("analysis/figures/supplemental/figureS1_samplingPlants_slopeBoston.pdf",
-       plot = plotBosSlopePlants, dpi = 300, width = 6, height = 6, units = "in",
-       device = cairo_pdf)
-
-## FIGURE S2 ##
-
 # HCN by city logistic
 HCN_by_cityLog <- datPlants %>%
   group_by(City) %>%
@@ -313,16 +289,16 @@ HCN_by_cityLog <- datPlants %>%
 # geom_dl(aes(label = City), method = list(dl.trans(x = x + 0.2), "last.points", cex = 0.8))
 HCN_by_cityLog
 
-ggsave("analysis/figures/supplemental/figureS2_HCN_by_cityLog.pdf",
+ggsave("analysis/figures/supplemental/figureS1_HCN_by_cityLog.pdf",
        plot = HCN_by_cityLog, dpi = 300, width = 12, height = 8, units = "in",
        device = "pdf")
 
-## FIGURE S3 - S6
+## FIGURE S2 - S5
 
 # 4 supplementary multi-paneled figures with sigmoidal clines
 # for each city
 
-# Figure S3
+# Figure S2
 ATL_LogReg <- plotLogReg(datPlants, "Atlanta", tag = "(a)")
 BTL_LogReg <- plotLogReg(datPlants, "Baltimore", tag = "(b)")
 BOS_LogReg <- plotLogReg(datPlants, "Boston", tag = "(c)")
@@ -330,11 +306,11 @@ CLT_LogReg <- plotLogReg(datPlants, "Charlotte", tag = "(d)")
 
 logRegs1 <- ATL_LogReg + BTL_LogReg + BOS_LogReg + CLT_LogReg + plot_layout(ncol = 2)
 
-ggsave(filename = "analysis/figures/supplemental/figureS3_logRegs_ATL-CLT.pdf", 
+ggsave(filename = "analysis/figures/supplemental/figureS2_logRegs_ATL-CLT.pdf", 
        plot = logRegs1, device = "pdf", 
        width = 8, height = 8, units = "in", dpi = 300) 
 
-# Figure S4
+# Figure S3
 CIN_LogReg <- plotLogReg(datPlants, "Cincinnati", tag = "(a)")
 CLE_LogReg <- plotLogReg(datPlants, "Cleveland", tag = "(b)")
 DET_LogReg <- plotLogReg(datPlants, "Detroit", tag = "(c)")
@@ -342,11 +318,11 @@ JAX_LogReg <- plotLogReg(datPlants, "Jacksonville", tag = "(d)")
 
 logRegs2 <- CIN_LogReg + CLE_LogReg + DET_LogReg + JAX_LogReg + plot_layout(ncol = 2)
 
-ggsave(filename = "analysis/figures/supplemental/figureS4_logRegs_CIN-JAX.pdf", 
+ggsave(filename = "analysis/figures/supplemental/figureS3_logRegs_CIN-JAX.pdf", 
        plot = logRegs2, device = "pdf", 
        width = 8, height = 8, units = "in", dpi = 300) 
 
-# Figure S5
+# Figure S4
 MTL_LogReg <- plotLogReg(datPlants, "Montreal", tag = "(a)")
 NY_LogReg <- plotLogReg(datPlants, "NewYork", tag = "(b)")
 NOR_LogReg <- plotLogReg(datPlants, "Norfolk", tag = "(c)")
@@ -354,11 +330,11 @@ PHL_LogReg <- plotLogReg(datPlants, "Philadelphia", tag = "(d)")
 
 logRegs3 <- MTL_LogReg + NY_LogReg + NOR_LogReg + PHL_LogReg + plot_layout(ncol = 2)
 
-ggsave(filename = "analysis/figures/supplemental/figureS5_logRegs_MTL-PHL.pdf", 
+ggsave(filename = "analysis/figures/supplemental/figureS4_logRegs_MTL-PHL.pdf", 
        plot = logRegs3, device = "pdf", 
        width = 8, height = 8, units = "in", dpi = 300) 
 
-# Figure S6
+# Figure S5
 PIT_LogReg <- plotLogReg(datPlants, "Pittsburgh", tag = "(a)")
 # TMP_LogReg <- plotLogReg(datPlants, "Tampa", tag = "(n)")
 TOR_LogReg <- plotLogReg(datPlants, "Toronto", tag = "(b)")
@@ -366,13 +342,13 @@ WDC_LogReg <- plotLogReg(datPlants, "Washington D.C.", tag = "(c)")
 
 logRegs4 <- PIT_LogReg + TOR_LogReg + WDC_LogReg + plot_layout(ncol = 2)
 
-ggsave(filename = "analysis/figures/supplemental/figureS6_logRegs_PIT-WDC.pdf", 
+ggsave(filename = "analysis/figures/supplemental/figureS5_logRegs_PIT-WDC.pdf", 
        plot = logRegs4, device = "pdf", 
        width = 8, height = 8, units = "in", dpi = 300)
 
-## FIGURE S7 ##
+## FIGURE S6 ##
 
-# Figure S7. Log-odds against PC1slopeLog
+# Figure S6. Log-odds against PC1slopeLog
 betaLog_by_PC1slopeLog <- citySummaryDataForAnalysis %>%
   ggplot(., aes(x = PC1_SlopeLog, y = betaLog)) +
   # geom_point(size = 2.5) +
@@ -384,11 +360,11 @@ betaLog_by_PC1slopeLog <- citySummaryDataForAnalysis %>%
   ng1
 betaLog_by_PC1slopeLog
 
-ggsave(filename = "analysis/figures/supplemental/figureS7_betaLog_by_PC1slopeLog.pdf", 
+ggsave(filename = "analysis/figures/supplemental/figureS6_betaLog_by_PC1slopeLog.pdf", 
        plot = betaLog_by_PC1slopeLog, device = 'pdf', units = 'in',
        width = 5, height = 5, dpi = 600)
 
-## FIGURE S8 ##
+## FIGURE S7 ##
 
 #Plot of HCN frequencies with latitude
 plotHCN_by_lat <- ggplot(citySummaryData, aes(x = Latitude, y = freqHCN)) +
@@ -398,11 +374,11 @@ plotHCN_by_lat <- ggplot(citySummaryData, aes(x = Latitude, y = freqHCN)) +
   ng1
 plotHCN_by_lat
 
-ggsave(filename = "analysis/figures/supplemental/figureS8_HCN_by_Lat.pdf", 
+ggsave(filename = "analysis/figures/supplemental/figureS7_HCN_by_Lat.pdf", 
        plot = plotHCN_by_lat, device = "pdf", 
        width = 5, height = 5, dpi = 300)
 
-## FIGURES S9 - S24 (INDIVIDUAL CLINE BIPLOTS)
+## FIGURES S8 - S23 (INDIVIDUAL CLINE BIPLOTS)
 
 # Create list with city dataframes as elements
 city_df_list <- datPops %>% split(.$City)
