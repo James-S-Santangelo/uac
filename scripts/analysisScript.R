@@ -337,7 +337,8 @@ AcLocusMod_Rich <- lm(richness ~ Habitat, data = richnessHaplotAc)
 summary(AcLocusMod_Rich)
 
 # Mean
-richnessHaplotAc %>% group_by(Habitat) %>% summarise(mean = mean(richness))
+richnessHaplotAc %>% group_by(Habitat) %>% summarise(mean = mean(richness),
+                                                     se = sd(richness) / sqrt(n()))
 
 ## Li LOCUS ##
 
@@ -374,7 +375,8 @@ LiLocusMod_Rich <- lm(richness ~ Habitat, data = richnessHaplotLi)
 summary(LiLocusMod_Rich)
 
 # Mean
-richnessHaplotLi %>% group_by(Habitat) %>% summarise(mean = mean(richness))
+richnessHaplotLi %>% group_by(Habitat) %>% summarise(mean = mean(richness),
+                                                     se = sd(richness) / sqrt(n()))
 
 ###########################
 #### HERBIVORY ANLYSES ####
