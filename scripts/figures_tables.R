@@ -15,14 +15,20 @@
 
 # Linear cline models only. Part of table 1
 linearClines <- read_csv("analysis/clineModelOutput.csv") %>% 
-  select(City, betaLinOnly, betaLin_AcHWE, betaLin_LiHWE)
+  select(City, betaLinOnly, betaLinOnlyAc, betaLinOnlyLi)
 
+citySum <- read_csv("data-clean/citySummaryData.csv") %>% 
+  select(City, freqHCN, Latitude)
 # Extract number of populations and plants per city. Merge with linear clines model output above
+
 table1 <- datPlants %>%
   group_by(City) %>%
   summarise(numPops = n_distinct(Population),
             numPlants = n()) %>%
-  merge(., linearClines, by = "City")
+  left_join(., citySum, by = "City") %>% 
+  arrange(desc(Latitude)) %>% 
+  left_join(., linearClines, by = "City") %>% 
+  select(-Latitude)
 
 # Write table 1 to disk
 write_csv(table1, "analysis/tables/main-text/table1_cityClineSummary.csv")

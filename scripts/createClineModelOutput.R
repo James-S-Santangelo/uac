@@ -63,7 +63,7 @@ allModelOutputs <- reduce(mod_out, left_join, by = "City")
 # they are measuring the same thing. 
 
 # Run first order regression for each city
-linSlopesOnly <- datPops %>% 
+linSlopesOnlyHCN <- datPops %>% 
   group_by(City) %>% 
   do(modlm = lm(freqHCN ~ std_distance, data = .)) %>% 
   tidy(modlm, datPops) %>% 
@@ -71,6 +71,27 @@ linSlopesOnly <- datPops %>%
   select(City, estimate) %>% 
   rename("betaLinOnly" = estimate)
 
+linSlopesOnlyAc <- datPops %>% 
+  filter(!is.na(AcHWE)) %>% 
+  group_by(City) %>% 
+  do(modlm = lm(AcHWE ~ std_distance, data = .)) %>% 
+  tidy(modlm, datPops) %>% 
+  filter(term != "(Intercept)") %>% 
+  select(City, estimate) %>% 
+  rename("betaLinOnlyAc" = estimate)
+
+linSlopesOnlyLi <- datPops %>% 
+  filter(!is.na(LiHWE)) %>% 
+  group_by(City) %>% 
+  do(modlm = lm(LiHWE ~ std_distance, data = .)) %>% 
+  tidy(modlm, datPops) %>% 
+  filter(term != "(Intercept)") %>% 
+  select(City, estimate) %>% 
+  rename("betaLinOnlyLi" = estimate)
+
+linSlopesOnly <- linSlopesOnlyHCN %>% 
+  left_join(linSlopesOnlyAc, by = "City") %>%  
+  left_join(linSlopesOnlyLi, by = "City")
 
 ###################################################
 #### STEP 3: LOGISTIC REGRESSION FOR EACH CITY ####
