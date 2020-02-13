@@ -1,3 +1,3 @@
 This directory contains raw data or temporary datasets and should **not** be used for analyses. They are used to generate the [clean datasets](../data-clean) from which all analyses are performed. Data processing was performed using a number of different scripts located [here](../scripts/data-processing)
 
-Latitude and Longitude coordinates for the city centres were obtained from [this website](https://www.latlong.net/), as is also indicated in the _Lat-longs_City-centres.csv_ dataset. However, the city centre latitudes and longitudes for New York, Montreal, Boston, and Toronto were taken from Thompson et al. (2016).
+Latitude and Longitude coordinates for the city centres were obtained from [this website](https://www.latlong.net/), as is also indicated in the [Lat-longs_City-centres.csv](Lat-longs_City-centres.csv) dataset. However, the city centre latitudes and longitudes for New York, Montreal, Boston, and Toronto were taken from Thompson et al. (2016).
