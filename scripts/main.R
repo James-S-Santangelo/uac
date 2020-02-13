@@ -21,7 +21,7 @@ library(vegan)
 library(MuMIn)
 library(car)
 library(patchwork)
-source('scripts/functions.R')
+source('scripts/analysis-scripts/functions.R')
 
 ## CREATE DIRECTORIES ##
 
@@ -68,7 +68,7 @@ source("scripts/data-processing/process_DailyNormals.R")
 ## 1.5.1 Create summary (e.g., coefficients and p-values of linear
 ## and logistic clines by city
 
-source("scripts/createClineModelOutput.R")
+source("scripts/analysis-scripts/createClineModelOutput.R")
 
 ## 1.5.2: Create city-level summary of environmental data and clines
 
@@ -88,7 +88,7 @@ source("scripts/data-processing/create_latLong_forMaps_CSVs.R")
 ####################################
 
 # Will run power analyses. Output only used for plotting
-source("scripts/powerAnalyses.R")
+source("scripts/analysis-scripts/powerAnalyses.R")
 
 ###################################
 #### STEP 3: RUN MAIN ANALYSES ####
@@ -97,13 +97,13 @@ source("scripts/powerAnalyses.R")
 # Run all main analyses in the manuscript. 
 # Will create dataframes and objects used for
 # creating most figures and tables.
-source("scripts/analysisScript.R")
+source("scripts/analysis-scripts/analysisScript.R")
 
 ############################################
 ### STEP 4: GENERATE TABLES AND FIGURES ####
 ############################################
 
-source("scripts/figures_tables.R")
+source("scripts/analysis-scripts/figures_tables.R")
 
 
 
