@@ -1,47 +1,50 @@
-## Predicting the strength of urban-rural clines in a Mendelian polymorphism along a latitudinal gradient
+##### Project: Urban Adaptive Clines (UAC)
+##### Manuscript: Predicting the strength of urban-rural clines in a Mendelian polymorphism along a latitudinal gradient
+##### Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan, Jibran Syed, Rob W. Ness, and Marc T. J. Johnson
 
-### **Authors**: James S. Santangelo, Ken A. Thompson, Beata Cohan, Jibran Syed, Rob W. Ness, and Marc T. J. Johnson
+This project has been accepted at Evolution Letters
 
-This repository contains code, data and results from a manuscript looking at the environmental predictors of repeated urban-rural clines in a Mendelian polymorphism: the production of cyanogenic plant defenses in white clover (*Trifolium repens*).
+Code and data for this project are additionally available on [Dryad](https://datadryad.org/stash/dataset/doi:10.5061/dryad.4j0zpc87k)
 
-#### Abstract
+### Abstract
 
-Cities are emerging as models for addressing the fundamental question of whether
-populations evolve in parallel to similar environments. Here, we examine the
-environmental factors that drive the evolution of parallel urban-rural clines in
-a Mendelian trait—the cyanogenic antiherbivore defense of white clover
-(*Trifolium repens*). Previous work suggested urban-rural gradients in frost and
-snow depth could drive the evolution of reduced hydrogen cyanide (HCN)
-frequencies in urban populations. Here, we sampled over 700 urban and rural
-clover populations across 16 cities along a latitudinal transect in eastern
-North America. In each population, we quantified changes in the frequency of
-genotypes that produce HCN, and in a subset of the cities we estimated the
-frequency of the alleles at the two genes (*CYP79D15* and *Li*) that epistatically
-interact to produce HCN. We then tested the hypothesis that cold climatic
-conditions are necessary for the evolution of cyanogenesis clines by comparing
-the strength of clines among cities located along a latitudinal gradient of winter
-temperatures and frost exposure. Overall, half of the cities exhibited
-urban-rural clines in the frequency of HCN, whereby urban populations evolved
-lower HCN frequencies. Clines did not evolve in cities with the lowest
-temperatures and greatest snowfall, supporting the hypothesis that snow buffers
-plants against winter frost and constrains the formation of clines. By contrast,
-the strongest clines occurred in the warmest cities where snow and frost are
-rare, suggesting that alternative selective agents are maintaining clines in
-warmer cities. Some clines were driven by evolution at only *CYP79D15*, consistent
-with stronger and more consistent selection on this locus than on Li. Together,
-our results demonstrate that urban environments often select for similar
-phenotypes, but different selective agents and targets underlie the evolutionary
-response in different cities.
+Cities are emerging as models for addressing the fundamental question of
+whether populations evolve in parallel to similar environments. Here, we
+examine the environmental factors that drive the evolution of parallel
+urban-rural clines in a Mendelian trait—the cyanogenic antiherbivore defense
+of white clover (*Trifolium repens*). Previous work suggested urban-rural
+gradients in frost and snow depth could drive the evolution of reduced
+hydrogen cyanide (HCN) frequencies in urban populations. Here, we sampled over
+700 urban and rural clover populations across 16 cities along a latitudinal
+transect in eastern North America. In each population, we quantified changes
+in the frequency of genotypes that produce HCN, and in a subset of the cities
+we estimated the frequency of the alleles at the two genes (*CYP79D15* and *Li*
+) that epistatically interact to produce HCN. We then tested the hypothesis
+that cold climatic conditions are necessary for the evolution of cyanogenesis
+clines by comparing the strength of clines among cities located along a
+latitudinal gradient of winter temperatures and frost exposure. Overall, half
+of the cities exhibited urban-rural clines in the frequency of HCN, whereby
+urban populations evolved lower HCN frequencies. Clines did not evolve in
+cities with the lowest temperatures and greatest snowfall, supporting the
+hypothesis that snow buffers plants against winter frost and constrains the
+formation of clines. By contrast, the strongest clines occurred in the warmest
+cities where snow and frost are rare, suggesting that alternative selective
+agents are maintaining clines in warmer cities. Some clines were driven by
+evolution at only *CYP79D15*, consistent with stronger and more consistent
+selection on this locus than on Li. Together, our results demonstrate that
+urban environments often select for similar phenotypes, but different
+selective agents and targets underlie the evolutionary response in different
+cities.
 
 ### Using the code in this repository
 
 To use the code in this repository to reproduce the manuscript's results, please
-follow the following steps: 
+follow the following steps:
 
 1. `git clone` this repository or download it as a
-zip folder 
+zip folder
 2. Open `Rstudio`, go to `file > Open project` and open the
-`UAC.Rproj` Rproject associated with this repository 
+`UAC.Rproj` Rproject associated with this repository
 3. Once open, type `packrat::restore()` in the **R console** to download the
 packages required to perform the analyses. If packrat doesn't work (it's a
 little finicky), manually download the packages listed at the top of
