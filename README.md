@@ -1,9 +1,8 @@
-##### Project: Urban Adaptive Clines (UAC)
-##### Manuscript: Predicting the strength of urban-rural clines in a Mendelian polymorphism along a latitudinal gradient
-##### Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan, Jibran Syed, Rob W. Ness, and Marc T. J. Johnson
+## Project: Urban Adaptive Clines (UAC)
+### Manuscript: Predicting the strength of urban-rural clines in a Mendelian polymorphism along a latitudinal gradient
+#### Authors: James S. Santangelo, Ken A. Thompson, Beata Cohan, Jibran Syed, Rob W. Ness, and Marc T. J. Johnson
 
-This project has been accepted at Evolution Letters
-
+This project has been accepted at [Evolution Letters](https://onlinelibrary.wiley.com/doi/10.1002/evl3.163) <br>
 Code and data for this project are additionally available on [Dryad](https://datadryad.org/stash/dataset/doi:10.5061/dryad.4j0zpc87k)
 
 ### Abstract
